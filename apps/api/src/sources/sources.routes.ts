@@ -11,6 +11,7 @@ import {
   patchSource,
   postClearData,
   postClearListingCache,
+  postClearSourceCache,
   postCrawl,
   postCrawlAll,
   postCrawlStop,
@@ -30,6 +31,7 @@ sourcesRouter.get("/:id/run", getRun);
 sourcesRouter.post("/:id/crawl", postCrawl);
 sourcesRouter.post("/:id/crawl/stop", postCrawlStop);
 sourcesRouter.post("/:id/clear-data", postClearData);
+sourcesRouter.post("/:id/clear-cache", postClearSourceCache);
 sourcesRouter.post("/:id/listings/:listingId/crawl", postListingCrawl);
 sourcesRouter.post("/:id/listings/:listingId/crawl/stop", postListingCrawlStop);
 sourcesRouter.get("/:id/listings/:listingId/run", getListingRunHandler);

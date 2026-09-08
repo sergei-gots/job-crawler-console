@@ -3,6 +3,7 @@ import { handleError } from "../utils/errors.js";
 import { updateListingActiveSchema, updateSourceSettingsSchema } from "./sources.schemas.js";
 import {
   clearListingCache,
+  clearSourceCache,
   clearSourceData,
   getListingRun,
   getListingVacancies,
@@ -147,6 +148,21 @@ export async function postClearData(req: Request, res: Response): Promise<void> 
 
   try {
     await clearSourceData(id);
+    res.status(204).send();
+  } catch (error) {
+    handleError(res, error, "sources");
+  }
+}
+
+export async function postClearSourceCache(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ error: "Invalid source id" });
+    return;
+  }
+
+  try {
+    await clearSourceCache(id);
     res.status(204).send();
   } catch (error) {
     handleError(res, error, "sources");

@@ -16,7 +16,7 @@ import {
   stopCrawlRun,
   waitUntilNotCrawling,
 } from "../crawler/crawlRunner.js";
-import { deleteCachedPage } from "../crawler/pageCache.js";
+import { deleteCachedPage, clearSourceCache as clearSourceCacheEntries } from "../crawler/pageCache.js";
 
 // Generic fallback for a source with no implemented CrawlStrategy yet (currently only
 // Craigslist) - deliberately NOT source-specific research content (e.g. Craigslist's actual
@@ -148,6 +148,19 @@ export async function clearListingCache(sourceId: number, listingId: number): Pr
   const listingUrl = new URL(listing.subPath, source.baseUrl).toString();
   const urls = [listingUrl, ...vacancies.map((vacancy) => vacancy.url)];
   await Promise.all(urls.map((url) => deleteCachedPage(sourceId, url)));
+}
+
+/**
+ * Evicts every cached page for this source in one call, regardless of which listing (if any)
+ * fetched it - unlike `clearListingCache`, no per-listing URL reconstruction is needed, since the
+ * cache key already scopes on `sourceId` alone (see `clearSourceCache` in pageCache.ts). Covers
+ * sources with zero listings (habr_career, remoteok) and sources with several (craigslist,
+ * weworkremotely) uniformly. Narrower than the global "Clear cache" admin action - other sources'
+ * cache and the rate-limiter's `rate:source:{sourceId}` state are left untouched.
+ */
+export async function clearSourceCache(sourceId: number): Promise<void> {
+  await getSourceById(sourceId);
+  await clearSourceCacheEntries(sourceId);
 }
 
 /**
