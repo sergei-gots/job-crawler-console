@@ -1,0 +1,294 @@
+<!doctype html>
+<html data-theme="dark">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Video Slides (Dark)</title>
+<style>
+  :root[data-theme="dark"] {
+    --paper: #0f1615;
+    --paper-raised: #16201f;
+    --ink: #e9f2f0;
+    --ink-soft: #a9bdb8;
+    --ink-faint: #74857f;
+    --accent: #3fd4c4;
+    --accent-deep: #7ff0e2;
+    --accent-soft: #16302d;
+    --line: #29403c;
+    --code-bg: #08100f;
+    --code-text: #a9f3e0;
+    --code-dim: #4f7a70;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Each beat is its own full-viewport section, separated by a visible gap band so
+     consecutive slides never touch while scrolling the browser during recording. */
+  .deck {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8vh 8vw;
+  }
+
+  .gap {
+    height: 14vh;
+    background: repeating-linear-gradient(
+      135deg,
+      var(--paper) 0px,
+      var(--paper) 18px,
+      var(--paper-raised) 18px,
+      var(--paper-raised) 19px
+    );
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gap .marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    opacity: 0.6;
+  }
+
+  .slide-inner {
+    max-width: 980px;
+    width: 100%;
+  }
+
+  .beat-label {
+    font-size: 14px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 10px;
+  }
+
+  h1.headline {
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0 0 28px;
+    letter-spacing: -0.01em;
+  }
+
+  h1.headline .accent { color: var(--accent); }
+
+  ul.points {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ul.points li {
+    font-size: clamp(18px, 2.1vw, 24px);
+    line-height: 1.4;
+    color: var(--ink-soft);
+    padding-left: 26px;
+    position: relative;
+  }
+
+  ul.points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  ul.points li strong { color: var(--ink); font-weight: 650; }
+  ul.points li code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* Live-recording aid: clicking a linked term jumps straight to that exact GitHub source
+     line in the same tab/window; browser "Back" returns to this scroll position. */
+  a.src-link { color: inherit; text-decoration: none; border-bottom: 1px dashed var(--accent); }
+  a.src-link:hover { color: var(--accent); border-bottom-style: solid; }
+  h1.headline a.src-link code { color: inherit; }
+
+  .sources-grid {
+    margin-top: 34px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .source-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .source-card .name {
+    font-weight: 650;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .source-card .detail {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  .end-marker {
+    padding: 10vh 8vw;
+    text-align: center;
+    color: var(--ink-faint);
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- 1 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">Why</p>
+      <h1 class="headline">Every product that lives on <span class="accent">external data</span>
+        fights the same battle</h1>
+      <ul class="points">
+        <li>Sites actively <strong>block scrapers</strong></li>
+        <li>Every source has its own <strong>structure</strong> and its own <strong>protections</strong></li>
+        <li>Most teams <strong>rewrite the pipeline</strong> for every new site — expensive, fragile</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="gap"><span class="marker"></span></div>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">What</p>
+      <h1 class="headline">A <span class="accent">production-style</span> data ingestion pipeline</h1>
+      <ul class="points">
+        <li>Messy, protected external sources &rarr; clean, searchable, deduplicated data</li>
+        <li><strong>4 real sources.</strong> <strong>4 different problems.</strong> <strong>1 interface.</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="gap"><span class="marker"></span></div>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">Input</p>
+      <h1 class="headline">Input is <span class="accent">deliberately hostile</span></h1>
+      <ul class="points">
+        <li>Plain HTML &middot; RSS feeds &middot; JS-rendered pages &middot; Cloudflare &middot; browser fingerprinting</li>
+      </ul>
+      <div class="sources-grid">
+        <div class="source-card">
+          <div class="name">RemoteOK</div>
+          <div class="detail">Cloudflare — a normal request gets <code>403</code></div>
+        </div>
+        <div class="source-card">
+          <div class="name">Habr Career</div>
+          <div class="detail">Server-rendered, extra JSON-LD calls per vacancy</div>
+        </div>
+        <div class="source-card">
+          <div class="name">WeWorkRemotely</div>
+          <div class="detail">Fingerprints the browser after the first hop</div>
+        </div>
+        <div class="source-card">
+          <div class="name">Craigslist</div>
+          <div class="detail">Generic classifieds — filtered by category, fanned out by city</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gap"><span class="marker"></span></div>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">Stack &amp; Processing</p>
+      <h1 class="headline">One <span class="accent"><a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/types.ts#L51" target="_blank" rel="noopener noreferrer"><code style="font-size:0.85em">CrawlStrategy</code></a></span> interface, two fetch strategies</h1>
+      <ul class="points">
+        <li><strong>Modeling a real production data-ingestion approach</strong> — not a toy script</li>
+        <li><code>Axios + Cheerio</code> for simple cases</li>
+        <li><code>Puppeteer</code> with a real browser fingerprint when we need to look human</li>
+        <li>Every strategy maps its raw response into one shape — <a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/types.ts#L3-L17" target="_blank" rel="noopener noreferrer"><code>RawVacancy</code></a> — before anything touches the database</li>
+        <li><strong>Redis:</strong> per-source <a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/rateLimiter.ts#L24" target="_blank" rel="noopener noreferrer">rate limiting</a> with jitter + <a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/pageCache.ts#L25" target="_blank" rel="noopener noreferrer">1-hour TTL cache</a> for raw pages</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="gap"><span class="marker"></span></div>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">Index &amp; Search</p>
+      <h1 class="headline">One <a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/search/upsertVacancy.ts#L13-L57" target="_blank" rel="noopener noreferrer"><span class="accent">upsert</span></a>, always deduplicated</h1>
+      <ul class="points">
+        <li>Dedup key: <code>sourceId</code> + <code>externalId</code> — re-crawls never create duplicates</li>
+        <li>Schema is <a class="src-link" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/search/crawlerResultsIndex.ts#L21" target="_blank" rel="noopener noreferrer"><strong>versioned</strong></a> — an incompatible change rebuilds the index</li>
+        <li>Facets: specialization, seniority, remote/on-site, location, company</li>
+        <li>Full-text search + autocomplete from the second character</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="gap"><span class="marker"></span></div>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <p class="beat-label">Result</p>
+      <h1 class="headline">The <span class="accent">architecture holds</span></h1>
+      <ul class="points">
+        <li>Same interface across four completely different sources</li>
+        <li>Anti-bot protections bypassed <strong>live</strong>, not in theory</li>
+        <li>Real data in seconds</li>
+        <li>Search behaves like production</li>
+        <li><strong>Ready to extend</strong> — a new source is a new strategy, not a rewritten core</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="end-marker">— END —</div>
+
+</div>
+
+</body>
+</html>
