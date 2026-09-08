@@ -16,3 +16,12 @@ description: Use when touching apps/api/src/search (the Elasticsearch/Coveo-like
   mapping change existing docs won't satisfy. Full rebuild mechanics, and how this differs from
   the heavier admin "Clear search data" action, are in
   [`/.claude/features/03_FEATURE_CRAWL_SEARCH_SEPARATION.md`](/.claude/features/03_FEATURE_CRAWL_SEARCH_SEPARATION.md).
+- **Staleness is a read-time filter, not deletion.** `upsertVacancy` bumps `lastSeenAt` on every
+  re-crawl but never deletes docs a run didn't re-see.
+  [`queryVacancies.ts`](/apps/api/src/search/queryVacancies.ts)'s `staleCutoffIso()` filters query
+  results to `lastSeenAt >= now - MAX_VACANCY_AGE_DAYS` (env var, default 14 days) — old docs just
+  stop showing up, they aren't removed from the index. The only actual deletion path is the manual
+  "Clear data" admin action (`clearSourceData` / `deleteVacanciesForSource`), which wipes a whole
+  source at once. This is deliberate — see the "Considered and rejected: clearing a source's ES
+  data before every crawl restart" section and the "Known gap: unbounded ES index growth" note in
+  [`/.claude/features/02b_FEATURE_VACANCY_DETAIL_CRAWL.md`](/.claude/features/02b_FEATURE_VACANCY_DETAIL_CRAWL.md).

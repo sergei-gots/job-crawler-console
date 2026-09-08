@@ -48,3 +48,22 @@ export async function getOrFetch(
 export async function deleteCachedPage(sourceId: number, pageUrl: string): Promise<void> {
   await redis.del(cacheKeyFor(sourceId, pageUrl));
 }
+
+/**
+ * Deletes every cached page for a source, regardless of which listing (if any) fetched it -
+ * unlike `clearListingCache`, this doesn't need to reconstruct a URL set from Elasticsearch,
+ * since `page:raw:${sourceId}:*` already scopes the whole source in the key itself. Narrower
+ * than the global "Clear cache" admin action (`redis.flushdb`): leaves other sources' cache and
+ * the rate limiter's `rate:source:*` state untouched.
+ */
+export async function clearSourceCache(sourceId: number): Promise<void> {
+  const pattern = `page:raw:${sourceId}:*`;
+  let cursor = "0";
+  do {
+    const [nextCursor, keys] = await redis.scan(cursor, "MATCH", pattern, "COUNT", 100);
+    cursor = nextCursor;
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  } while (cursor !== "0");
+}

@@ -104,6 +104,22 @@ source's existing ES data first?"**) — considered and rejected, not implemente
 - **Decision: no change** — a crawl restart stays a pure upsert against the existing corpus, as
   it is today.
 
+### Known gap: unbounded ES index growth (not addressed)
+
+The 14-day `MAX_VACANCY_AGE_DAYS` filter (above) only hides stale docs from query results — it
+never deletes them. Combined with "no change" above, `CrawlerResultDoc`s accumulate in
+Elasticsearch forever; the only actual deletion path is the manual "Clear data" admin action
+(`clearSourceData`), which wipes an entire source at once. There is currently no scheduled job
+that prunes documents that have aged well past the visibility window.
+
+If this becomes a real problem (index size, not just result freshness), the fix should be a
+**separate, much longer-horizon cron** (e.g. daily, deleting docs with `lastSeenAt` older than
+~60-90 days) — deliberately *not* tied to the 14-day `MAX_VACANCY_AGE_DAYS` visibility window,
+for the same pagination-budget reason argued above: a vacancy can miss one run's page budget and
+still be alive, so any physical-deletion threshold needs much more slack than the
+"hide from search" threshold. Not implemented for this MVP — noted here so it isn't
+re-discovered/re-litigated from scratch later.
+
 ## Naming note
 
 Earlier drafted as "Vacancy Detail *Enrichment*" — renamed to **"Vacancy Detail *Crawl*"** to

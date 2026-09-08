@@ -1,0 +1,9 @@
+Create a clean, professional 2.5-minute technical explainer video in a dark minimal style.
+
+Narrate the following script exactly.
+
+Use simple diagrams, icons, and abstract data-pipeline visuals.
+
+Avoid stock footage of people and offices.
+
+Keep the pacing calm and clear — suitable for a software architecture demo.

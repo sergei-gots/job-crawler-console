@@ -173,6 +173,8 @@
   }
   .stage .num { font-family: ui-monospace, monospace; font-size: 11px; color: var(--accent-deep); }
   .stage .name { font-weight: 650; font-size: 15.5px; }
+  .stage a.name { color: inherit; text-decoration: none; }
+  .stage a.name:hover { text-decoration: underline; color: var(--accent-deep); }
   .stage .detail { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
   .stage.emphasis { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
   .arrow { flex: 0 0 30px; display: flex; align-items: center; justify-content: center; color: var(--ink-faint); font-family: ui-monospace, monospace; font-size: 16px; }
@@ -316,12 +318,12 @@
         </div>
         <div class="arrow">&rarr;</div>
         <div class="stage">
-          <span class="num">03</span><span class="name">RawVacancy</span>
+          <span class="num">03</span><a class="name" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/types.ts#L3-L17" target="_blank" rel="noopener noreferrer">RawVacancy</a>
           <span class="detail">The common internal shape &mdash; title, company, description, location&hellip;</span>
         </div>
         <div class="arrow">&rarr;</div>
         <div class="stage emphasis">
-          <span class="num">04</span><span class="name">Upsert</span>
+          <span class="num">04</span><a class="name" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/search/upsertVacancy.ts#L13-L57" target="_blank" rel="noopener noreferrer">Upsert</a>
           <span class="detail">Dedup by source+id. Applies Elasticsearch's own <strong>index mapping</strong>.</span>
         </div>
         <div class="arrow">&rarr;</div>

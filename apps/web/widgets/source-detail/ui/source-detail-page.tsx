@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { clearSourceData } from "@/features/admin-actions";
+import { clearSourceCache, clearSourceData } from "@/features/admin-actions";
 import {
   updateListingActive,
   updateSourceDelayMs,
@@ -54,6 +54,7 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
   const [vacancies, setVacancies] = useState<Vacancy[] | null>(null);
   const [vacanciesPage, setVacanciesPage] = useState(1);
   const [clearDataPending, setClearDataPending] = useState(false);
+  const [clearCachePending, setClearCachePending] = useState(false);
   const [expandedRawVacancyIds, setExpandedRawVacancyIds] = useState<Set<string>>(new Set());
   const [maxVacanciesInput, setMaxVacanciesInput] = useState("");
   const [maxVacanciesError, setMaxVacanciesError] = useState<string | null>(null);
@@ -332,6 +333,29 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
     }
   }
 
+  async function handleClearCache() {
+    if (!token) return;
+    if (
+      !window.confirm(
+        `Clear all cached pages for "${source?.name ?? "this source"}" (its listing page(s) plus every known vacancy detail page)? The next crawl will re-fetch from scratch instead of reusing cached pages.`,
+      )
+    ) {
+      return;
+    }
+    setClearCachePending(true);
+    try {
+      await clearSourceCache(sourceId, token);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      setLoadError("Failed to clear cache");
+    } finally {
+      setClearCachePending(false);
+    }
+  }
+
   async function handleSaveMaxVacancies() {
     if (!token) return;
     const parsed = Number(maxVacanciesInput);
@@ -529,7 +553,7 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                               variant="secondary"
                               size="sm"
                               className="w-20 justify-self-end"
-                              disabled={listingPendingIds.has(listing.id) || clearDataPending}
+                              disabled={listingPendingIds.has(listing.id) || clearDataPending || clearCachePending}
                               onClick={() => handleStopListing(listing.id)}
                             >
                               Stop
@@ -542,7 +566,8 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                               disabled={
                                 !listing.isActive ||
                                 listingPendingIds.has(listing.id) ||
-                                clearDataPending
+                                clearDataPending ||
+                                clearCachePending
                               }
                               onClick={() => handleStartListing(listing.id)}
                             >
@@ -555,23 +580,35 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="w-fit text-destructive"
-                    title="Clear ES Data"
-                    disabled={clearDataPending}
-                    onClick={handleClearData}
-                  >
-                    Clear data
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-fit text-destructive"
+                      title="Clear ES Data"
+                      disabled={clearDataPending || clearCachePending}
+                      onClick={handleClearData}
+                    >
+                      Clear data
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-fit text-destructive"
+                      title="Clear this source's page cache"
+                      disabled={clearDataPending || clearCachePending}
+                      onClick={handleClearCache}
+                    >
+                      Clear cache
+                    </Button>
+                  </div>
                   {hasListings ? (
                     aggregateListingStatus(source.listings, listingRuns) === "RUNNING" ? (
                       <Button
                         variant="secondary"
                         size="sm"
                         className="w-fit"
-                        disabled={bulkPending || clearDataPending}
+                        disabled={bulkPending || clearDataPending || clearCachePending}
                         onClick={handleStopAllListings}
                       >
                         Stop all
@@ -584,7 +621,8 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                         disabled={
                           aggregateListingStatus(source.listings, listingRuns) === "INACTIVE" ||
                           bulkPending ||
-                          clearDataPending
+                          clearDataPending ||
+                          clearCachePending
                         }
                         onClick={handleStartAllListings}
                       >
@@ -598,7 +636,7 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                       variant="secondary"
                       size="sm"
                       className="w-fit"
-                      disabled={actionPending || clearDataPending}
+                      disabled={actionPending || clearDataPending || clearCachePending}
                       onClick={() => stop(sourceSlot(sourceId))}
                     >
                       Stop
@@ -608,7 +646,7 @@ export function SourceDetailPage({ sourceId }: { sourceId: number }) {
                       variant="secondary"
                       size="sm"
                       className="w-fit"
-                      disabled={actionPending || clearDataPending}
+                      disabled={actionPending || clearDataPending || clearCachePending}
                       onClick={() => start(sourceSlot(sourceId))}
                     >
                       {run ? "Restart" : "Start"}
