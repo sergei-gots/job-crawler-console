@@ -1,18 +1,16 @@
 # Script (3:00)
 
-## [0:00–0:30] (Why)
+## [0:00–0:28] (Why)
 
 Any product that lives on external data — jobs, prices, listings — faces the same production
 problem.
 
 Sites actively block scrapers. Every source has its own structure, its own protections.
 
-Most teams end up rewriting the pipeline for every new site. That's expensive and fragile.
+I built this demo to answer one question: when you add a new source, do you rewrite the core —
+or just plug in a new module?
 
-I built this demo to answer one question: can a limited set of techniques cover arbitrary sources
-without redesigning the architecture each time?
-
-## [0:30–0:48] (What)
+## [0:28–0:41] (What)
 
 This is a production-style data ingestion pipeline.
 
@@ -21,7 +19,7 @@ data.
 
 Four real sources. Four different problems. One interface.
 
-## [0:48–1:18] (input)
+## [0:41–1:11] (input)
 
 Input is deliberately hostile:
 
@@ -39,7 +37,7 @@ WeWorkRemotely fingerprints the browser after the first hop.
 
 Craigslist is classic classifieds — we filter by category and fan out across cities.
 
-## [1:18–2:05] (Stack)
+## [1:11–2:05] (Stack)
 
 Stack is straightforward and deliberate — this is how a production ingestion service is actually
 built, not a one-off script.
