@@ -1,0 +1,366 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Objective (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --warn: #b45309;
+    --warn-soft: #fdecd2;
+    --warn-ink: #fff8ef;
+    --shadow: 0 1px 2px rgba(15, 25, 24, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace; }
+
+  /* Fixed 1280x720 canvas (matches the print-slide convention) rather than vh/vw units,
+     so the frame is identical whether opened in a browser, screen-recorded, or captured
+     for a still — no dependency on the viewport size at capture time. */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    padding: 56px 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 38px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  h1.headline {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 46px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 10px 0 0;
+  }
+  h1.headline .lead { color: var(--ink-soft); }
+  h1.headline .accent { color: var(--accent-deep); }
+  h1.headline .sep { color: var(--ink-faint); font-weight: 500; margin: 0 6px; }
+
+  /* Narration is spoken, not printed — the slide carries only a short ETL-shorthand
+     title plus the pipeline visualization; this rule marks where "title" ends and
+     "what actually happens" begins. */
+  .title-rule { height: 1px; background: var(--line); margin-top: 4px; }
+
+  /* ---------- diagram ---------- */
+
+  .diagram {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .fan-in {
+    position: relative;
+    width: 280px;
+    height: 320px;
+    flex: 0 0 auto;
+  }
+  .fan-in svg { position: absolute; inset: 0; overflow: visible; }
+  .fan-in svg path { fill: none; stroke: var(--line); stroke-width: 1.5; }
+
+  .source-node {
+    position: absolute;
+    width: 150px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 14px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    box-shadow: var(--shadow);
+  }
+  .tag-warn {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  /* Corner badges live outside the node divs (as .fan-in children, not .source-node
+     children) so n2's hexagon clip-path never crops them — a clip-path clips its own
+     children's paint too, not just the element's border box. Two independent facts get
+     two independent badge colors: js-rendered (n2) is a plain rendering fact — gray,
+     no pulse — while bot-unfriendly (n4/n5) is an actual defense mechanism — warn
+     orange, pulsing. They never share a badge or a color, since one doesn't imply the
+     other (RemoteOK/WeWorkRemotely need Puppeteer for Cloudflare/fingerprinting, not
+     because the page happens to be JS-rendered). */
+  .corner-badge {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--paper);
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+  }
+  .neutral-badge { background: var(--ink-faint); color: var(--paper); }
+  .hostile-badge { background: var(--warn); color: var(--warn-ink); animation: badge-pulse 1.8s ease-in-out infinite; }
+  .corner-badge.b2 { top: 55px;  left: 141px; }
+  .corner-badge.b4 { top: 171px; left: 141px; }
+  .corner-badge.b5 { top: 239px; left: 141px; }
+
+  .source-node.n1 { top: 6px;   height: 44px; border-radius: 8px; }
+  .source-node.n2 { top: 64px;  height: 44px; clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%); }
+  .source-node.n3 { top: 122px; height: 44px; border-radius: 999px; }
+  .source-node.n4 { top: 180px; height: 54px; border-radius: 8px; }
+  .source-node.n5 { top: 248px; height: 54px; border-radius: 4px 18px 4px 18px; }
+
+  .fan-dot { fill: var(--accent); }
+  .fan-dot.warn { fill: var(--warn); }
+
+  .arrow-track {
+    position: relative;
+    width: 34px;
+    height: 2px;
+    background: var(--line);
+    flex: 0 0 auto;
+  }
+  .arrow-track::after {
+    content: "";
+    position: absolute;
+    right: -1px; top: -3px;
+    border-left: 6px solid var(--line);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+  .flow-dot {
+    position: absolute;
+    top: -3px; left: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+    animation: sweep 10s linear infinite;
+  }
+
+  .pipeline-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1 1 0;
+  }
+
+  .stage {
+    flex: 1 1 0;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    animation: glow 10s ease-in-out infinite;
+  }
+  .stage .num { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--accent-deep); display: block; margin-bottom: 4px; }
+  .stage .name { font-weight: 650; font-size: 15px; display: block; }
+  .stage .detail { font-size: 12px; color: var(--ink-soft); line-height: 1.4; margin-top: 4px; }
+
+  .final-node {
+    flex: 0 0 auto;
+    width: 148px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    animation: glow-final 10s ease-in-out infinite;
+  }
+  .final-node .name { font-weight: 700; font-size: 14px; color: var(--accent-deep); }
+  .dot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 6px);
+    grid-auto-rows: 6px;
+    gap: 3px;
+    justify-content: center;
+    margin: 8px 0 0;
+  }
+  .dot-grid span { background: var(--accent); border-radius: 1px; opacity: 0.85; }
+
+  /* Timeline (one shared 10s loop, matching the ~10s narration length): fan-in dots travel 0-30%, then each pipeline stage
+     lights up in sequence via animation-delay, so the flow always reads left-to-right
+     before the whole thing resets and repeats. */
+  @keyframes sweep {
+    0%   { opacity: 0; transform: translateX(0); }
+    4%   { opacity: 1; }
+    15%  { opacity: 1; transform: translateX(26px); }
+    20%  { opacity: 0; transform: translateX(26px); }
+    100% { opacity: 0; }
+  }
+  @keyframes glow {
+    0%   { box-shadow: var(--shadow); border-color: var(--line); }
+    4%   { box-shadow: 0 0 0 6px var(--accent-soft); border-color: var(--accent); }
+    22%  { box-shadow: 0 0 0 6px var(--accent-soft); border-color: var(--accent); }
+    30%  { box-shadow: var(--shadow); border-color: var(--line); }
+    100% { box-shadow: var(--shadow); border-color: var(--line); }
+  }
+  @keyframes glow-final {
+    0%   { box-shadow: var(--shadow); border-color: var(--line); background: var(--paper-raised); }
+    4%   { box-shadow: 0 0 0 8px var(--accent-soft); border-color: var(--accent); background: var(--accent-soft); }
+    92%  { box-shadow: 0 0 0 8px var(--accent-soft); border-color: var(--accent); background: var(--accent-soft); }
+    100% { box-shadow: var(--shadow); border-color: var(--line); background: var(--paper-raised); }
+  }
+  @keyframes badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+  }
+
+  .arrow-track.a1 .flow-dot { animation-delay: 2.875s; }
+  .stage.s1 { animation-delay: 3s; }
+  .arrow-track.a2 .flow-dot { animation-delay: 4.125s; }
+  .stage.s2 { animation-delay: 4.25s; }
+  .arrow-track.a3 .flow-dot { animation-delay: 5.375s; }
+  .stage.s3 { animation-delay: 5.5s; }
+  .arrow-track.a4 .flow-dot { animation-delay: 6.625s; }
+  .final-node { animation-delay: 6.75s; }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <p class="eyebrow">Objective:</p>
+  <h1 class="headline"><span class="lead">ETL Mapping:</span> <span class="accent">Extract</span><span class="sep">&rarr;</span><span class="accent">Transform</span><span class="sep">&rarr;</span><span class="accent">Load</span></h1>
+  <div class="title-rule"></div>
+
+  <div class="diagram">
+    <div class="fan-in">
+      <svg viewBox="0 0 280 320">
+        <path id="p1" d="M150,28 C210,28 210,160 270,160" />
+        <path id="p2" d="M150,86 C210,86 210,160 270,160" />
+        <path id="p3" d="M150,144 C210,144 210,160 270,160" />
+        <path id="p4" d="M150,207 C210,207 210,160 270,160" />
+        <path id="p5" d="M150,275 C210,275 210,160 270,160" />
+
+        <circle class="fan-dot" r="4">
+          <animateMotion dur="10s" repeatCount="indefinite" begin="0s"
+            keyPoints="0;1;1" keyTimes="0;0.3;1" calcMode="linear">
+            <mpath href="#p1"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="10s" repeatCount="indefinite" begin="0s"
+            keyTimes="0;0.03;0.27;0.32;1" values="0;1;1;0;0" />
+        </circle>
+        <circle class="fan-dot" r="4">
+          <animateMotion dur="10s" repeatCount="indefinite" begin="0.5s"
+            keyPoints="0;1;1" keyTimes="0;0.3;1" calcMode="linear">
+            <mpath href="#p2"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="10s" repeatCount="indefinite" begin="0.5s"
+            keyTimes="0;0.03;0.27;0.32;1" values="0;1;1;0;0" />
+        </circle>
+        <circle class="fan-dot" r="4">
+          <animateMotion dur="10s" repeatCount="indefinite" begin="1s"
+            keyPoints="0;1;1" keyTimes="0;0.3;1" calcMode="linear">
+            <mpath href="#p3"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="10s" repeatCount="indefinite" begin="1s"
+            keyTimes="0;0.03;0.27;0.32;1" values="0;1;1;0;0" />
+        </circle>
+        <circle class="fan-dot warn" r="4">
+          <animateMotion dur="10s" repeatCount="indefinite" begin="1.5s"
+            keyPoints="0;1;1" keyTimes="0;0.3;1" calcMode="linear">
+            <mpath href="#p4"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="10s" repeatCount="indefinite" begin="1.5s"
+            keyTimes="0;0.03;0.27;0.32;1" values="0;1;1;0;0" />
+        </circle>
+        <circle class="fan-dot warn" r="4">
+          <animateMotion dur="10s" repeatCount="indefinite" begin="2s"
+            keyPoints="0;1;1" keyTimes="0;0.3;1" calcMode="linear">
+            <mpath href="#p5"/>
+          </animateMotion>
+          <animate attributeName="opacity" dur="10s" repeatCount="indefinite" begin="2s"
+            keyTimes="0;0.03;0.27;0.32;1" values="0;1;1;0;0" />
+        </circle>
+      </svg>
+
+      <div class="source-node n1"><span class="name">Static HTML</span></div>
+      <div class="source-node n2"><span class="name">JS-rendered</span></div>
+      <div class="source-node n3"><span class="name">RSS feed</span></div>
+      <div class="source-node n4"><span class="name">Cloudflare</span><span class="tag-warn">bot-unfriendly</span></div>
+      <div class="source-node n5"><span class="name">Fingerprint check</span><span class="tag-warn">bot-unfriendly</span></div>
+      <div class="corner-badge neutral-badge b2">!</div>
+      <div class="corner-badge hostile-badge b4">!</div>
+      <div class="corner-badge hostile-badge b5">!</div>
+    </div>
+
+    <div class="arrow-track a1"><span class="flow-dot"></span></div>
+
+    <div class="pipeline-row">
+      <div class="stage s1">
+        <span class="num">01</span><span class="name">Extract</span>
+        <span class="detail">Scrape open sites and bot-defended ones alike</span>
+      </div>
+      <div class="arrow-track a2"><span class="flow-dot"></span></div>
+      <div class="stage s2">
+        <span class="num">02</span><span class="name">Transform</span>
+        <span class="detail">Normalize every field into one shape</span>
+      </div>
+      <div class="arrow-track a3"><span class="flow-dot"></span></div>
+      <div class="stage s3">
+        <span class="num">03</span><span class="name">Load</span>
+        <span class="detail">Index &amp; upsert &mdash; dedup, versioned</span>
+      </div>
+      <div class="arrow-track a4"><span class="flow-dot"></span></div>
+    </div>
+
+    <div class="final-node">
+      <div class="name">Unified index</div>
+      <div class="dot-grid"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

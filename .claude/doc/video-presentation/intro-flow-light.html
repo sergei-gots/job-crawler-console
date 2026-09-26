@@ -1,0 +1,315 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Intro (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --sun: #f4a93c;
+    --sun-bright: #ffd479;
+    --sun-glow: rgba(244, 169, 60, 0.35);
+    --shadow: 0 1px 2px rgba(15, 25, 24, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Fixed 1280x720 canvas (matches the print-slide convention) rather than vh/vw units,
+     so the frame is identical whether opened in a browser, screen-recorded, or captured
+     for a still — no dependency on the viewport size at capture time. */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    padding: 48px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  /* Title card, static for the whole 14s loop — matches the wording of the deck's own
+     opening slide (job-crawler-demo-slides-light.html, slide 1) so this video's opening
+     beat and the printed deck introduce the project the same way. */
+  h1.intro-title {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+    margin: 14px 0 0;
+    text-align: center;
+  }
+  h1.intro-title .intro-subtitle {
+    display: block;
+    font-weight: 650;
+  }
+  p.intro-lede {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    max-width: 74ch;
+    margin: 10px auto 0;
+    text-align: center;
+  }
+  p.intro-lede strong { color: var(--ink); font-weight: 600; }
+
+  /* Narration is spoken, not printed — see the video-presentation skill. "Good day..." plus the
+     full sentence about the pipeline stays entirely in the audio; the slide is graphic,
+     not a transcript. The sun clearing the clouds is the only "sentence" on screen: mess
+     (clouds) resolves into one clear, glowing thing (the index) — no domain named yet. */
+  .stage {
+    position: relative;
+    flex: 1;
+  }
+
+  .sun {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 170px; height: 170px;
+    margin: -85px 0 0 -85px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 32%, var(--sun-bright), var(--sun) 72%);
+    animation: sun-pulse 14s ease-in-out infinite;
+  }
+
+  /* --s scales the whole cloud (body + bumps + label) uniformly so c1/c2/c3 can be three
+     different sizes — "Source" labels below inherit font-size from the same variable, so a
+     bigger cloud always carries a bigger label without three separate label rules. Base size
+     (240x160 at --s:1) plus the tightened offsets in cloud-a/b/c below are sized so the three
+     clouds' union fully occludes the 170px sun at 0%, not just overlaps it. */
+  .cloud {
+    --s: 1;
+    position: absolute;
+    top: 50%; left: 50%;
+    width: calc(240px * var(--s)); height: calc(196px * var(--s));
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 50% 50% 45% 45% / 60% 60% 42% 42%;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cloud::before, .cloud::after {
+    content: "";
+    position: absolute;
+    background: inherit;
+    border: inherit;
+    border-radius: 50%;
+  }
+  .cloud::before { width: calc(106px * var(--s)); height: calc(106px * var(--s)); top: calc(-48px * var(--s)); left: calc(24px * var(--s)); }
+  .cloud::after  { width: calc(86px * var(--s)); height: calc(86px * var(--s)); top: calc(-34px * var(--s)); right: calc(22px * var(--s)); }
+
+  .cloud-label {
+    position: relative;
+    font-family: ui-monospace, monospace;
+    font-size: calc(13px * var(--s));
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .cloud.c1 { --s: 1;    animation: cloud-a 14s ease-in-out infinite; }
+  .cloud.c2 { --s: 0.86; animation: cloud-b 14s ease-in-out infinite; }
+  .cloud.c3 { --s: 0.74; animation: cloud-c 14s ease-in-out infinite; }
+
+  /* --s scales rectangle + label together, same pattern as .cloud — each of the four
+     converging shapes is a plain rectangle whose size stands for that source's data volume,
+     labeled "Data" rather than the earlier unlabeled abstract shapes (rect/hex/pill/diamond). */
+  .source-icon {
+    --s: 1;
+    position: absolute;
+    top: 50%; left: 50%;
+    width: calc(52px * var(--s)); height: calc(34px * var(--s));
+    border-radius: calc(4px * var(--s));
+    background: var(--paper-raised);
+    border: 1.5px solid var(--line);
+    box-shadow: var(--shadow);
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .data-label {
+    font-family: ui-monospace, monospace;
+    font-size: calc(9px * var(--s));
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .icon-tl { --s: 1.2; animation: converge-tl 14s ease-in-out infinite; }
+  .icon-tr { --s: 1.2; animation: converge-tr 14s ease-in-out infinite; }
+  .icon-bl { --s: 1.2; animation: converge-bl 14s ease-in-out infinite; }
+  .icon-br { --s: 1.2; animation: converge-br 14s ease-in-out infinite; }
+
+  .caption {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, 108px);
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    animation: caption-fade 14s ease-in-out infinite;
+  }
+  /* Second, smaller line — the one idea from the original PDF slide worth carrying over
+     that the next slide (Objective: ETL Mapping) doesn't cover: this isn't a toy demo,
+     it's shaped like a real production data-ingestion problem. Kept deliberately quieter
+     than "Unified Index" so it reads as a footnote, not a second headline. */
+  .caption-sub {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, 134px);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    animation: caption-sub-fade 14s ease-in-out infinite;
+  }
+
+  /* Timeline: one shared 14s loop — matches this slide's actual clip length on the
+     Kdenlive timeline (not a word-count estimate; recompute the loop length whenever the
+     real edit's clip length is known, per the video-presentation skill). Cover phase stays at 6.5s
+     (clouds start parting 1.5s later, per earlier request). Everything after that is now
+     paced slower and spread out so the main action (icons merged, sun at full glow, caption
+     up) is settled by ~13s, leaving only the final ~1s (93-100%) for the glow/caption decay
+     that resets the loop — not compressed into a rushed tail like the previous timing.
+     0-46%  clouds fully cover the sun until 6.5s in ("Good day" is spoken here)
+     46-62% clouds drift apart and fade, sun revealed and brightens
+     50-90% four source shapes fade in, staggered, and converge into the sun by ~12.6s
+     88-93% sun holds at full glow, "unified index" caption visible — settled by ~13s
+     93-100% everything decays back to the start state in the final second, loop resets */
+  @keyframes sun-pulse {
+    0%, 46%  { box-shadow: 0 0 24px 4px var(--sun-glow); }
+    60%      { box-shadow: 0 0 60px 14px var(--sun-glow); }
+    78%      { box-shadow: 0 0 90px 22px var(--sun-glow); }
+    88%      { box-shadow: 0 0 70px 16px var(--sun-glow); }
+    93%      { box-shadow: 0 0 55px 12px var(--sun-glow); }
+    100%     { box-shadow: 0 0 24px 4px var(--sun-glow); }
+  }
+  @keyframes cloud-a {
+    0%, 46%  { opacity: 1; transform: translate(-50%, -50%) translate(0, 0); }
+    62%      { opacity: 0; transform: translate(-50%, -50%) translate(-30px, -70px); }
+    100%     { opacity: 0; }
+  }
+  @keyframes cloud-b {
+    0%, 46%  { opacity: 1; transform: translate(-50%, -50%) translate(-46px, 6px); }
+    62%      { opacity: 0; transform: translate(-50%, -50%) translate(-150px, 40px); }
+    100%     { opacity: 0; }
+  }
+  @keyframes cloud-c {
+    0%, 46%  { opacity: 1; transform: translate(-50%, -50%) translate(46px, 10px); }
+    62%      { opacity: 0; transform: translate(-50%, -50%) translate(150px, 50px); }
+    100%     { opacity: 0; }
+  }
+  @keyframes converge-tl {
+    0%, 50%  { opacity: 0; transform: translate(-50%, -50%) translate(-230px, -150px); }
+    55%      { opacity: 1; }
+    80%      { opacity: 1; transform: translate(-50%, -50%) translate(-18px, -12px); }
+    84%      { opacity: 0; transform: translate(-50%, -50%) translate(0, 0); }
+    100%     { opacity: 0; }
+  }
+  @keyframes converge-tr {
+    0%, 52%  { opacity: 0; transform: translate(-50%, -50%) translate(230px, -150px); }
+    58%      { opacity: 1; }
+    82%      { opacity: 1; transform: translate(-50%, -50%) translate(18px, -12px); }
+    86%      { opacity: 0; transform: translate(-50%, -50%) translate(0, 0); }
+    100%     { opacity: 0; }
+  }
+  @keyframes converge-bl {
+    0%, 55%  { opacity: 0; transform: translate(-50%, -50%) translate(-230px, 150px); }
+    60%      { opacity: 1; }
+    84%      { opacity: 1; transform: translate(-50%, -50%) translate(-18px, 12px); }
+    88%      { opacity: 0; transform: translate(-50%, -50%) translate(0, 0); }
+    100%     { opacity: 0; }
+  }
+  @keyframes converge-br {
+    0%, 58%  { opacity: 0; transform: translate(-50%, -50%) translate(230px, 150px); }
+    63%      { opacity: 1; }
+    86%      { opacity: 1; transform: translate(-50%, -50%) translate(18px, 12px); }
+    90%      { opacity: 0; transform: translate(-50%, -50%) translate(0, 0); }
+    100%     { opacity: 0; }
+  }
+  @keyframes caption-fade {
+    0%, 84%  { opacity: 0; }
+    88%      { opacity: 1; }
+    93%      { opacity: 1; }
+    100%     { opacity: 0; }
+  }
+  @keyframes caption-sub-fade {
+    0%, 88%  { opacity: 0; }
+    91%      { opacity: 1; }
+    93%      { opacity: 1; }
+    100%     { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slide">
+  <p class="eyebrow">crawler management console &middot; demo walkthrough</p>
+  <h1 class="intro-title">Crawler-Demo:<span class="intro-subtitle">a full-stack pipeline that turns four messy job sites into one searchable index</span></h1>
+  <p class="intro-lede">
+    This is a demonstration of the plumbing behind one: <strong>crawl heterogeneous,
+    sometimes-hostile sites &rarr; normalize what they give you &rarr; index it for real faceted
+    search</strong> &mdash; the same shape of problem as any production data-ingestion pipeline.
+  </p>
+
+  <div class="stage">
+    <div class="sun"></div>
+    <div class="cloud c1"><span class="cloud-label">Source</span></div>
+    <div class="cloud c2"><span class="cloud-label">Source</span></div>
+    <div class="cloud c3"><span class="cloud-label">Source</span></div>
+
+    <div class="source-icon icon-tl"><span class="data-label">Data</span></div>
+    <div class="source-icon icon-tr"><span class="data-label">Data</span></div>
+    <div class="source-icon icon-bl"><span class="data-label">Data</span></div>
+    <div class="source-icon icon-br"><span class="data-label">Data</span></div>
+
+    <p class="caption">Unified Index</p>
+    <p class="caption-sub">the shape of a production data-ingestion pipeline</p>
+  </div>
+</div>
+
+</body>
+</html>

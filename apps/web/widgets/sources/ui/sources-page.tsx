@@ -305,9 +305,19 @@ export function SourcesPage() {
     setClearSearchDataPending(true);
     try {
       await clearSearchData(token);
-      // Clearing resets every source's crawl status back to never-run (CrawlRun history is
-      // wiped along with the ES data) — refresh so the list doesn't keep showing stale badges.
-      if (sources) await loadRuns(sources.map((source) => source.id));
+      // Clearing resets every source's (and listing's) crawl status back to never-run
+      // (CrawlRun history is wiped along with the ES data) — refresh both so the list
+      // doesn't keep showing stale badges.
+      if (sources) {
+        await Promise.all([
+          loadRuns(sources.map((source) => source.id)),
+          loadListingRuns(
+            sources.flatMap((source) =>
+              source.listings.map((listing) => ({ sourceId: source.id, listingId: listing.id })),
+            ),
+          ),
+        ]);
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         handleUnauthorized();

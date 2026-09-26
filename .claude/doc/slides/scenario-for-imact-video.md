@@ -7,10 +7,8 @@ problem.
 
 Sites actively block scrapers. Every source has its own structure, its own protections.
 
-Most teams end up rewriting the pipeline for every new site. That's expensive and fragile.
-
-I built this demo to answer one question: can a limited set of techniques cover arbitrary sources
-without redesigning the architecture each time?
+I built this demo to answer one question: when you add a new source, do you rewrite the core —
+or just plug in a new module?
 
 ## [0:30–0:48] Что
 
