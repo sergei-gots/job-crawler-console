@@ -1,0 +1,116 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Wordmark (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --ink: #16211f;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Fixed 1280x720 canvas, matches this project's other video-presentation slides. */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  /* One focal object: the wordmark itself. Eyebrow + underline are part of the same
+     object (they move as one unit), not competing secondary elements. */
+  .mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    opacity: 0;
+    transform: scale(0.72);
+    animation: mark-in 3.57s cubic-bezier(.2,.9,.25,1.4) forwards;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 20px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 6px var(--accent-soft);
+  }
+
+  h1.title {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 92px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+  h1.title .accent { color: var(--accent-deep); }
+
+  .rule {
+    width: 0%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--accent);
+    animation: rule-sweep 3.57s cubic-bezier(.3,.8,.2,1) forwards;
+    animation-delay: 0.55s;
+  }
+
+  @keyframes mark-in {
+    0%   { opacity: 0;   transform: scale(0.72); }
+    18%  { opacity: 1;   transform: scale(1.09); }
+    30%  { opacity: 1;   transform: scale(1); }
+    100% { opacity: 1;   transform: scale(1); }
+  }
+
+  @keyframes rule-sweep {
+    0%   { width: 0%; }
+    35%  { width: 62%; }
+    100% { width: 62%; }
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="mark">
+      <p class="eyebrow">Crawler Management Console</p>
+      <h1 class="title">Job<span class="accent">-Crawler-</span>Demo</h1>
+      <div class="rule"></div>
+    </div>
+  </div>
+</body>
+</html>

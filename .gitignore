@@ -27,6 +27,11 @@ yarn-error.log*
 # Local-only design reference screenshots (not for version control)
 .claude/.design-samples/
 
+# Rendered video-presentation clips - large binaries, regenerated from the .html source next to
+# them via the video-presentation skill; not worth tracking in git
+.claude/doc/video-presentation/videos/
+*.mp4
+
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -1,6 +1,6 @@
-// Records a self-contained animated slide HTML file (from .claude/doc/video-presentation-slides/)
+// Records a self-contained animated slide HTML file (from .claude/doc/video-presentation/)
 // to a .webm using Puppeteer's built-in page.screencast() (shells out to ffmpeg, which must be on
-// PATH). Convert the result to .mp4 separately for Kdenlive/most editors — see the slides-pdf
+// PATH). Convert the result to .mp4 separately for Kdenlive/most editors — see the video-presentation
 // skill's "Exporting an animated slide as video" section for the ffmpeg command.
 //
 // Usage: node record-slide.js <path-to-slide.html> <output.webm> [seconds]
