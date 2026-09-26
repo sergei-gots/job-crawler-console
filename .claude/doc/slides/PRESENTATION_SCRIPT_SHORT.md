@@ -24,7 +24,8 @@
 
 **Тезис:** любой продукт, зависящий от внешних данных, сталкивается с анти-бот защитой и
 разнородной структурой каждого сайта — это классическая задача production data-ingestion; демо
-проверяет: добавляя новый источник, мы переписываем ядро — или просто подключаем новый модуль?
+проверяет, закрывает ли её ограниченный набор приёмов без переделки архитектуры под каждый
+источник.
 
 ## Act 2 — Solution (0:40–3:15)
 
@@ -97,7 +98,8 @@ Craigslist — generic classifieds, фильтр категорией + fan-out 
 Любой продукт, который зависит от внешних данных — вакансии, цены, объявления — сталкивается с
 одной и той же проблемой: сайты не хотят, чтобы их скрейпили, и у каждого своя структура. Это
 классическая задача production data-ingestion. Я сделал этот demo, чтобы проверить на практике:
-добавляя новый источник, мы переписываем ядро — или просто подключаем новый модуль?
+есть ли ограниченный набор приёмов, который закрывает произвольный сайт — без изменения
+архитектуры под каждый новый источник.
 
 Вот 4 источника. У RemoteOK — Cloudflare, обычный запрос получает 403. Запускаю прогон прямо
 сейчас — под капотом Puppeteer с реальным browser fingerprint. Статус переходит в `RUNNING`, идут
@@ -136,8 +138,9 @@ RSS вместо Puppeteer. Craigslist — generic classifieds, фильтруе
 
 Any product that depends on external data — jobs, prices, listings — hits the same problem: sites
 don't want to be scraped, and each one has its own structure. That's the classic production
-data-ingestion problem. I built this demo to answer one question: when you add a new source, do
-you rewrite the core — or just plug in a new module?
+data-ingestion problem. I built this demo to test, in practice, whether a limited set of
+techniques can cover an arbitrary site — without redesigning the architecture for every new
+source.
 
 Here are the 4 sources. RemoteOK sits behind Cloudflare — a plain request gets a 403. I'm starting
 a crawl right now — under the hood it's Puppeteer with a real browser fingerprint. Status flips to

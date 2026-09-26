@@ -1,6 +1,6 @@
 # Скрипт (3:00)
 
-## [0:00–0:28] Зачем
+## [0:00–0:30] Зачем
 
 Any product that lives on external data — jobs, prices, listings — faces the same production
 problem.
@@ -10,7 +10,7 @@ Sites actively block scrapers. Every source has its own structure, its own prote
 I built this demo to answer one question: when you add a new source, do you rewrite the core —
 or just plug in a new module?
 
-## [0:28–0:41] Что
+## [0:30–0:48] Что
 
 This is a production-style data ingestion pipeline.
 
@@ -19,7 +19,7 @@ data.
 
 Four real sources. Four different problems. One interface.
 
-## [0:41–1:11] Что на входе
+## [0:48–1:18] Что на входе
 
 Input is deliberately hostile:
 
@@ -37,7 +37,7 @@ WeWorkRemotely fingerprints the browser after the first hop.
 
 Craigslist is classic classifieds — we filter by category and fan out across cities.
 
-## [1:11–2:05] Стек и как обрабатываем
+## [1:18–2:05] Стек и как обрабатываем
 
 Stack is straightforward and deliberate — this is how a production ingestion service is actually
 built, not a one-off script.
