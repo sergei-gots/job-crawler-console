@@ -1,7 +1,7 @@
 "use client";
 
 import { useRequireAuth } from "@/entities/session";
-import { Card, CardContent, CardDescription, CardHeader } from "@/shared/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { PageTitle } from "@/shared/ui/page-title";
 
 const STACK_GROUPS = [
@@ -11,6 +11,34 @@ const STACK_GROUPS = [
   { label: "Data", items: "PostgreSQL, Elasticsearch, Redis" },
   { label: "Auth", items: "JWT" },
   { label: "AI enrichment", items: "Claude API" },
+];
+
+const PIPELINE_STAGES = [
+  {
+    emphasis: null,
+    rest: "Source",
+    detail: "A variety of job sites, each with its own shape - static HTML, Cloudflare-gated JS, RSS, JSON-LD.",
+  },
+  {
+    emphasis: "Extract",
+    rest: " (CrawlStrategy)",
+    detail: "Per-source parser reads that site's own fields.",
+  },
+  {
+    emphasis: "Transform",
+    rest: " (RawVacancy)",
+    detail: "Normalized into one common shape - title, company, description, location...",
+  },
+  {
+    emphasis: "Load",
+    rest: " (upsert)",
+    detail: "Deduped by source + external id, written into the Elasticsearch index.",
+  },
+  {
+    emphasis: null,
+    rest: "Search UI",
+    detail: "Free text, facets, autocomplete, match highlighting.",
+  },
 ];
 
 export function About() {
@@ -47,6 +75,46 @@ export function About() {
                 </li>
               ))}
             </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              Architecture: <span className="font-bold">ETL</span> pipeline
+            </CardTitle>
+            <CardDescription>
+              What actually happens when a source is crawled, end to end.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ol className="flex flex-col">
+              {PIPELINE_STAGES.map((stage, index) => (
+                <li key={stage.rest}>
+                  <div
+                    className={`flex gap-3 rounded-lg border-2 border-border p-3 ${
+                      stage.emphasis ? "bg-muted" : ""
+                    }`}
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-border text-xs font-semibold text-heading">
+                      {index + 1}
+                    </span>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {stage.emphasis && <span className="font-bold">{stage.emphasis}</span>}
+                        {stage.rest}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{stage.detail}</p>
+                    </div>
+                  </div>
+                  {index < PIPELINE_STAGES.length - 1 && (
+                    <div aria-hidden className="flex justify-center py-1 text-muted-foreground">
+                      &darr;
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
           </CardContent>
         </Card>
       </div>

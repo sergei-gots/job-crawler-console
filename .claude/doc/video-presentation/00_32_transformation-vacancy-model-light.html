@@ -1,0 +1,290 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Transformation: RawVacancy convergence (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --highlight-bg: #cfe8b0;
+    --highlight-text: #23430f;
+    --shadow: 0 10px 24px rgba(15, 25, 24, 0.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    transform: translate(-50%, 0);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    animation: heading-move 7s ease both;
+  }
+  @keyframes heading-move {
+    0%    { top: 300px; font-size: 56px; opacity: 0; }
+    5%    { top: 300px; font-size: 56px; opacity: 1; }
+    13%   { top: 300px; font-size: 56px; opacity: 1; }
+    17%   { top: 36px;  font-size: 24px; opacity: 1; }
+    100%  { top: 36px;  font-size: 24px; opacity: 1; }
+  }
+
+  .chip {
+    position: absolute;
+    width: 400px;
+    left: 50px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 10px 14px;
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  .chip .src {
+    font-family: ui-monospace, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent-deep);
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .chip .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .chip .code-line {
+    white-space: nowrap;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: -5px;
+  }
+  .chip .fn { color: var(--accent-deep); }
+  .chip .str { color: #a34d16; }
+  .chip .kw { color: #7a3ea1; }
+  .chip .dots {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+  }
+
+  @keyframes chip-in {
+    0%   { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .chip.c1 { top: 80px;  animation: chip-in 0.5s ease 1.3s both; }
+  .chip.c2 { top: 210px; animation: chip-in 0.5s ease 1.7s both; }
+  .chip.c3 { top: 340px; animation: chip-in 0.5s ease 2.1s both; }
+  .chip.c4 { top: 470px; animation: chip-in 0.5s ease 2.5s both; }
+
+  svg.arrows {
+    position: absolute;
+    inset: 0;
+  }
+  svg.arrows path {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1.5;
+  }
+  svg.arrows.f1 { animation: line-visible-1 3.15s ease 3.85s both; }
+  svg.arrows.f2 { animation: line-visible-2 3.15s ease 3.85s both; }
+  svg.arrows.f3 { animation: line-visible-3 3.15s ease 3.85s both; }
+  @keyframes line-visible-1 {
+    0%   { opacity: 0; }
+    4%   { opacity: 1; }
+    36%  { opacity: 1; }
+    40%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes line-visible-2 {
+    0%   { opacity: 0; }
+    40%  { opacity: 0; }
+    44%  { opacity: 1; }
+    68%  { opacity: 1; }
+    72%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes line-visible-3 {
+    0%   { opacity: 0; }
+    72%  { opacity: 0; }
+    76%  { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  .rawv-box {
+    position: absolute;
+    left: 500px;
+    top: 90px;
+    width: 580px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: box-in 0.5s ease 3.1s both;
+  }
+  @keyframes box-in {
+    0%   { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .rawv-box .file {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+  .rawv-box .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  .rawv-box .code-line { display: flex; gap: 4px; border-radius: 4px; padding: 1px 6px; margin-left: -6px; }
+  .kw { color: #7a3ea1; }
+  .ty { color: var(--accent-deep); }
+  .cm { color: var(--ink-faint); }
+
+  /* The active-field highlight - identical keyframes used on both the RawVacancy line AND
+     the matching line inside each of the 4 chips, so all 5 highlights move in lockstep. */
+  @keyframes line-active-1 {
+    0%   { background: transparent; }
+    4%   { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+    36%  { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+    40%  { background: transparent; color: inherit; }
+    100% { background: transparent; color: inherit; }
+  }
+  @keyframes line-active-2 {
+    0%   { background: transparent; }
+    40%  { background: transparent; }
+    44%  { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+    68%  { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+    72%  { background: transparent; color: inherit; }
+    100% { background: transparent; color: inherit; }
+  }
+  @keyframes line-active-3 {
+    0%   { background: transparent; }
+    72%  { background: transparent; }
+    76%  { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+    100% { background: var(--highlight-bg); color: var(--highlight-text); font-weight: 700; }
+  }
+  .code-line.l1, .chip .code-line.l1 { animation: line-active-1 3.15s ease 3.85s both; }
+  .code-line.l2, .chip .code-line.l2 { animation: line-active-2 3.15s ease 3.85s both; }
+  .code-line.l3, .chip .code-line.l3 { animation: line-active-3 3.15s ease 3.85s both; }
+
+  /* A cycling line is single-color throughout (active or not) - the per-token syntax colors
+     (.kw/.fn/.str/.ty) would otherwise sit unreadably on top of --highlight-bg since they don't
+     inherit the parent's animated color. */
+  .code-line.l1 *, .code-line.l2 *, .code-line.l3 *,
+  .chip .code-line.l1 *, .chip .code-line.l2 *, .chip .code-line.l3 * {
+    color: inherit;
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Transformation</div>
+
+    <div class="chip c1">
+      <p class="src">habr_career</p>
+      <div class="code-lines">
+        <div class="code-line l1">href.<span class="fn">match</span>(<span class="str">/\/vacancies\/(\d+)/</span>)</div>
+        <div class="code-line l2">el.<span class="fn">find</span>(<span class="str">".vacancy-card__title-link"</span>)</div>
+        <div class="code-line l3">el.<span class="fn">find</span>(<span class="str">".vacancy-card__company a"</span>)</div>
+      </div>
+      <p class="dots">...</p>
+    </div>
+    <div class="chip c2">
+      <p class="src">remoteok</p>
+      <div class="code-lines">
+        <div class="code-line l1">row.<span class="fn">attr</span>(<span class="str">"data-id"</span>)</div>
+        <div class="code-line l2">row.<span class="fn">find</span>(<span class="str">"h2"</span>).first().text()</div>
+        <div class="code-line l3">row.<span class="fn">attr</span>(<span class="str">"data-company"</span>)</div>
+      </div>
+      <p class="dots">...</p>
+    </div>
+    <div class="chip c3">
+      <p class="src">weworkremotely</p>
+      <div class="code-lines">
+        <div class="code-line l1">href.<span class="fn">match</span>(<span class="str">/\/remote-jobs\/([^/?#]+)/</span>)</div>
+        <div class="code-line l2">row.<span class="fn">find</span>(<span class="str">".new-listing__header__title"</span>)</div>
+        <div class="code-line l3">row.<span class="fn">find</span>(<span class="str">".new-listing__company-name"</span>)</div>
+      </div>
+      <p class="dots">...</p>
+    </div>
+    <div class="chip c4">
+      <p class="src">craigslist</p>
+      <div class="code-lines">
+        <div class="code-line l1">href.<span class="fn">match</span>(<span class="str">/\/view\/d\/[^/]+\/([^/?#]+)/</span>)</div>
+        <div class="code-line l2">row.<span class="fn">find</span>(<span class="str">"div.title"</span>)</div>
+        <div class="code-line l3"><span class="kw">null</span> <span class="str">// not on listing page</span></div>
+      </div>
+      <p class="dots">...</p>
+    </div>
+
+    <svg class="arrows f1" viewBox="0 0 1280 720" width="1280" height="720">
+      <path d="M 450,110 C 480,110 480,154 500,154"></path>
+      <path d="M 450,240 C 480,240 480,154 500,154"></path>
+      <path d="M 450,370 C 480,370 480,154 500,154"></path>
+      <path d="M 450,500 C 480,500 480,154 500,154"></path>
+    </svg>
+    <svg class="arrows f2" viewBox="0 0 1280 720" width="1280" height="720">
+      <path d="M 450,131 C 480,131 480,180 500,180"></path>
+      <path d="M 450,261 C 480,261 480,180 500,180"></path>
+      <path d="M 450,391 C 480,391 480,180 500,180"></path>
+      <path d="M 450,521 C 480,521 480,180 500,180"></path>
+    </svg>
+    <svg class="arrows f3" viewBox="0 0 1280 720" width="1280" height="720">
+      <path d="M 450,152 C 480,152 480,206 500,206"></path>
+      <path d="M 450,282 C 480,282 480,206 500,206"></path>
+      <path d="M 450,412 C 480,412 480,206 500,206"></path>
+      <path d="M 450,542 C 480,542 480,206 500,206"></path>
+    </svg>
+
+    <div class="rawv-box">
+      <p class="file">apps/api/src/crawler/types.ts</p>
+      <div class="code-lines">
+        <div class="code-line"><span class="kw">export interface</span> <span class="ty">RawVacancy</span> {</div>
+        <div class="code-line l1">&nbsp;&nbsp;externalId: <span class="ty">string</span>;</div>
+        <div class="code-line l2">&nbsp;&nbsp;title: <span class="ty">string</span>;</div>
+        <div class="code-line l3">&nbsp;&nbsp;company: <span class="ty">string</span> | <span class="kw">null</span>;</div>
+        <div class="code-line">&nbsp;&nbsp;url: <span class="ty">string</span>;</div>
+        <div class="code-line">&nbsp;&nbsp;sourceId: <span class="ty">number</span>;</div>
+        <div class="code-line"><span class="cm">&nbsp;&nbsp;...</span></div>
+        <div class="code-line">}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

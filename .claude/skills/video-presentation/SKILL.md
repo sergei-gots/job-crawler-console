@@ -14,6 +14,17 @@ focal element, and build status (`built` / `planned` / `outline`). **Read it bef
 building any beat, and update its status/file columns as beats are built, retimed, or reordered**
 — it's a living document, not a one-time plan snapshot.
 
+## File naming: `MM_SS_<slug>` prefix
+
+Every new beat's `.html` (and its rendered `.mp4` in `videos/`) is named
+`MM_SS_<descriptive-slug>-light.html`, where `MM_SS` is the beat's start timestamp in
+`subtitles.ass` — both zero-padded two digits (e.g. a beat starting at `0:09.22` is
+`00_09_...`, one starting at `1:05.62` is `01_05_...`). This makes the folder listing sort in
+narration order and makes each file's place in the timeline obvious without opening
+`storyboard.md`. Applies going forward from when this convention was adopted — the still-earlier
+retired `intro-flow-*`/`objective-flow-*` files (pre-dating the storyboard itself) keep their old
+plain names, don't rename those.
+
 ## Default to light only; dark is opt-in per slide
 
 Every piece of slide HTML in this project shares the same markup and the same design tokens
@@ -157,7 +168,7 @@ ffmpeg -y -video_size 1280x800 -f x11grab -i :0.0+<x>,<y> -t 12 \
   /tmp/<beat>.webm
 
 # 3. Same H.264 conversion as the headless pipeline
-ffmpeg -y -i /tmp/<beat>.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset veryfast -r 30 \
+ffmpeg -y -i /tmp/<beat>.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset veryfast -r 25 \
   .claude/doc/video-presentation/videos/<beat>.mp4
 ```
 
@@ -295,9 +306,12 @@ Then convert to `.mp4` (H.264) — Kdenlive accepts `.webm`/VP9 too, but `.mp4`/
 default across editors and versions — writing directly into the slide's own folder:
 
 ```bash
-ffmpeg -y -i /tmp/<slide>.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset veryfast -r 30 \
+ffmpeg -y -i /tmp/<slide>.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset veryfast -r 25 \
   .claude/doc/video-presentation/videos/<slide>.mp4
 ```
+
+`-r 25` matches this project's Kdenlive timeline framerate — keep the two in sync if the
+Kdenlive project's fps ever changes.
 
 Import the resulting `.mp4` into Kdenlive via Project Bin → Add Clip (or drag-and-drop) like any
 other video clip; it loops cleanly since the animation's own CSS/SMIL timeline already resets on a

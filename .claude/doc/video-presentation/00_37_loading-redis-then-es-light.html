@@ -1,0 +1,165 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Loading: Redis then Elasticsearch (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 28px rgba(15, 25, 24, 0.16);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    transform: translate(-50%, 0);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    animation: heading-move 6s ease both;
+  }
+  @keyframes heading-move {
+    0%   { top: 300px; font-size: 56px; opacity: 0; }
+    5%   { top: 300px; font-size: 56px; opacity: 1; }
+    13%  { top: 300px; font-size: 56px; opacity: 1; }
+    17%  { top: 36px;  font-size: 24px; opacity: 1; }
+    100% { top: 36px;  font-size: 24px; opacity: 1; }
+  }
+
+  .panel {
+    position: absolute;
+    top: 150px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+  }
+  .badge {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent-deep);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 4px 11px;
+    margin-bottom: 12px;
+  }
+  .file {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 16px;
+  }
+  .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 14.5px;
+    line-height: 1.62;
+  }
+  .code-line { display: flex; align-items: flex-start; gap: 8px; }
+  .code-line .txt { white-space: pre-wrap; word-break: break-word; flex: 1 1 auto; min-width: 0; }
+  .ln { flex: 0 0 22px; color: var(--ink-faint); user-select: none; text-align: right; }
+  .kw { color: #7a3ea1; }
+  .fn { color: var(--accent-deep); }
+  .str { color: #a34d16; }
+  .cm { color: var(--ink-faint); font-style: italic; }
+
+  /* Redis panel: starts centered/large (single focus), then slides+shrinks into the left
+     half of a split screen instead of disappearing - "and then Elasticsearch" is a
+     continuation, not a replacement, so both stay visible together for the back half. */
+  .panel.redis {
+    left: 290px;
+    width: 700px;
+    opacity: 0;
+    transform: scale(0.96);
+    animation: redis-move 6s ease both;
+  }
+  @keyframes redis-move {
+    0%   { left: 290px; width: 700px; opacity: 0;  transform: scale(0.96); }
+    18%  { left: 290px; width: 700px; opacity: 0;  transform: scale(0.96); }
+    24%  { left: 290px; width: 700px; opacity: 1;  transform: scale(1); }
+    40%  { left: 290px; width: 700px; opacity: 1;  transform: scale(1); }
+    50%  { left: 60px;  width: 560px; opacity: 1;  transform: scale(1); }
+    100%  { left: 60px;  width: 560px; opacity: 1;  transform: scale(1); }
+  }
+
+  .panel.es {
+    left: 660px;
+    width: 560px;
+    opacity: 0;
+    transform: translateX(40px);
+    animation: es-in 6s ease both;
+  }
+  @keyframes es-in {
+    0%   { opacity: 0; transform: translateX(40px); }
+    40%  { opacity: 0; transform: translateX(40px); }
+    50%  { opacity: 1; transform: translateX(0); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Loading</div>
+
+    <div class="panel redis">
+      <span class="badge">Redis · cache</span>
+      <p class="file">apps/api/src/crawler/pageCache.ts</p>
+      <div class="code-lines">
+        <div class="code-line"><span class="ln"></span><span class="txt"><span class="kw">const</span> cached = <span class="kw">await</span> redis.<span class="fn">get</span>(key);</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt"><span class="kw">if</span> (cached !== <span class="kw">null</span>) {</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt">&nbsp;&nbsp;<span class="kw">return</span> { html: cached, cacheHit: <span class="kw">true</span> };</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt">}</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt">&nbsp;</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt"><span class="kw">const</span> html = <span class="kw">await</span> fetchFn();</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt"><span class="kw">await</span> redis.<span class="fn">set</span>(key, html, <span class="str">"EX"</span>, TTL);</span></div>
+      </div>
+    </div>
+
+    <div class="panel es">
+      <span class="badge">Elasticsearch · faceted search</span>
+      <p class="file">apps/api/src/search/upsertVacancy.ts</p>
+      <div class="code-lines">
+        <div class="code-line"><span class="ln">15</span><span class="txt"><span class="kw">const</span> id = `${raw.sourceId}:${raw.externalId}`;</span></div>
+        <div class="code-line"><span class="ln"></span><span class="txt">&nbsp;</span></div>
+        <div class="code-line"><span class="ln">29</span><span class="txt"><span class="kw">await</span> esClient.<span class="fn">update</span>({</span></div>
+        <div class="code-line"><span class="ln">30</span><span class="txt">&nbsp;&nbsp;index: CRAWLER_RESULTS_INDEX,</span></div>
+        <div class="code-line"><span class="ln">31</span><span class="txt">&nbsp;&nbsp;id,</span></div>
+        <div class="code-line"><span class="ln">32</span><span class="txt">&nbsp;&nbsp;doc: { title, company, lastSeenAt: now, <span class="cm">…</span> },</span></div>
+        <div class="code-line"><span class="ln">44</span><span class="txt">&nbsp;&nbsp;upsert: { <span class="cm">…doc</span>, firstSeenAt: now },</span></div>
+        <div class="code-line"><span class="ln">54</span><span class="txt">});</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

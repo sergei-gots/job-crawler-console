@@ -1,0 +1,151 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Hypothesis: unified toolset (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 24px rgba(15, 25, 24, 0.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .chip {
+    position: absolute;
+    top: 100px;
+    width: 260px;
+    height: 74px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  @keyframes chip-fade {
+    0%   { opacity: 0; transform: translateY(-8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .chip.c1 { left: 60px;   animation: chip-fade 0.7s ease 0.3s both; }
+  .chip.c2 { left: 350px;  animation: chip-fade 0.7s ease 0.7s both; }
+  .chip.c3 { left: 640px;  animation: chip-fade 0.7s ease 1.1s both; }
+  .chip.c4 { left: 930px;  animation: chip-fade 0.7s ease 1.5s both; }
+
+  svg.arrows {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: arrows-fade 1.4s ease 2.6s both;
+  }
+  @keyframes arrows-fade {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  svg.arrows path {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1.5;
+    stroke-dasharray: 480;
+    stroke-dashoffset: 480;
+    animation: draw 1.4s ease 2.6s both;
+  }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  .toolbox {
+    position: absolute;
+    left: 390px;
+    top: 430px;
+    width: 500px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 22px 30px;
+    opacity: 0;
+    transform: scale(0.92);
+    animation: toolbox-in 0.7s cubic-bezier(.2,.85,.25,1.05) 4.2s both;
+  }
+  @keyframes toolbox-in {
+    0%   { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .toolbox .label {
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin: 0 0 12px;
+  }
+  .toolbox ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="chip c1">Habr Career</div>
+    <div class="chip c2">RemoteOK</div>
+    <div class="chip c3">WeWorkRemotely</div>
+    <div class="chip c4">Craigslist</div>
+
+    <svg class="arrows" viewBox="0 0 1280 720" width="1280" height="720">
+      <path d="M 190,174 C 300,300 400,340 590,400"></path>
+      <path d="M 480,174 C 520,300 550,340 610,400"></path>
+      <path d="M 770,174 C 730,300 700,340 670,400"></path>
+      <path d="M 1060,174 C 900,300 800,340 690,400"></path>
+    </svg>
+
+    <div class="toolbox">
+      <p class="label">one shared, limited toolkit</p>
+      <ul>
+        <li>Axios + Cheerio</li>
+        <li>Puppeteer</li>
+        <li>one CrawlStrategy interface</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

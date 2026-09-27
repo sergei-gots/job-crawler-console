@@ -1,0 +1,149 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — The Strategy pattern (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .iface-box {
+    position: absolute;
+    left: 60px;
+    top: 170px;
+    width: 560px;
+    background: var(--paper-raised);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    opacity: 0;
+    transform: scale(0.94);
+    animation: box-in 0.7s cubic-bezier(.2,.85,.25,1.05) 0.3s both;
+  }
+  @keyframes box-in {
+    0%   { opacity: 0; transform: scale(0.94); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .iface-box .file {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 16px;
+  }
+  .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 16.5px;
+    line-height: 1.7;
+  }
+  .kw { color: #7a3ea1; }
+  .ty { color: var(--accent-deep); }
+
+  .impl {
+    position: absolute;
+    left: 760px;
+    width: 460px;
+    height: 66px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20px;
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  .impl .src {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .impl .via {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  @keyframes impl-in {
+    0%   { opacity: 0; transform: translateX(-8px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .impl.i1 { top: 130px; animation: impl-in 0.5s ease 1.5s both; }
+  .impl.i2 { top: 224px; animation: impl-in 0.5s ease 1.9s both; }
+  .impl.i3 { top: 318px; animation: impl-in 0.5s ease 2.3s both; }
+  .impl.i4 { top: 412px; animation: impl-in 0.5s ease 2.7s both; }
+
+  svg.arrows {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: arrows-fade 0.8s ease 3.1s both;
+  }
+  @keyframes arrows-fade {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  svg.arrows path {
+    fill: none;
+    stroke: var(--ink-faint);
+    stroke-width: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="iface-box">
+      <p class="file">apps/api/src/crawler/types.ts</p>
+      <div class="code-lines">
+        <div><span class="kw">export interface</span> <span class="ty">CrawlStrategy</span> {</div>
+        <div>&nbsp;&nbsp;description: <span class="ty">string</span>;</div>
+        <div>&nbsp;&nbsp;steps: <span class="ty">StrategyStep</span>[];</div>
+        <div>&nbsp;&nbsp;crawl(source, listing): <span class="ty">Promise</span>&lt;<span class="ty">CrawlResult</span>&gt;;</div>
+        <div>&nbsp;&nbsp;enrichDetails?(...): <span class="ty">Promise</span>&lt;...&gt;;</div>
+        <div>}</div>
+      </div>
+    </div>
+
+    <div class="impl i1"><span class="src">habrCareerStrategy</span><span class="via">Axios + Cheerio</span></div>
+    <div class="impl i2"><span class="src">remoteOkStrategy</span><span class="via">Puppeteer</span></div>
+    <div class="impl i3"><span class="src">weWorkRemotelyStrategy</span><span class="via">Puppeteer + RSS/Axios</span></div>
+    <div class="impl i4"><span class="src">craigslistStrategy</span><span class="via">Axios + Cheerio</span></div>
+
+    <svg class="arrows" viewBox="0 0 1280 720" width="1280" height="720">
+      <path d="M 620,205 C 700,205 700,163 758,163"></path>
+      <path d="M 620,230 C 700,230 700,257 758,257"></path>
+      <path d="M 620,255 C 720,255 720,351 758,351"></path>
+      <path d="M 620,280 C 740,280 740,445 758,445"></path>
+    </svg>
+  </div>
+</body>
+</html>
