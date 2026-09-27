@@ -54,13 +54,13 @@
     inset: 0;
     overflow: hidden;
     z-index: 5;
-    animation: scroll-phase-out 0.5s ease 1.3s both;
+    animation: scroll-phase-out 0.331s ease 0.859s both;
   }
   .scroll-phase img {
     display: block;
     width: 1280px;
     height: 950px;
-    animation: scroll-down 0.8s cubic-bezier(.3,.7,.2,1) both;
+    animation: scroll-down 0.529s cubic-bezier(.3,.7,.2,1) both;
   }
   @keyframes scroll-down {
     0%   { transform: translateY(0); }
@@ -82,7 +82,7 @@
     box-shadow: var(--shadow);
     padding: 16px 22px;
     opacity: 0;
-    animation: unfold-fade 1.7s ease 6.9s both;
+    animation: unfold-fade 0.916s ease 6.329s both;
   }
   .skills-unfold .label {
     font-family: ui-monospace, monospace;
@@ -123,7 +123,7 @@
     border: 3px solid var(--accent);
     border-radius: 6px;
     box-shadow: 0 0 0 4px var(--accent-soft);
-    animation: box-move 9.43s linear 1.8s both;
+    animation: box-move 6.232s linear 1.190s both;
   }
   .hl-label {
     position: absolute;
@@ -138,9 +138,9 @@
     left: 0;
     opacity: 0;
   }
-  .hl-label.l1 { top: -46px; animation: label-fade-1 9.43s linear 1.8s both; }
-  .hl-label.l2 { top: -46px; animation: label-fade-2 9.43s linear 1.8s both; }
-  .hl-label.l3 { top: -46px; left: 470px; animation: label-fade-3 9.43s linear 1.8s both; }
+  .hl-label.l1 { top: -46px; animation: label-fade-1 6.232s linear 1.190s both; }
+  .hl-label.l2 { top: -46px; animation: label-fade-2 6.232s linear 1.190s both; }
+  .hl-label.l3 { top: -46px; left: 470px; animation: label-fade-3 6.232s linear 1.190s both; }
 
   @keyframes label-fade-1 {
     0%   { opacity: 0; transform: translateY(6px); }
@@ -177,8 +177,66 @@
     100% { left: 572.05px;  top: 5.35px;  width: 193.14px; height: 82px;  opacity: 0; }
   }
 
-  /* Code panel: slides in from the right at the C/D boundary (5.38s) and overlays the still-
-     visible (now static) row inspection underneath, per the "leave C visible, D overlays" call. */
+  /* Hostile-site insert: "...and sometimes hostile sites" — a real live curl → weworkremotely.com
+     request/response (genuine 403, cf-mitigated: challenge, captured live via x11grab at the
+     terminal's full window height so it clearly reads as a terminal, see the video-presentation
+     skill's "Live window capture" recipe). This is a pure overlay, timed entirely on its own
+     (5.0s-7.2s) inside the existing row/title/tags-highlight window — it does NOT push or alter
+     any other element's timing (skills-unfold, code-panel, flash-* all keep their original
+     delays). A dimming scrim drops behind it so the big, centered card reads as the scene's
+     accent for that moment, not a small aside. The embedded clip itself is a short, deliberate
+     edit of the live recording: command + a brief real pause, hard-cut to the (real, unedited)
+     response held on a freeze-frame — not the full multi-second network wait. */
+  .hostile-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 25, 24, 0.55);
+    opacity: 0;
+    z-index: 9;
+    animation: hostile-fade 1.8s ease 4.68s both;
+  }
+  .hostile-overlay {
+    position: absolute;
+    left: 240px;
+    top: 174px;
+    width: 800px;
+    opacity: 0;
+    z-index: 10;
+    animation: hostile-fade 1.8s ease 4.68s both;
+  }
+  @keyframes hostile-fade {
+    0%   { opacity: 0; transform: translateY(6px); }
+    14%  { opacity: 1; transform: translateY(0); }
+    86%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .hostile-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(15, 25, 24, 0.35);
+    padding: 20px 28px 28px;
+  }
+  .hostile-label {
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin: 0 0 14px;
+  }
+  .hostile-card video {
+    display: block;
+    width: 744px;
+    height: 296px;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  /* Code panel: slides in from the right once the hostile-site insert (see .hostile-overlay
+     below) has faded out, and overlays the still-visible (now static) row inspection
+     underneath, per the "leave C visible, D overlays" call. Delay pushed from the original
+     7.18s to 8.1s to make room for that insert. */
   .code-panel {
     position: absolute;
     right: 0;
@@ -188,7 +246,7 @@
     background: var(--paper-raised);
     box-shadow: -14px 0 34px rgba(15, 25, 24, 0.22);
     transform: translateX(100%);
-    animation: panel-in 0.6s cubic-bezier(.2,.85,.25,1.05) 7.18s both;
+    animation: panel-in 0.323s cubic-bezier(.2,.85,.25,1.05) 6.480s both;
     padding: 34px 30px;
   }
   .code-file {
@@ -216,10 +274,10 @@
   .str { color: #a34d16; }
   .fn { color: var(--accent-deep); }
 
-  .code-line.flash-company  { animation: line-flash 1.2s ease 8.1s both; }
-  .code-line.flash-title    { animation: line-flash 1.2s ease 9.1s both; }
-  .code-line.flash-tags     { animation: line-flash 1.2s ease 10.1s both; }
-  .code-line.flash-normalize{ animation: line-flash 1.4s ease 10.9s both; }
+  .code-line.flash-company  { animation: line-flash 0.647s ease 6.976s both; }
+  .code-line.flash-title    { animation: line-flash 0.647s ease 7.515s both; }
+  .code-line.flash-tags     { animation: line-flash 0.647s ease 8.054s both; }
+  .code-line.flash-normalize{ animation: line-flash 0.755s ease 8.485s both; }
 
   /* High-contrast flash: solid accent background + left rule + bold, not the earlier soft tint
      that read as barely-there against the white panel. */
@@ -283,6 +341,21 @@
 <div class="code-line flash-normalize"><span class="ln">102</span>  });</div>
       </div>
     </div>
+
+    <div class="hostile-scrim"></div>
+    <div class="hostile-overlay">
+      <div class="hostile-card">
+        <p class="hostile-label">live request — weworkremotely.com</p>
+        <video id="hostileVideo" src="videos/00_09b_hostile-site-403-terminal.mp4" muted playsinline></video>
+      </div>
+    </div>
   </div>
+  <script>
+    var hostileVideo = document.getElementById('hostileVideo');
+    setTimeout(function () {
+      hostileVideo.currentTime = 0;
+      hostileVideo.play();
+    }, 4930);
+  </script>
 </body>
 </html>

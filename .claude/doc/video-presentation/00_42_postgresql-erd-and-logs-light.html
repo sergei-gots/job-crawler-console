@@ -1,0 +1,196 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — PostgreSQL: ERD + live logs (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --error: #b3402a;
+    --shadow: 0 10px 28px rgba(15, 25, 24, 0.16);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 40px;
+    top: 36px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0;
+    animation: heading-fade 4.39s ease both;
+  }
+  @keyframes heading-fade {
+    0%   { opacity: 0; }
+    5%   { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
+  .erd-wrap {
+    position: absolute;
+    left: 190px;
+    top: 74px;
+    opacity: 0;
+    animation: erd-in 4.39s ease both;
+  }
+  @keyframes erd-in {
+    0%   { opacity: 0; transform: scale(0.94); }
+    10%  { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .erd-wrap .crawllog-box {
+    animation: box-pulse 1.6s ease-in-out 1;
+    animation-delay: 0.6s;
+  }
+  @keyframes box-pulse {
+    0%, 100% { stroke: var(--line); stroke-width: 1; }
+    50%      { stroke: var(--accent); stroke-width: 2.5; }
+  }
+
+  .connector {
+    position: absolute;
+    left: 565px;
+    top: 432px;
+    width: 2px;
+    height: 20px;
+    background: var(--accent);
+    opacity: 0;
+    animation: connector-in 0.3s ease 2.2s both;
+  }
+  @keyframes connector-in {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .logs-wrap {
+    position: absolute;
+    left: 270px;
+    top: 456px;
+    width: 740px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 16px 22px;
+    opacity: 0;
+    animation: logs-in 0.35s ease 2.3s both;
+  }
+  @keyframes logs-in {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .logs-wrap .file {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+  }
+  .log-row {
+    display: flex;
+    gap: 14px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 14px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  .log-row:first-child { border-top: none; }
+  .log-row .id { color: var(--ink-faint); flex: 0 0 34px; }
+  .log-row .lvl { flex: 0 0 46px; font-weight: 600; }
+  .log-row.info .lvl { color: var(--accent-deep); }
+  .log-row.error .lvl { color: var(--error); }
+  .log-row.error .msg { color: var(--error); }
+  .log-row .msg { color: var(--ink-soft); }
+
+  @keyframes row-in {
+    0%   { opacity: 0; transform: translateX(-8px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .log-row.r1 { animation: row-in 0.35s ease 2.75s both; }
+  .log-row.r2 { animation: row-in 0.35s ease 3.10s both; }
+  .log-row.r3 { animation: row-in 0.35s ease 3.45s both; }
+  .log-row.r4 { animation: row-in 0.35s ease 3.80s both; }
+  .log-row.r5 { animation: row-in 0.35s ease 4.15s both; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">PostgreSQL</div>
+
+    <div class="erd-wrap">
+      <svg viewBox="0 0 980 400" width="900" height="367">
+        <defs>
+          <marker id="erd-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 Z" style="fill: var(--accent-deep);"></path>
+          </marker>
+        </defs>
+        <line x1="590" y1="50" x2="676" y2="50" marker-end="url(#erd-arrow)" style="stroke: var(--ink-faint); stroke-width: 1.5;"></line>
+        <text x="600" y="40" style="fill: var(--ink-faint); font: 12px ui-monospace, monospace;">belongs to</text>
+        <line x1="410" y1="80" x2="410" y2="176" marker-end="url(#erd-arrow)" style="stroke: var(--accent); stroke-width: 2;"></line>
+        <text x="422" y="132" style="fill: var(--accent-deep); font: 13px ui-monospace, monospace; font-weight: 600;">sourceId</text>
+        <text x="422" y="148" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">required</text>
+        <line x1="510" y1="200" x2="700" y2="80" marker-end="url(#erd-arrow)" style="stroke: var(--accent); stroke-width: 2; stroke-dasharray: 7 5;"></line>
+        <text x="600" y="165" style="fill: var(--accent-deep); font: 13px ui-monospace, monospace; font-weight: 600;">listingId</text>
+        <text x="600" y="181" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">optional</text>
+        <line x1="410" y1="260" x2="410" y2="316" marker-end="url(#erd-arrow)" style="stroke: var(--ink-faint); stroke-width: 1.5;"></line>
+        <text x="422" y="294" style="fill: var(--ink-faint); font: 12px ui-monospace, monospace;">belongs to</text>
+        <g>
+          <rect x="310" y="20" width="200" height="60" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+          <text x="410" y="45" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlSource</text>
+          <text x="410" y="65" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">id, name, baseUrl</text>
+        </g>
+        <g>
+          <rect x="676" y="20" width="220" height="60" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+          <text x="786" y="45" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlListing</text>
+          <text x="786" y="65" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">id, sourceId, subPath</text>
+        </g>
+        <g>
+          <rect x="310" y="200" width="200" height="60" rx="8" style="fill: var(--accent-soft); stroke: var(--accent);"></rect>
+          <text x="410" y="225" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlRun</text>
+          <text x="410" y="245" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">sourceId, listingId?</text>
+        </g>
+        <rect class="crawllog-box" x="310" y="340" width="200" height="50" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+        <text x="410" y="370" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlLog</text>
+      </svg>
+    </div>
+
+    <div class="connector"></div>
+
+    <div class="logs-wrap">
+      <p class="file">crawl_logs — most recent rows</p>
+      <div class="log-row r1 info"><span class="id">762</span><span class="lvl">INFO</span><span class="msg">Starting crawl of WeWorkRemotely</span></div>
+      <div class="log-row r2 info"><span class="id">763</span><span class="lvl">INFO</span><span class="msg">fetched listing (cache: miss, 6 vacancies)</span></div>
+      <div class="log-row r3 info"><span class="id">764</span><span class="lvl">INFO</span><span class="msg">Found 6 vacancies for WeWorkRemotely</span></div>
+      <div class="log-row r4 info"><span class="id">765</span><span class="lvl">INFO</span><span class="msg">Enriching vacancy details for WeWorkRemotely (6 vacancies)</span></div>
+      <div class="log-row r5 error"><span class="id">766</span><span class="lvl">ERROR</span><span class="msg">Failed to crawl WeWorkRemotely: AxiosError: timeout of 20000ms exceeded</span></div>
+    </div>
+  </div>
+</body>
+</html>

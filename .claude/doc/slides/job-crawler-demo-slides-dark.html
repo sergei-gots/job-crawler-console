@@ -179,6 +179,7 @@
   .stage.emphasis { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
   .arrow { flex: 0 0 30px; display: flex; align-items: center; justify-content: center; color: var(--ink-faint); font-family: ui-monospace, monospace; font-size: 16px; }
   .pipeline-note { margin-top: 22px; font-size: 13.5px; color: var(--ink-faint); }
+  .erd { display: block; margin: 20px auto 0; }
 
   /* ---------- source cards ---------- */
 
@@ -416,10 +417,60 @@
     </div>
   </section>
 
+  <!-- 6b -->
+  <section class="slide">
+    <div class="slide-inner">
+      <h2 class="kicker">06 &middot; PostgreSQL</h2>
+      <h2 class="title">One run, one source, optionally one listing</h2>
+      <svg class="erd" viewBox="0 0 980 400" width="980" height="400">
+        <defs>
+          <marker id="erd-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 Z" style="fill: var(--accent-deep);"></path>
+          </marker>
+        </defs>
+
+        <line x1="590" y1="50" x2="676" y2="50" marker-end="url(#erd-arrow)" style="stroke: var(--ink-faint); stroke-width: 1.5;"></line>
+        <text x="600" y="40" style="fill: var(--ink-faint); font: 12px ui-monospace, monospace;">belongs to</text>
+
+        <line x1="410" y1="80" x2="410" y2="176" marker-end="url(#erd-arrow)" style="stroke: var(--accent); stroke-width: 2;"></line>
+        <text x="422" y="132" style="fill: var(--accent-deep); font: 13px ui-monospace, monospace; font-weight: 600;">sourceId</text>
+        <text x="422" y="148" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">required</text>
+
+        <line x1="510" y1="200" x2="700" y2="80" marker-end="url(#erd-arrow)" style="stroke: var(--accent); stroke-width: 2; stroke-dasharray: 7 5;"></line>
+        <text x="600" y="165" style="fill: var(--accent-deep); font: 13px ui-monospace, monospace; font-weight: 600;">listingId</text>
+        <text x="600" y="181" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">optional</text>
+
+        <line x1="410" y1="260" x2="410" y2="316" marker-end="url(#erd-arrow)" style="stroke: var(--ink-faint); stroke-width: 1.5;"></line>
+        <text x="422" y="294" style="fill: var(--ink-faint); font: 12px ui-monospace, monospace;">belongs to</text>
+
+        <g>
+          <rect x="310" y="20" width="200" height="60" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+          <text x="410" y="45" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlSource</text>
+          <text x="410" y="65" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">id, name, baseUrl</text>
+        </g>
+        <g>
+          <rect x="676" y="20" width="220" height="60" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+          <text x="786" y="45" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlListing</text>
+          <text x="786" y="65" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">id, sourceId, subPath</text>
+        </g>
+        <g>
+          <rect x="310" y="200" width="200" height="60" rx="8" style="fill: var(--accent-soft); stroke: var(--accent);"></rect>
+          <text x="410" y="225" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlRun</text>
+          <text x="410" y="245" text-anchor="middle" style="fill: var(--ink-faint); font: 11.5px ui-monospace, monospace;">sourceId, listingId?</text>
+        </g>
+        <g>
+          <rect x="310" y="340" width="200" height="50" rx="8" style="fill: var(--paper-raised); stroke: var(--line);"></rect>
+          <text x="410" y="370" text-anchor="middle" style="fill: var(--ink); font: 600 15px ui-monospace, monospace;">CrawlLog</text>
+        </g>
+      </svg>
+      <p class="pipeline-note">Two separate foreign keys, not one ambiguous one &mdash; <code>sourceId</code> is always required, <code>listingId</code> optionally narrows to one listing <em>within that same source</em>. That invariant is checked in code before the insert (<code>getListingById(sourceId, listingId)</code> 404s on mismatch), not by a database constraint &mdash; a deliberate MVP tradeoff, not an oversight.</p>
+    </div>
+  </section>
+
   <!-- 7 -->
   <section class="slide">
     <div class="slide-inner">
-      <h2 class="kicker">06 &middot; Why build this</h2>
+      <h2 class="kicker">07 &middot; Why build this</h2>
       <h2 class="title">What the demo is actually proving</h2>
       <ul class="closing-list">
         <li><strong>One abstraction, four structurally different sites.</strong> The <a class="chip" href="https://github.com/sergei-gots/job-crawler-demo/blob/main/apps/api/src/crawler/types.ts#L51" target="_blank" rel="noopener noreferrer"><code class="chip">CrawlStrategy</code></a> interface never changed across static HTML, Cloudflare-gated JS, RSS, and a scoped classifieds site.</li>

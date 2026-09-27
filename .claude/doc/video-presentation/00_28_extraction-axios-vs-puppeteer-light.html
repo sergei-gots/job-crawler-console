@@ -1,0 +1,145 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Extraction: Axios+Cheerio vs Puppeteer (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 28px rgba(15, 25, 24, 0.16);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    transform: translate(-50%, 0) scale(1);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    animation: heading-move 3.86s cubic-bezier(.3,.7,.2,1) both;
+  }
+  @keyframes heading-move {
+    0%   { top: 300px; font-size: 56px; opacity: 0; }
+    8%   { top: 300px; font-size: 56px; opacity: 1; }
+    21%  { top: 300px; font-size: 56px; opacity: 1; }
+    26%  { top: 40px;  font-size: 26px; opacity: 1; }
+    100% { top: 40px;  font-size: 26px; opacity: 1; }
+  }
+
+  .panel {
+    position: absolute;
+    top: 110px;
+    width: 580px;
+    height: 500px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    opacity: 0;
+    transform: scale(0.85) translateY(14px);
+  }
+  .panel.left  { left: 60px;  animation: panel-in 0.6s cubic-bezier(.2,.85,.25,1.05) 0.9s both; }
+  .panel.right { left: 660px; animation: panel-in 0.6s cubic-bezier(.2,.85,.25,1.05) 2.3s both; }
+  @keyframes panel-in {
+    0%   { opacity: 0; transform: scale(0.85) translateY(14px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent-deep);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 4px 11px;
+    margin-bottom: 10px;
+  }
+  .file {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin: 0 0 18px;
+  }
+  .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .code-line { display: flex; align-items: flex-start; gap: 10px; }
+  .code-line .txt { white-space: pre-wrap; word-break: break-word; flex: 1 1 auto; min-width: 0; }
+  .ln { flex: 0 0 26px; color: var(--ink-faint); user-select: none; text-align: right; }
+  .kw { color: #7a3ea1; }
+  .str { color: #a34d16; }
+  .fn { color: var(--accent-deep); }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Extraction</div>
+
+    <div class="panel left">
+      <span class="badge">Axios + Cheerio</span>
+      <p class="file">habrCareerStrategy.ts</p>
+      <div class="code-lines">
+<div class="code-line"><span class="ln">206</span><span class="txt"><span class="kw">const</span> response = <span class="kw">await</span> axios.<span class="fn">get</span>&lt;string&gt;(</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">  pageUrl.toString(), {</span></div>
+<div class="code-line"><span class="ln">207</span><span class="txt">  headers: { <span class="str">"User-Agent"</span>: USER_AGENT },</span></div>
+<div class="code-line"><span class="ln">208</span><span class="txt">  timeout: REQUEST_TIMEOUT_MS,</span></div>
+<div class="code-line"><span class="ln">209</span><span class="txt">});</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">&nbsp;</span></div>
+<div class="code-line"><span class="ln">213</span><span class="txt"><span class="kw">const</span> pageVacancies =</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">  <span class="fn">parseHabrCareerPage</span>(html, source);</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">&nbsp;</span></div>
+<div class="code-line"><span class="ln">25</span><span class="txt"><span class="kw">const</span> $ = cheerio.<span class="fn">load</span>(html);</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt" style="color: var(--ink-faint); font-style: italic;">// inside parseHabrCareerPage</span></div>
+      </div>
+    </div>
+
+    <div class="panel right">
+      <span class="badge">Puppeteer</span>
+      <p class="file">remoteOkStrategy.ts</p>
+      <div class="code-lines">
+<div class="code-line"><span class="ln">168</span><span class="txt"><span class="kw">const</span> browser = <span class="kw">await</span> puppeteer.<span class="fn">launch</span>({ headless: <span class="kw">true</span> });</span></div>
+<div class="code-line"><span class="ln">170</span><span class="txt"><span class="kw">const</span> page = <span class="kw">await</span> browser.<span class="fn">newPage</span>();</span></div>
+<div class="code-line"><span class="ln">171</span><span class="txt"><span class="kw">await</span> page.<span class="fn">setUserAgent</span>(USER_AGENT);</span></div>
+<div class="code-line"><span class="ln">172</span><span class="txt"><span class="kw">await</span> page.<span class="fn">goto</span>(pageUrl, {</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">  waitUntil: <span class="str">"networkidle2"</span>,</span></div>
+<div class="code-line"><span class="ln"></span><span class="txt">});</span></div>
+<div class="code-line"><span class="ln">176</span><span class="txt"><span class="kw">return await</span> page.<span class="fn">content</span>();</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
