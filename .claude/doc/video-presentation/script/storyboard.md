@@ -32,69 +32,75 @@ app (real code/schema/data) rather than fresh schematic slides where a real arti
 | Hypothesis | 0:46.46–0:54.71 | 8.25s | "The main goal is to test a specific hypothesis: can we crawl completely different websites using a limited, unified set of tools?" | schematic, calm | 4 real source-name chips (Habr Career/RemoteOK/WeWorkRemotely/Craigslist) converging via slow-drawn lines onto one toolkit box (Axios+Cheerio / Puppeteer / one `CrawlStrategy` interface) — quiet hold, no punchy cuts; `objective-flow-light.html` considered and rejected (thematically ETL-mapping, already covered concretely by the Extraction/Transformation/Loading beats) | **built** | `00_46_hypothesis-unified-toolset-light.html` / `videos/00_46_hypothesis-unified-toolset-light.mp4` |
 | Strategy pattern | 0:54.71–1:00.57 | 5.86s | "To answer this, I rely on one key design choice: the Strategy pattern" | code capture | Real `CrawlStrategy` interface (`types.ts`) with 4 real implementing strategy files fanning out (habrCareerStrategy/remoteOkStrategy/weWorkRemotelyStrategy/craigslistStrategy, each with its real transport) | **built** | `00_54_strategy-pattern-light.html` / `videos/00_54_strategy-pattern-light.mp4` |
 
-## Part 3 — Four sources (1:00.57–2:05.74) — outline
+## Part 3 — Four sources (1:00.57–2:05.74) — built (live app walkthrough)
+
+A single continuous journey through the running app at `localhost:3000`: /about → /sources → each
+source's detail page, driven with a **synthetic mouse cursor** and a **drawn browser address bar**
+that updates per navigation. Built with the new **app-walkthrough** pipeline (see the
+`video-presentation` skill): `scripts/record-app-walkthrough.js` captures the live authed app (cursor
+baked in) to a base `.mp4`; a per-beat wrapper HTML adds the browser frame + address bar (and any PiP)
+and `record-slide.js` renders the final beat. Beat sources live in `beats-src/*.beat.js`; base clips
+are `videos/<beat>-base.mp4` (git-ignored intermediates, regenerable from the `.beat.js`).
+
+| Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
+|---|---|---|---|---|---|---|---|
+| Sources overview | 1:00.57–1:05.62 | ~7.2s (trim to .ass on timeline) | "I selected four real-world sources / each with its own challenge" | app walkthrough | /about ETL callback → cursor clicks **Sources** in the sidebar → /sources list of the 4 source rows; address bar `/about`→`/sources` | **built** | `01_00_sources-overview-light.html` / `videos/01_00_sources-overview-light.mp4` |
+| Habr Career | 1:05.62–1:20.66 | ~15.2s | "Habr Career: the easiest case / clean server-rendered / Axios from a stable JSON-LD / details in a second pass" | app walkthrough + JSON-LD PiP | detail `/sources/3`: `Implementation:` (Axios+Cheerio two-pass) + Strategy flow (listing→server-rendered?→parse→**second-pass detail**→**JSON-LD**); PiP = honest framed panel of the REAL `<script type="application/ld+json">` JobPosting fetched live from a career.habr.com dev vacancy | **built** | `01_05_habr-career-light.html` / `videos/01_05_habr-career-light.mp4` |
+| RemoteOK | 1:20.66–1:35.14 | ~14.7s | "RemoteOK: gated behind Cloudflare / 403 / Puppeteer with a real desktop user-agent and fingerprint" | app walkthrough | detail `/sources/1`: `Implementation:` (Puppeteer, listing only) + Strategy flow dwelling on the red **PROBLEM – Cloudflare bot-check** ("rejects non-browser requests with a 403") → **FIX – Puppeteer + realistic UA**. NOTE: the earlier live-terminal 403 plan was dropped — a live `curl` to remoteok.com no longer 403s (302 loop; verified 2026-09-27), so the in-app red problem box carries the 403 story instead of staging a fake response | **built** | `01_20_remoteok-light.html` / `videos/01_20_remoteok-light.mp4` |
+| WeWorkRemotely | 1:35.14–1:51.73 | ~16.8s | "WeWorkRemotely: headless Puppeteer got fingerprinted and blocked after a single detail-page navigation / switched to their official RSS feed / pulled via Axios" | app walkthrough + RSS PiP | detail `/sources/2`: `Implementation:` + Strategy flow dwelling on the SECOND problem/solution — red **PROBLEM – headless session fingerprinted** ("Only 1/5 detail fetches found a JobPosting block…") → **FIX v2 – category RSS feed via Axios** ("mirrors the HTML listing 1:1 by slug… 25/25, 0 errors"); PiP = honest LIGHT panel of the REAL category `.rss` feed (fetched live) that **pans/scrolls through several real vacancy `<item>` blocks** (Dremio, Toptal, STEUART NUTRITION, Glean, Adventure Travel 365 — title/region/type) with fixation pauses, ending on "…25 items, mirrors the HTML listing 1:1 by slug" | **built** | `01_35_weworkremotely-light.html` / `videos/01_35_weworkremotely-light.mp4` |
+| Craigslist | 1:51.73–2:05.74 | ~12s | "Craigslist: not a tech job board / general classifieds / narrowed to the IT category / in a few selected cities" | app walkthrough + real-site PiP | detail `/sources/6`: `Implementation:` + Strategy step **GET /search/area/<city>?cat=sof** + the 5 seeded city sub-listings; then a **PiP of the user's own live screen recording of the REAL craigslist site** fades in over the (still-visible, lightly dimmed) source-detail context — hovering the **software / qa / dba** jobs category → the live `craigslist.org/search/area/washingtondc?cat=sof` results (real Chrome window + real address bar, real listings; stays on the results LIST, no detail drill, to avoid big company logos). Real capture = kept as-is per the PiP colour-scheme exception. Source asset: `videos/01_51_craigslist-realsite.mp4` (git-ignored; the user's recording) | **built** | `01_51_craigslist-light.html` / `videos/01_51_craigslist-light.mp4` |
+
+## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:17.54) — outline
+
+**Retimed 2026-09-28 (v2):** the "Mapping: there are two kinds of mapping here / The ETL mapping
+happens inside each Strategy – it converts site-specific fields into Vacancy" passage, cut in the
+previous script pass, has been **restored** in both `final-script.md` and `subtitles.ass` — timings
+below for that passage are back to their original values. The closing "That is the main point of
+this demo" sentence stays cut — the close still goes straight from "The rest of the pipeline stays
+the same" to "Thanks for watching," which is why that one gap is still oversized (see note below).
+
+The sub-listings beat (2:06.52–2:10.86) is **built** (app walkthrough); everything from "Mapping:"
+(2:10.86) onward is still outline.
+
+| Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
+|---|---|---|---|---|---|---|---|
+| Sub-listings | 2:06.52–2:10.86 | ~4.3s | "Some sources have sub-listings / which are crawled separately" | app walkthrough | /sources list: cursor clicks the `+` expand toggles on **WeWorkRemotely** (Full-Stack/Backend) then **Craigslist** (5 cities); each revealed nested listing row has its own StatusBadge and Start/Stop — i.e. each listing is crawled separately | **built** | `02_06_sub-listings-light.html` / `videos/02_06_sub-listings-light.mp4` |
 
 | Time (.ass) | Narration |
 |---|---|
-| 1:00.57–1:03.52 | "I selected four real-world sources" |
-| 1:03.52–1:05.62 | "each with its own challenge:" |
-| 1:05.62–1:07.60 | "1. Habr Career:" |
-| 1:07.60–1:08.92 | "the easiest case" |
-| 1:08.92–1:12.79 | "It has clean server-rendered pages" |
-| 1:12.79–1:17.61 | "I extract data with Axios from a stable JSON-LD" |
-| 1:17.61–1:20.66 | "block and fetch the details in a second pass" |
-| 1:20.66–1:22.38 | "2. RemoteOK:" |
-| 1:22.38–1:24.67 | "gated behind Cloudflare" |
-| 1:24.67–1:29.25 | "Standard HTTP requests return a 403 error" |
-| 1:29.25–1:32.34 | "To bypass this, I use Puppeteer with a real" |
-| 1:32.34–1:35.14 | "desktop user-agent and browser fingerprint" |
-| 1:35.14–1:37.78 | "3. WeWorkRemotely:" |
-| 1:37.78–1:40.57 | "headless Puppeteer got fingerprinted and blocked" |
-| 1:40.57–1:43.86 | "after a single detail-page navigation" |
-| 1:43.86–1:47.10 | "So I switched to their official RSS feed" |
-| 1:47.10–1:51.73 | "which isn't gated at all and is pulled via Axios" |
-| 1:51.73–1:53.06 | "4. Craigslist:" |
-| 1:53.06–1:55.21 | "this is not a tech job board" |
-| 1:55.21–1:57.82 | "but a general classifieds site" |
-| 1:57.82–2:00.66 | "To align it with the other sources" |
-| 2:00.66–2:03.68 | "I narrowed the scope down to the IT category" |
-| 2:03.68–2:05.74 | "in a few selected cities" |
-
-The RemoteOK 403 beat (1:24.67–1:29.25) is the live-terminal/real-403-response beat agreed earlier
-— capture on `DP-1`, real `curl` request in frame, no staged/pre-saved response (see skill's "Live
-window capture" and "Zoom in before recording" sections).
-
-## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:21.26) — outline
-
-| Time (.ass) | Narration |
-|---|---|
-| 2:06.52–2:08.92 | "Some sources have sub-listings" |
-| 2:08.92–2:10.86 | "which are crawled separately" |
 | 2:10.86–2:11.44 | "Mapping:" |
-| 2:11.44–2:15.28 | "there are two kinds of mapping here" |
+| 2:11.44–2:16.12 | "there are two kinds of mapping here" |
 | 2:16.12–2:19.04 | "The ETL mapping happens inside each Strategy –" |
-| 2:19.04–2:23.26 | "it converts site-specific fields into Vacancy" |
-| 2:23.34–2:26.91 | "The Elasticsearch mapping is the index schema" |
-| 2:26.99–2:29.06 | "And it is versioned:" |
+| 2:19.04–2:23.34 | "it converts site-specific fields into Vacancy" |
+| 2:23.34–2:26.99 | "The Elasticsearch mapping is the index schema" |
+| 2:26.99–2:29.10 | "And it is versioned:" |
 | 2:29.10–2:30.51 | "if the schema changes" |
-| 2:30.51–2:32.96 | "the index is rebuilt from scratch" |
+| 2:30.51–2:33.09 | "the index is rebuilt from scratch" |
 | 2:33.09–2:35.33 | "Here is the crawler running" |
 | 2:35.33–2:37.55 | "It is deliberately polite –" |
-| 2:37.55–2:40.76 | "rate limits and jitter on every source" |
+| 2:37.55–2:41.08 | "rate limits and jitter on every source" |
 | 2:41.08–2:44.38 | "You can also compare the strategies side by side" |
-| 2:44.38–2:46.34 | "on the Sources page" |
-| 2:46.51–2:49.17 | "And this is the search interface" |
-| 2:49.35–2:53.84 | "Data from all four sources is already in one index" |
+| 2:44.38–2:46.51 | "on the Sources page" |
+| 2:46.51–2:49.35 | "And this is the search interface" |
+| 2:49.35–2:54.18 | "Data from all four sources is already in one index" |
 | 2:54.18–2:56.24 | "Free-text search highlighting" |
 | 2:56.24–2:59.57 | "and facets for specialization, seniority" |
-| 2:59.57–3:02.63 | "remote status, location and company" |
+| 2:59.57–3:02.81 | "remote status, location and company" |
 | 3:02.81–3:04.19 | "To add another source" |
 | 3:04.19–3:06.67 | "we only need to implement the scraping" |
 | 3:06.67–3:08.81 | "and the source-specific mapping" |
-| 3:08.81–3:12.87 | "The rest of the pipeline stays the same" |
-| 3:13.52–3:17.24 | "That is the main point of this demo" |
-| 3:17.76–3:18.93 | "Thanks for watching –" |
-| 3:18.93–3:21.26 | "the source code is on my GitHub" |
+| 3:08.81–3:14.04 | "The rest of the pipeline stays the same" |
+| 3:14.04–3:15.21 | "Thanks for watching –" |
+| 3:15.21–3:17.54 | "the source code is on my GitHub" |
 
 "Here is the crawler running" (2:33.09+) and "this is the search interface" (2:46.51+) are app
 capture beats against the real, live app — not schematic.
+
+**Pause artifact before the close (still present):** the gap between "stays the same" ending
+(3:12.87) and "Thanks for watching" starting (3:14.04) is **1.17s** — the same size as before the
+Mapping restore, and still noticeably longer than any other beat-to-beat gap in this part (typically
+0.1–0.3s once a word's hold ends). This is the leftover from cutting "That is the main point of this
+demo" out of the narration audio without tightening the join. **Fix:** trim about half of it —
+roughly **0.6s** — out of the master narration audio/video at that join (not just the `.ass`
+timestamps, which are derived from the real audio and will only be correct once the audio itself is
+re-cut), then re-export `subtitles.ass` from the corrected audio so the word timings stay in sync.

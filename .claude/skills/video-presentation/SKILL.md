@@ -7,8 +7,9 @@ description: Use when creating or editing any presentation slide HTML under .cla
 
 ## Storyboard document — the working plan for this video
 
-[`.claude/doc/video-presentation/storyboard.md`](../../doc/video-presentation/storyboard.md) is
-the authoritative beat-by-beat plan for the presentation being built from `subtitles.ass`: beat
+[`.claude/doc/video-presentation/script/storyboard.md`](../../doc/video-presentation/script/storyboard.md)
+is the authoritative beat-by-beat plan for the presentation being built from `subtitles.ass` (both
+files live in the `script/` subfolder together with `final-script.md`): beat
 timings (taken from the `.ass` word-group timestamps, not estimated), narration, content type,
 focal element, and build status (`built` / `planned` / `outline`). **Read it before planning or
 building any beat, and update its status/file columns as beats are built, retimed, or reordered**
@@ -61,7 +62,7 @@ convention (`job-crawler-demo-slides-*`, `video-slides-dark.html` already ship b
 
 ## Beat pacing: durations come from subtitles.ass, not estimated
 
-`.claude/doc/video-presentation/subtitles.ass` is the source of truth for beat timing — it already
+`.claude/doc/video-presentation/script/subtitles.ass` is the source of truth for beat timing — it already
 has per-word start/end timestamps (karaoke-style `\t` color-sweep tags). Never estimate a beat's
 length from word count or a guessed speaking rate: find the phrase or thesis the beat illustrates
 in the `.ass` events, read its actual start/end timestamps, and make the clip/loop exactly that
@@ -104,9 +105,61 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   `objective-flow-*`). Use for an abstract, domain-narrow concept (a pipeline shape, a pattern)
   that has no literal on-screen equivalent in the running app or a target site.
 - **App capture** — a real screen recording of *this project's own* running app (Sources page,
-  Search page, a crawl in progress with its live log panel). Captured the same way as a schematic
-  slide — `record-slide.js` against a `localhost` URL instead of a static HTML file — since the
-  app itself renders in a normal headless-capturable page, no devtools chrome involved.
+  Search page, a crawl in progress with its live log panel). The app itself renders in a normal
+  headless-capturable page (no devtools chrome), so it's captured headless — but NOT with
+  `record-slide.js` (which is hardcoded to `file://` static slides). Use **`record-app-walkthrough.js`**
+  (see "App walkthrough" below) for anything on `localhost:3000`.
+- **App walkthrough** — the richer form of app capture used for Part 3 (the four sources): a guided,
+  continuous journey through the live app with a **synthetic mouse cursor** and a **drawn browser
+  address bar**, so the viewer sees how the app is operated. Two layers:
+  1. `scripts/record-app-walkthrough.js <beat-script.js> <out.webm>` — headless Puppeteer that logs
+     in (demo user `video-demo@example.com` / `videodemo123`, token injected into `localStorage`
+     under `jobcrawler_token` via `evaluateOnNewDocument` so the app is authed before mount),
+     navigates `localhost:3000`, runs a per-beat script of real interactions (`click`/`moveTo`/
+     `scrollTo`/`waitForPath`, auto-scrolling targets into view), and renders a cursor sprite that
+     follows `page.mouse` with a click ripple. Output is the bare app (cursor baked in), no chrome,
+     no PiP. Beat scripts live in `.claude/doc/video-presentation/beats-src/<beat>.beat.js`
+     (`module.exports = { seconds, startPath, viewport, run }`). Captures at deviceScaleFactor 2
+     (2560×1440-ish); the Next.js dev overlay is hidden automatically. Detail-page `StrategyFlow`
+     steps render **already expanded** (`defaultExpanded`) — dwell with `moveTo`, don't click (a
+     click collapses them).
+  2. a per-beat **wrapper HTML** (`<beat>-light.html`) that draws the browser frame (titlebar +
+     address bar, same look as `00_18`) over the base clip as a `<video>`, swaps the address text on
+     a `timeupdate` timer per navigation, and overlays any PiP (see below); `record-slide.js` then
+     screencasts the wrapper to the final `.mp4`. The base clip is `videos/<beat>-base.mp4` — a
+     git-ignored intermediate, regenerable from the `.beat.js`; only the wrapper HTML + `.beat.js`
+     are tracked. PiP overlays that are page-content (a real JSON-LD block, an RSS feed's XML, a
+     server-rendered site screenshot) are done headlessly as honest framed panels/screenshots in
+     the wrapper (scrim + positioned panel, like `00_09`); only true DevTools/terminal chrome needs
+     the `x11grab` path below.
+
+  **PiP background convention:** every *constructed* PiP panel (a code/JSON/XML/DOM panel you build
+  in the wrapper HTML — e.g. the Habr JSON-LD panel, the WWR RSS panel) uses a **light** background,
+  matching the deck's light theme. The ONLY exceptions are **screenshots and live captures**, which
+  carry their own color scheme (a real site screenshot, a real DevTools/terminal `x11grab` clip) —
+  don't recolor those, embed them as-is. So: hand-built panels = light; real captured pixels = leave
+  as captured.
+
+  **PiP pacing — leave the source context readable.** A PiP should start a beat or two *later* than
+  the beat begins and end *earlier* than the beat ends, so the app underneath (the "source context" —
+  e.g. the source-detail page describing the source) is readable both before and after the insert.
+  Never let the PiP fade in at 0s or end exactly with the beat's last frame. Keep the dimming scrim
+  behind the PiP **light** (≈`rgba(15,25,24,.28)`, not `.5`) so that source context stays visible
+  through it — the PiP is an accent over the app, not a full takeover. Tune the PiP's in-point
+  (`PIP_AT` in the wrapper JS) to sit under the narration phrase it illustrates, not to fill the clip.
+
+  **DOM-context convention (for a PiP that shows one extracted element).** When a PiP shows a single
+  element lifted from a page (e.g. Habr's `<script type="application/ld+json">`), render a few of its
+  **DOM ancestors in muted grey** (`<html>`→`<head>`→`<meta>`/`<title>`… and the closing
+  `</head>`/`<body>`/`</html>` after it) and highlight **only the target element** (accent colour +
+  one continuous highlight band, contents syntax-coloured inside). This makes it read as "this is
+  lifted straight out of the page's HTML," not free-floating text. See `01_05_habr-career-light.html`.
+
+  **Feed/list PiP as a scrolling flow.** For a PiP that shows a feed or result list (RSS items, search
+  results), don't freeze on one static frame — build the inner content taller than the panel window
+  (`overflow:hidden`) and animate a vertical `translateY` pan through several **real** items with
+  short pauses (fixation) on each, ending on a "… N items" tail. See the RSS panel in
+  `01_35_weworkremotely-light.html` (`@keyframes rssScroll` with hold-steps).
 - **Site inspection capture** — DevTools (Elements/Network) open on a real *external* target site
   (career.habr.com, remoteok.com, etc.) to show how its data is actually structured, or a live
   429/403/block response. Devtools UI is host-window chrome, not page content — CDP screencast
@@ -158,13 +211,32 @@ This environment has two monitors — `HDMI-0` (2560x1440, primary, offset `+0+0
 recording doesn't interrupt whatever's on the primary/working monitor; re-check with `xrandr` if
 the monitor layout ever changes, don't hardcode these offsets blindly.
 
+For user-driven captures on monitor 2 (DP-1) there are two ready-to-run local helpers:
+- **`utils/record-screen2.sh`** — full-screen DP-1 capture (auto-detects geometry from `xrandr`).
+- **`utils/record-chrome.sh`** — a single Chrome *window* at its own size (geometry via `xwininfo`,
+  prefers the window on DP-1; pass a title substring or `WIN=<id>` to disambiguate).
+Both write to `~/Videos/<name>_<timestamp>.mp4` (H.264), **draw the mouse cursor by default** (it's
+needed — it explains the on-screen user's actions; `DRAW_MOUSE=0` to hide), and stop cleanly on
+`q`/Ctrl+C.
+
+**Caveat — `utils/` is git-ignored and may be absent** (the user keeps it local, not committed): on
+a fresh checkout these scripts won't exist. This recipe (the section above/below) is the tracked
+source of truth — recreate the scripts from it if `utils/` is missing, don't assume they're present.
+Use `record-chrome.sh` for a windowed capture; use the windowed `xwininfo` recipe below when you need
+to script the capture yourself headless-style.
+
 ```bash
-# 1. Get the target window's position/size after opening it on DP-1 (Puppeteer non-headless for a
-#    devtools capture, or a normal terminal emulator window for a log/curl capture)
-wmctrl -l -G   # lists open windows with x,y,width,height
+# 1. Get the target window's EXACT geometry. Find the id with `wmctrl -l`, then read absolute
+#    coords with `xwininfo` — do NOT use `wmctrl -l -G`'s x/y: they're offset from the real content
+#    (seen +10,+36 off), which crops the top of the capture. xwininfo's Absolute upper-left is right.
+WIN=$(DISPLAY=:0 wmctrl -l | grep -i "<window title substring>" | awk '{print $1}')
+INFO=$(DISPLAY=:0 xwininfo -id "$WIN")
+X=$(echo "$INFO"|awk '/Absolute upper-left X/{print $4}'); Y=$(echo "$INFO"|awk '/Absolute upper-left Y/{print $4}')
+W=$(echo "$INFO"|awk '/Width:/{print $2}');  H=$(echo "$INFO"|awk '/Height:/{print $2}')
+W=$((W-W%2)); H=$((H-H%2))   # H.264 needs even dimensions
 
 # 2. Record that exact region for N seconds (x offset must be >= 2560 if the window is on DP-1)
-ffmpeg -y -video_size 1280x800 -f x11grab -i :0.0+<x>,<y> -t 12 \
+ffmpeg -y -video_size ${W}x${H} -f x11grab -framerate 30 -draw_mouse 1 -i :0.0+${X},${Y} -t 12 \
   /tmp/<beat>.webm
 
 # 3. Same H.264 conversion as the headless pipeline
@@ -177,6 +249,39 @@ recorded terminal (`curl` without the browser-like headers the real strategy sen
 deliberately-stripped-down axios call) so the response in the clip is the target site's real
 answer at record time, not a pre-saved transcript — the whole point of this beat is that the
 obstacle is real, not staged. Same applies to any "here's what naive/wrong looks like" beat.
+(Verify the block still reproduces before recording — e.g. RemoteOK stopped returning a plain
+`403` and now 302-loops, so that beat fell back to the in-app red `problem` box instead of a staged
+terminal. Never fake a response that doesn't happen live.)
+
+### User-driven live site tour → PiP (the craigslist recipe)
+
+When a beat needs a real external site navigated *the way a person would* (hover a menu, pick a
+category, scroll a result list) — richer than a single screenshot and impossible to drive reliably
+headless (many JS-SPA sites, incl. craigslist's search, render **blank** headless; craigslist's
+homepage even needs JS) — have the **user perform the tour in a real Chrome window** on `DP-1` and
+capture the whole window with `x11grab`. Protocol used and confirmed:
+
+1. User puts the site's start page in a Chrome window on `DP-1`; you read its geometry with
+   `xwininfo` (as above).
+2. You launch the capture in the background with a long safety cap and mouse drawn:
+   `ffmpeg -y -video_size WxH -f x11grab -framerate 30 -draw_mouse 1 -i :0.0+X,Y -t 3600 … out.mp4`
+   (run_in_background), confirm it's running, then tell the user **"можно работать"**.
+3. User performs the scripted route (agree it first), then says **"готово"**; you stop it gracefully
+   with **`pkill -INT -f x11grab`** (SIGINT, so ffmpeg finalizes the mp4 — a plain kill/SIGTERM can
+   leave a broken moov atom). The background task reports a non-zero exit on SIGINT — that's expected.
+4. The result is a real capture with its own browser chrome + real address bar → embed as-is (PiP
+   colour-scheme exception), as a PiP over the source-detail app context (light scrim), NOT a full
+   takeover — the app "source context" stays visible around it (`01_51_craigslist-light.html`).
+
+**Editing the raw tour into a tight PiP** (`ffmpeg` segment + speed-ramp + concat): cut the take into
+segments, apply `setpts=PTS/<speed>` per segment, and `concat`. Hold the **start and transition
+positions at 1×** (so the viewer registers "we're in SF Bay", "now Washington DC", "picking
+software"); **speed up the boring parts** (page scroll, page loads) at 3–4×; and **cut out unneeded
+motion entirely** (e.g. jump straight to the destination page instead of showing the scroll to a
+menu). End on an unhurried 1×–2× scan of the result list. See `scratchpad` recipe: per-segment
+`ffmpeg -ss IN -t DUR -vf "setpts=PTS/SPD,scale=WxH" …` then `concat`. A ~73s raw take edited down
+to ~9s this way. Iterate on `PIP_AT`/segment holds against the narration until the flow lands under
+the right phrases.
 
 ### Zoom in before recording, don't rely on cropping after
 
@@ -312,6 +417,19 @@ ffmpeg -y -i /tmp/<slide>.webm -c:v libx264 -pix_fmt yuv420p -crf 18 -preset ver
 
 `-r 25` matches this project's Kdenlive timeline framerate — keep the two in sync if the
 Kdenlive project's fps ever changes.
+
+**Capture/verify gotchas** (hit repeatedly this session):
+- The `.webm` that `page.screencast()` / `x11grab` writes often has **`duration=N/A`** (no container
+  duration metadata). `ffmpeg -sseof`/`ffprobe` then seek wrong (return the *first* frame), so a
+  "final frame" check silently shows the start. **Convert to `.mp4` first**, then extract frames /
+  seek — the mp4 has a real duration. Verifying beats = convert → `ffmpeg -ss <t> -i out.mp4
+  -frames:v 1 -update 1 f.png` at each sub-timecode boundary.
+- `record-app-walkthrough.js` captures at `deviceScaleFactor:2`, so its base `.webm` is ~2560×1440;
+  the wrapper embeds it in a 1280×720 slide and the final render downscales cleanly — expect the
+  base clip to be double-resolution, that's intended (crisper downscale), not a bug.
+- Wall-clock time of a headless capture ≫ the clip length (ffmpeg finalize on a 2560×1440 screencast
+  can add ~20s after the scripted run). Judge length by the **rendered mp4 duration**, not how long
+  the command took.
 
 Import the resulting `.mp4` into Kdenlive via Project Bin → Add Clip (or drag-and-drop) like any
 other video clip; it loops cleanly since the animation's own CSS/SMIL timeline already resets on a

@@ -1,0 +1,64 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Craigslist strategy (Light, app walkthrough)</title>
+<style>
+  :root { --paper:#f2f5f4; --paper-raised:#fff; --ink-soft:#4e5f5b; --line:#d7dedc; }
+  * { box-sizing: border-box; } html, body { height: 100%; margin: 0; }
+  body { background: var(--paper); display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .slide { width:1280px; height:720px; position:relative; background:var(--paper); overflow:hidden; }
+  .frame-titlebar { position:absolute; top:0; left:0; right:0; height:40px; z-index:5; display:flex;
+    align-items:center; gap:9px; padding:0 16px; background:#eef1f0; border-bottom:1px solid var(--line); }
+  .dot{width:12px;height:12px;border-radius:50%;} .dot.r{background:#e5645b;} .dot.y{background:#e8b64a;} .dot.g{background:#58b368;}
+  .frame-url{margin-left:8px;font-family:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    font-size:15px;color:var(--ink-soft);background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:6px;padding:3px 13px;flex:1;white-space:nowrap;overflow:hidden;}
+  .viewport{position:absolute;top:40px;left:0;width:1280px;height:680px;overflow:hidden;background:#fff;}
+  .viewport #app{display:block;width:1280px;height:680px;object-fit:fill;}
+  /* Real-craigslist PiP: the user's own live screen recording of the real craigslist site — hover
+     the "software / qa / dba" jobs category → the live cat=sof results page (real Chrome window with
+     its real address bar). A real capture with its own colour scheme, so it's embedded as-is (see
+     the PiP-background convention in the skill: screenshots/live captures keep their own scheme). */
+  .pip-scrim{position:absolute;inset:0;z-index:9;background:rgba(15,25,24,.28);opacity:0;}
+  .pip{position:absolute;z-index:10;left:210px;top:108px;width:860px;opacity:0;
+    border-radius:10px;overflow:hidden;box-shadow:0 24px 60px rgba(15,25,24,.45);border:1px solid var(--line);}
+  .pip video{display:block;width:860px;height:auto;}
+  @keyframes fadeIn{0%{opacity:0;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+  @keyframes fadeOut{0%{opacity:1;}100%{opacity:0;}}
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="frame-titlebar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="frame-url" id="url">localhost:3000/sources</span>
+    </div>
+    <div class="viewport">
+      <video id="app" src="videos/01_51_craigslist-base.mp4" muted playsinline></video>
+    </div>
+    <div class="pip-scrim" id="scrim"></div>
+    <div class="pip" id="pip"><video id="site" src="videos/01_51_craigslist-realsite.mp4" muted playsinline></video></div>
+  </div>
+  <script>
+    var v=document.getElementById('app'), url=document.getElementById('url');
+    var pip=document.getElementById('pip'), scrim=document.getElementById('scrim'), site=document.getElementById('site');
+    var swapped=false, shown=false, PIP_AT=4.2;
+    v.addEventListener('timeupdate', function(){
+      if(!swapped && v.currentTime>=2.0){ url.textContent='localhost:3000/sources/6'; swapped=true; }
+      if(!shown && v.currentTime>=PIP_AT){ shown=true;
+        scrim.style.animation='fadeIn .5s ease forwards';
+        pip.style.animation='fadeIn .5s ease forwards';
+        site.currentTime=0; site.play();
+      }
+    });
+    // fade the PiP + scrim out when the real-site clip finishes
+    site.addEventListener('ended', function(){
+      pip.style.animation='fadeOut .5s ease forwards';
+      scrim.style.animation='fadeOut .5s ease forwards';
+    });
+    v.currentTime=0; v.play();
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — RemoteOK strategy (Light, app walkthrough)</title>
+<style>
+  :root { --paper:#f2f5f4; --paper-raised:#fff; --ink-soft:#4e5f5b; --line:#d7dedc; }
+  * { box-sizing: border-box; } html, body { height: 100%; margin: 0; }
+  body { background: var(--paper); display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .slide { width:1280px; height:720px; position:relative; background:var(--paper); overflow:hidden; }
+  .frame-titlebar { position:absolute; top:0; left:0; right:0; height:40px; z-index:3; display:flex;
+    align-items:center; gap:9px; padding:0 16px; background:#eef1f0; border-bottom:1px solid var(--line); }
+  .dot{width:12px;height:12px;border-radius:50%;} .dot.r{background:#e5645b;} .dot.y{background:#e8b64a;} .dot.g{background:#58b368;}
+  .frame-url{margin-left:8px;font-family:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    font-size:15px;color:var(--ink-soft);background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:6px;padding:3px 13px;flex:1;white-space:nowrap;overflow:hidden;}
+  .viewport{position:absolute;top:40px;left:0;width:1280px;height:680px;overflow:hidden;background:var(--paper);}
+  .viewport video{display:block;width:1280px;height:680px;object-fit:fill;}
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="frame-titlebar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="frame-url" id="url">localhost:3000/sources</span>
+    </div>
+    <div class="viewport"><video id="app" src="videos/01_20_remoteok-base.mp4" muted playsinline></video></div>
+  </div>
+  <script>
+    var v=document.getElementById('app'), url=document.getElementById('url'), swapped=false;
+    v.addEventListener('timeupdate', function(){
+      if(!swapped && v.currentTime>=2.0){ url.textContent='localhost:3000/sources/1'; swapped=true; }
+    });
+    v.currentTime=0; v.play();
+  </script>
+</body>
+</html>

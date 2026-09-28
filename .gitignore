@@ -40,3 +40,6 @@ Thumbs.db
 
 # Test / coverage
 coverage/
+
+# Local capture utilities (screen-recording helpers + their output) — not tracked
+utils/

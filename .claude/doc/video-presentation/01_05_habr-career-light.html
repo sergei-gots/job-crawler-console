@@ -1,0 +1,95 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Habr Career strategy (Light, app walkthrough)</title>
+<style>
+  :root { --paper:#f2f5f4; --paper-raised:#fff; --ink-soft:#4e5f5b; --line:#d7dedc; --accent-deep:#0b5652; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--paper); display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .slide { width:1280px; height:720px; position:relative; background:var(--paper); overflow:hidden; }
+  .frame-titlebar { position:absolute; top:0; left:0; right:0; height:40px; z-index:3; display:flex;
+    align-items:center; gap:9px; padding:0 16px; background:#eef1f0; border-bottom:1px solid var(--line); }
+  .dot{width:12px;height:12px;border-radius:50%;} .dot.r{background:#e5645b;} .dot.y{background:#e8b64a;} .dot.g{background:#58b368;}
+  .frame-url{margin-left:8px;font-family:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    font-size:15px;color:var(--ink-soft);background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:6px;padding:3px 13px;flex:1;white-space:nowrap;overflow:hidden;}
+  .viewport{position:absolute;top:40px;left:0;width:1280px;height:680px;overflow:hidden;background:var(--paper);}
+  .viewport video{display:block;width:1280px;height:680px;object-fit:fill;}
+
+  /* JSON-LD inspection PiP: honest LIGHT framed panel of the REAL <script type="application/ld+json">
+     fetched live from a career.habr.com dev vacancy (C++ Developer, Eltex). Shows the surrounding
+     page DOM a few levels up in muted grey, with only the target ld+json element highlighted — so
+     it reads as "this structure is lifted straight out of the page's HTML". Light-background PiP
+     convention (see the video-presentation skill). */
+  .pip-scrim{position:absolute;inset:0;z-index:9;background:rgba(15,25,24,.5);opacity:0;}
+  .pip{position:absolute;z-index:10;left:266px;top:96px;width:748px;opacity:0;
+    box-shadow:0 24px 60px rgba(15,25,24,.4);border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+  .pip-bar{background:#eef1f0;color:var(--ink-soft);font-family:ui-monospace,monospace;font-size:12.5px;
+    padding:8px 14px;border-bottom:1px solid var(--line);}
+  .pip-bar b{color:var(--accent-deep);font-weight:600;}
+  .pip-body{background:var(--paper-raised);color:#16211f;font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;
+    font-size:13.5px;line-height:1.55;padding:16px 18px;white-space:pre;overflow:hidden;}
+  .pip-body .dom{color:#b3bbb8;}                 /* surrounding DOM, muted grey */
+  .pip-body .hl{color:var(--accent-deep);font-weight:600;}  /* the target ld+json element */
+  .pip-body .tgt{background:#eaf5f2;display:block;margin:6px -18px;padding:8px 18px;
+    box-shadow:inset 3px 0 0 var(--accent-deep);}  /* one continuous highlight band */
+  .pip-body .k{color:#7a3ea1;}                   /* JSON keys */
+  .pip-body .s{color:#a34d16;}                   /* JSON strings */
+  @keyframes pipIn{0%{opacity:0;transform:translateY(8px);}12%{opacity:1;transform:translateY(0);}
+    88%{opacity:1;}100%{opacity:0;}}
+  @keyframes scrimIn{0%{opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{opacity:0;}}
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="frame-titlebar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="frame-url" id="url">localhost:3000/sources</span>
+    </div>
+    <div class="viewport"><video id="app" src="videos/01_05_habr-career-base.mp4" muted playsinline></video></div>
+
+    <div class="pip-scrim" id="scrim"></div>
+    <div class="pip" id="pip">
+      <div class="pip-bar">career.habr.com/vacancies/… &nbsp;·&nbsp; page source &nbsp;·&nbsp; <b>&lt;script type="application/ld+json"&gt;</b></div>
+<div class="pip-body"><span class="dom">&lt;html lang="ru"&gt;</span>
+<span class="dom">  &lt;head&gt;</span>
+<span class="dom">    &lt;meta charset="utf-8"&gt;</span>
+<span class="dom">    &lt;title&gt;Вакансия «C++ Developer» — Хабр Карьера&lt;/title&gt;</span>
+<span class="dom">    …</span>
+<span class="tgt"><span class="hl">    &lt;script type="application/ld+json"&gt;</span>
+    {
+      <span class="k">"@type"</span>: <span class="s">"JobPosting"</span>,
+      <span class="k">"title"</span>: <span class="s">"C++ Developer"</span>,
+      <span class="k">"datePosted"</span>: <span class="s">"2026-09-03"</span>,
+      <span class="k">"hiringOrganization"</span>: { <span class="k">"name"</span>: <span class="s">"Eltex"</span> },
+      <span class="k">"jobLocation"</span>: [{ <span class="k">"address"</span>: <span class="s">"Новосибирск"</span> }],
+      <span class="k">"employmentType"</span>: <span class="s">"FULL_TIME"</span>
+    }
+<span class="hl">    &lt;/script&gt;</span></span>
+<span class="dom">    …</span>
+<span class="dom">  &lt;/head&gt;</span>
+<span class="dom">  &lt;body&gt; … &lt;/body&gt;</span>
+<span class="dom">&lt;/html&gt;</span></div>
+    </div>
+  </div>
+  <script>
+    var v=document.getElementById('app'), url=document.getElementById('url');
+    var pip=document.getElementById('pip'), scrim=document.getElementById('scrim');
+    var swapped=false, pipShown=false;
+    // JSON-LD PiP window: ~7.0s..12.5s (the "stable JSON-LD block" narration)
+    var PIP_START=7.0, PIP_DUR=5.5;
+    v.addEventListener('timeupdate', function(){
+      if(!swapped && v.currentTime>=2.0){ url.textContent='localhost:3000/sources/3'; swapped=true; }
+      if(!pipShown && v.currentTime>=PIP_START){
+        pipShown=true;
+        pip.style.animation='pipIn '+PIP_DUR+'s ease forwards';
+        scrim.style.animation='scrimIn '+PIP_DUR+'s ease forwards';
+      }
+    });
+    v.currentTime=0; v.play();
+  </script>
+</body>
+</html>
