@@ -50,7 +50,7 @@ are `videos/<beat>-base.mp4` (git-ignored intermediates, regenerable from the `.
 | WeWorkRemotely | 1:35.14–1:51.73 | ~16.8s | "WeWorkRemotely: headless Puppeteer got fingerprinted and blocked after a single detail-page navigation / switched to their official RSS feed / pulled via Axios" | app walkthrough + RSS PiP | detail `/sources/2`: `Implementation:` + Strategy flow dwelling on the SECOND problem/solution — red **PROBLEM – headless session fingerprinted** ("Only 1/5 detail fetches found a JobPosting block…") → **FIX v2 – category RSS feed via Axios** ("mirrors the HTML listing 1:1 by slug… 25/25, 0 errors"); PiP = honest LIGHT panel of the REAL category `.rss` feed (fetched live) that **pans/scrolls through several real vacancy `<item>` blocks** (Dremio, Toptal, STEUART NUTRITION, Glean, Adventure Travel 365 — title/region/type) with fixation pauses, ending on "…25 items, mirrors the HTML listing 1:1 by slug" | **built** | `01_35_weworkremotely-light.html` / `videos/01_35_weworkremotely-light.mp4` |
 | Craigslist | 1:51.73–2:05.74 | ~12s | "Craigslist: not a tech job board / general classifieds / narrowed to the IT category / in a few selected cities" | app walkthrough + real-site PiP | detail `/sources/6`: `Implementation:` + Strategy step **GET /search/area/<city>?cat=sof** + the 5 seeded city sub-listings; then a **PiP of the user's own live screen recording of the REAL craigslist site** fades in over the (still-visible, lightly dimmed) source-detail context — hovering the **software / qa / dba** jobs category → the live `craigslist.org/search/area/washingtondc?cat=sof` results (real Chrome window + real address bar, real listings; stays on the results LIST, no detail drill, to avoid big company logos). Real capture = kept as-is per the PiP colour-scheme exception. Source asset: `videos/01_51_craigslist-realsite.mp4` (git-ignored; the user's recording) | **built** | `01_51_craigslist-light.html` / `videos/01_51_craigslist-light.mp4` |
 
-## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:17.54) — outline
+## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:16.68) — outline
 
 **Retimed 2026-09-28 (v2):** the "Mapping: there are two kinds of mapping here / The ETL mapping
 happens inside each Strategy – it converts site-specific fields into Vacancy" passage, cut in the
@@ -59,36 +59,43 @@ below for that passage are back to their original values. The closing "That is t
 this demo" sentence stays cut — the close still goes straight from "The rest of the pipeline stays
 the same" to "Thanks for watching," which is why that one gap is still oversized (see note below).
 
-The sub-listings beat (2:06.52–2:10.86) and the Mapping passage (2:10.86–2:33.09, 4 beats below)
-are **built**. Everything from "Here is the crawler running" (2:33.09) onward is still outline.
+The sub-listings beat (2:06.52–2:10.86), the two "Mapping" narration beats (2:10.86–2:23.08), and
+the Elasticsearch-mapping pair (2:23.08–2:32.23) are all **built**. Everything from "Here is the
+crawler running" (2:32.23) onward is still outline.
 
 | Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
 |---|---|---|---|---|---|---|---|
 | Sub-listings | 2:06.52–2:10.86 | ~4.3s | "Some sources have sub-listings / which are crawled separately" | app walkthrough | /sources list: cursor clicks the `+` expand toggles on **WeWorkRemotely** (Full-Stack/Backend) then **Craigslist** (5 cities); each revealed nested listing row has its own StatusBadge and Start/Stop — i.e. each listing is crawled separately | **built** | `02_06_sub-listings-light.html` / `videos/02_06_sub-listings-light.mp4` |
 | Mapping (two kinds) | 2:10.86–2:16.12 | 5.26s | "Mapping: there are two kinds of mapping here" | schematic (new) | 3 "barrels" left→right — **Source → Redis → Elasticsearch** — connected by an animated flow-pipe; two pulsing callouts appear on the pipe: "Strategy mapping" (site fields → Vacancy) between Source/Redis, "Index mapping" (Vacancy → ES schema) at Elasticsearch. Deliberately NOT a reuse of the `/about` ETL card (already shown in `00_18`) — illustrates the same idea (two mapping points) a different way | **built** | `02_10_mapping-pipeline-barrels-light.html` |
 | ETL mapping (Strategy) | 2:16.12–2:23.34 | 7.22s | "The ETL mapping happens inside each Strategy – it converts site-specific fields into Vacancy" | structure-to-code | Real WeWorkRemotely RSS `<item>` (STEUART NUTRITION, same real item already panned in `01_35`'s PiP) — highlight walks `<region>` → `<pubDate>` → `<skills>`; code panel slides in with the real `parseWeWorkRemotelyRssFeed` lines (`location: region`, `postedAt: new Date(pubDate).toISOString()`, conditional `skillsSummary`), flashing in the same order; ends on a debug-style rendering of the resulting Vacancy fields. Deliberately NOT Habr Career (already fully covered in `01_05`'s JSON-LD PiP, and its fields are Russian-flavored) | **built** | `02_16_wwr-mapping-to-code-light.html` |
-| Elasticsearch mapping | 2:23.34–2:26.99 | 3.65s | "The Elasticsearch mapping is the index schema" | code capture | Real `CRAWLER_RESULTS_PROPERTIES` from `crawlerResultsIndex.ts`, highlight + inline tags on the `company` field: "text → full-text" / "keyword → facet" | **built** | `02_23_es-index-mapping-light.html` |
-| Versioned/rebuilt | 2:26.99–2:33.09 | 6.1s | "And it is versioned: if the schema changes, the index is rebuilt from scratch" | code → real terminal log | Highlight on `CRAWLER_RESULTS_SCHEMA_VERSION = 4` then the `liveVersion === ...` check; terminal panel below shows the **real captured log** from actually forcing a version mismatch on the live dev ES index and running `ensureCrawlerResultsIndex()` (`schema version 3 != 4; rebuilding index...` / `index ready at schema version 4`) — not staged text. Side effect: this emptied the local `crawler_results` index (0 docs) — re-crawl before relying on real search results locally | **built** | `02_26_schema-version-rebuild-light.html` |
+| Elasticsearch mapping (1/2) | 2:23.08–2:26.23 | 3.15s (+6 static frames tail reserve) | "The Elasticsearch mapping is the index schema" | Redis→ES data flow + schema code | Retimed to real edit timecodes (supersedes the `.ass` estimate 2:23.34–2:26.99). Left: real `RawVacancy` cache card (cascade, key-boxed `sourceId`/`externalId`); middle: three unlabeled arrows growing simultaneously; right: `Elasticsearch` store barrel (labeled `CRAWLER_RESULTS_INDEX`) with a `CrawlerResultDoc` materializing inside it, cascade-style, only once the arrows finish; below: the real `upsertVacancy.ts` source (lines 5-57 in full, doc-comment included) with a continuous linear scroll landing on the real `esClient.update(...)` call — replaces the earlier `02_23_es-index-mapping-light.html` (now superseded/orphaned, safe to delete) | **built** | `02_23_rawvacancy-to-es-schema-light.html` / `videos/02_23_rawvacancy-to-es-schema-light.mp4` |
+| Elasticsearch mapping (2/2) | 2:26.23–2:32.23 | 6.0s | "And it is versioned: if the schema changes, the index is rebuilt from scratch" | code → real terminal log | Real `ensureCrawlerResultsIndex()` (lines 125-148) with a green stepping highlight (row background + text) walking the actually-executed path (exists → liveVersion → condition false → warn+delete → createIndex+info); separate, spacious `output` panel (sized for ~14 lines) below shows the **real captured log** from forcing a version mismatch on the live dev ES index (`schema version 3 != 4; rebuilding index...` / `index ready at schema version 4`) — not staged text. Side effect: this emptied the local `crawler_results` index (0 docs) — re-crawl before relying on real search results locally | **built** | `02_26_schema-version-rebuild-light.html` / `videos/02_26_schema-version-rebuild-light.mp4` |
 | Time (.ass) | Narration |
 |---|---|
-| 2:33.09–2:35.33 | "Here is the crawler running" |
-| 2:35.33–2:37.55 | "It is deliberately polite –" |
-| 2:37.55–2:41.08 | "rate limits and jitter on every source" |
-| 2:41.08–2:44.38 | "You can also compare the strategies side by side" |
-| 2:44.38–2:46.51 | "on the Sources page" |
-| 2:46.51–2:49.35 | "And this is the search interface" |
-| 2:49.35–2:54.18 | "Data from all four sources is already in one index" |
-| 2:54.18–2:56.24 | "Free-text search highlighting" |
-| 2:56.24–2:59.57 | "and facets for specialization, seniority" |
-| 2:59.57–3:02.81 | "remote status, location and company" |
-| 3:02.81–3:04.19 | "To add another source" |
-| 3:04.19–3:06.67 | "we only need to implement the scraping" |
-| 3:06.67–3:08.81 | "and the source-specific mapping" |
-| 3:08.81–3:14.04 | "The rest of the pipeline stays the same" |
-| 3:14.04–3:15.21 | "Thanks for watching –" |
-| 3:15.21–3:17.54 | "the source code is on my GitHub" |
+| 2:32.23–2:34.47 | "Here is the crawler running" |
+| 2:34.47–2:36.69 | "It is deliberately polite –" |
+| 2:36.69–2:40.22 | "rate limits and jitter on every source" |
+| 2:40.22–2:43.52 | "You can also compare the strategies side by side" |
+| 2:43.52–2:45.65 | "on the Sources page" |
+| 2:45.65–2:48.49 | "And this is the search interface" |
+| 2:48.49–2:53.32 | "Data from all four sources is already in one index" |
+| 2:53.32–2:55.38 | "Free-text search highlighting" |
+| 2:55.38–2:58.71 | "and facets for specialization, seniority" |
+| 2:58.71–3:01.95 | "remote status, location and company" |
+| 3:01.95–3:03.33 | "To add another source" |
+| 3:03.33–3:05.81 | "we only need to implement the scraping" |
+| 3:05.81–3:07.95 | "and the source-specific mapping" |
+| 3:07.95–3:13.18 | "The rest of the pipeline stays the same" |
+| 3:13.18–3:14.35 | "Thanks for watching –" |
+| 3:14.35–3:16.68 | "the source code is on my GitHub" |
 
-"Here is the crawler running" (2:33.09+) and "this is the search interface" (2:46.51+) are app
+**Note:** the rows above (from "Here is the crawler running" onward) are the old `.ass`-estimated
+timestamps shifted by the same -0.86s delta observed between the `.ass` estimate and the real edit
+timecode for the Elasticsearch-mapping beat (2:33.09 → 2:32.23) — a placeholder correction, not a
+fresh real measurement. Re-timecode each one for real once its beat is actually built/edited, the
+same way the Elasticsearch-mapping and Mapping beats were.
+
+"Here is the crawler running" (2:32.23+) and "this is the search interface" (2:45.65+) are app
 capture beats against the real, live app — not schematic.
 
 **Pause artifact before the close (still present):** the gap between "stays the same" ending

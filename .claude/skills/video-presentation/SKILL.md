@@ -210,14 +210,30 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   Don't default to muting "the lines that aren't highlighted right now" — that's a different thing
   from "the lines that aren't part of what this beat is about."
 
-  **A "debugger" beat (multiple stepped-through lines) needs three more things beyond the color
+  **A "debugger" beat (multiple stepped-through lines) needs four more things beyond the color
   table:**
-  - **Discrete stops, not a slide.** `animation-timing-function: steps(1, jump-start)` on the
-    highlight's position keyframes, not `ease` — an eased transition between line positions reads as
-    the highlight "slipping" past lines, not landing on them.
+  - **`jump-start` vs `jump-end` are NOT interchangeable — picking the wrong one silently inverts
+    the timing** (confirmed live on `02_16`/`02_23`, cost a full re-check of two beats):
+    - **Monotonic position** (a cursor bar's `top`, or a viewport's `translateY` scroll-shift) is an
+      "arrive and hold" sequence — each keyframe is a new resting state that stays until the next
+      one overrides it. Use `steps(1, jump-start)`: the segment from keyframe A to keyframe B shows
+      B's value for the whole segment, i.e. the element **snaps to the target immediately** and
+      holds — exactly "arrive and stay."
+    - **An on/off colour flash** (line text goes ink → green → ink again) is different: you need the
+      segment to show keyframe A's value throughout, flipping only when the NEXT segment begins. Use
+      **`steps(1, jump-end)`** here. `jump-start` on an on/off flash makes the highlight appear
+      *before* its intended window and vanish at the start of it — inverted and early, not late —
+      because jump-start shows each segment's *end* value immediately. Test by reading a specific
+      element's `getComputedStyle(...).color` via `page.evaluate` at a known timestamp before
+      trusting a screenshot; the wrong-vs-right difference can be subtle at thumbnail size.
+  - **Discrete stops, not a slide.** For the monotonic position case above, `steps(1, jump-start)` on
+    the highlight's position keyframes, not `ease` — an eased transition between line positions reads
+    as the highlight "slipping" past lines, not landing on them.
   - **Show a real contiguous range of the file**, comments and blank lines included, not just the
     cherry-picked lines — cherry-picking only the relevant lines out of context reads as thin/
-    synthetic even with a nice highlight.
+    synthetic even with a nice highlight. Don't elide a leading doc-comment just to save space either
+    if the beat is meant to show the function "in full" — ask if unsure whether a shortened range is
+    wanted.
   - **Recenter the viewport on the active block**, the way a real editor auto-scrolls to follow
     execution: wrap the code in a fixed-height `overflow: hidden` viewport and animate a `translateY`
     shift on the content (same `steps(1, jump-start)` timing, keyed to the same stop percentages as

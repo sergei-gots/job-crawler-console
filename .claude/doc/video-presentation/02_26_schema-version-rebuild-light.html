@@ -2,7 +2,7 @@
 <html data-theme="light">
 <head>
 <meta charset="utf8">
-<title>Job-Crawler-Demo — Schema versioning: live rebuild on mismatch (Light, animated)</title>
+<title>Job-Crawler-Demo — Versioned schema: mismatch → rebuild (Light, animated)</title>
 <style>
   :root {
     --paper: #f2f5f4;
@@ -14,7 +14,8 @@
     --accent-deep: #0b5652;
     --accent-soft: #dcefec;
     --line: #d7dedc;
-    --warn: #a3701f;
+    --highlight-bg: #cfe8b0;
+    --highlight-text: #23430f;
     --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
   }
   * { box-sizing: border-box; }
@@ -44,64 +45,144 @@
     font-weight: 700;
     color: var(--ink);
     opacity: 0;
-    animation: heading-fade 6.1s ease both;
+    animation: heading-fade 6s ease both;
   }
-  @keyframes heading-fade { 0% { opacity: 0; } 5% { opacity: 1; } 100% { opacity: 1; } }
+  @keyframes heading-fade { 0% { opacity: 0; } 4% { opacity: 1; } 100% { opacity: 1; } }
 
   .code-panel {
     position: absolute;
-    left: 140px;
-    top: 100px;
-    width: 1000px;
+    left: 40px;
+    top: 78px;
+    width: 1200px;
     background: var(--paper-raised);
     border: 1px solid var(--line);
     border-radius: 12px;
     box-shadow: var(--shadow);
-    padding: 18px 26px;
+    padding: 14px 20px 16px;
     opacity: 0;
-    transform: translateY(-8px);
-    animation: panel-in 0.5s ease 0.3s both;
+    transform: translateY(-6px);
+    animation: panel-in 0.4s ease 0.15s both;
   }
-  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
   .code-panel .file {
+    position: absolute;
+    top: 10px;
+    right: 16px;
     font-family: ui-monospace, monospace;
-    font-size: 15px;
+    font-size: 11.5px;
     font-weight: 600;
     color: var(--ink-soft);
-    margin: 0 0 12px;
+    background: rgba(242, 245, 244, 0.9);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin: 0;
   }
-  .code-lines {
+  .code-viewport { height: 210px; overflow: hidden; position: relative; }
+  .code-rows {
+    position: relative;
     font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
-    font-size: 15.5px;
-    line-height: 1.75;
+    font-size: 13px;
+    animation: scroll-shift 6s steps(1, jump-start) 0.15s both;
   }
-  .code-lines .kw { color: #7a3ea1; }
-  .code-lines .ty { color: var(--accent-deep); }
-  .code-lines .num { color: #a34d16; }
-  .ln { border-radius: 5px; padding: 1px 5px; margin: 0 -5px; }
-  .ln.hl1 { animation: flash 1.2s ease 0.9s both; }
-  .ln.hl2 { animation: flash 1.2s ease 2.1s both; }
-  @keyframes flash {
-    0%   { background: transparent; }
-    20%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-    80%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-    100% { background: transparent; box-shadow: none; }
+  @keyframes scroll-shift {
+    0%     { transform: translateY(0); }
+    57.5%  { transform: translateY(0); }
+    57.6%  { transform: translateY(-174px); }
+    100%   { transform: translateY(-174px); }
   }
+  /* Every line here is real, relevant code from inside the one function this beat is about, so it
+     all gets full editor-style syntax colour throughout (video-presentation skill's context/
+     highlight convention) - the doc-comment above this function is elided (real comments, but not
+     part of the executable path this beat walks through). */
+  .code-row { display: flex; height: 16px; align-items: center; gap: 12px; white-space: nowrap; }
+  .code-row .gutter { flex: 0 0 24px; color: var(--ink-faint); font-size: 10.5px; text-align: right; }
+  .code-row .src { color: var(--ink); }
+  .code-row .kw { color: #7a3ea1; }
+  .code-row .fn { color: #1d5fae; }
+  .code-row .str { color: #a34d16; }
+  .code-row .cm { color: #5c7a52; font-style: italic; }
+
+  .k1 .src, .k1 .src *, .k2 .src, .k2 .src *, .k3 .src, .k3 .src *,
+  .k4 .src, .k4 .src *, .k5 .src, .k5 .src *, .k6 .src, .k6 .src *, .k7 .src, .k7 .src * {
+    font-weight: 700;
+    animation-timing-function: steps(1, jump-end);
+    animation-duration: 6s;
+    animation-delay: 0.15s;
+    animation-fill-mode: both;
+  }
+  .k1 .src, .k1 .src * { animation-name: fl1; }
+  .k2 .src, .k2 .src * { animation-name: fl2; }
+  .k3 .src, .k3 .src * { animation-name: fl3; }
+  .k4 .src, .k4 .src * { animation-name: fl4; }
+  .k5 .src, .k5 .src * { animation-name: fl5; }
+  .k6 .src, .k6 .src * { animation-name: fl6; }
+  .k7 .src, .k7 .src * { animation-name: fl7; }
+  @keyframes fl1 { 0% { color: var(--ink); } 7.5%  { color: var(--highlight-text); } 17.5% { color: var(--ink); } }
+  @keyframes fl2 { 0% { color: var(--ink); } 17.5% { color: var(--highlight-text); } 27.5% { color: var(--ink); } }
+  @keyframes fl3 { 0% { color: var(--ink); } 27.5% { color: var(--highlight-text); } 40.8% { color: var(--ink); } }
+  @keyframes fl4 { 0% { color: var(--ink); } 40.8% { color: var(--highlight-text); } 57.5% { color: var(--ink); } }
+  @keyframes fl5 { 0% { color: var(--ink); } 57.5% { color: var(--highlight-text); } 76.0% { color: var(--ink); } }
+  @keyframes fl6 { 0% { color: var(--ink); } 76.0% { color: var(--highlight-text); } 85.0% { color: var(--ink); } }
+  @keyframes fl7 { 0% { color: var(--ink); } 85.0% { color: var(--highlight-text); } 100%  { color: var(--highlight-text); } }
+
+  /* Whole-row background band, same on/off windows as the text flashes above - a pure text-colour
+     change alone reads as too subtle for a "debugger walkthrough" beat, especially compressed to
+     video; a full highlighted row band (same convention as 02_16's cursor bar) makes each step
+     unmistakable. */
+  .code-row.k1, .code-row.k2, .code-row.k3, .code-row.k4,
+  .code-row.k5, .code-row.k6, .code-row.k7 {
+    border-radius: 4px;
+    padding: 0 8px;
+    margin: 0 -8px;
+    animation-timing-function: steps(1, jump-end);
+    animation-duration: 6s;
+    animation-delay: 0.15s;
+    animation-fill-mode: both;
+  }
+  .code-row.k1 { animation-name: bg1; }
+  .code-row.k2 { animation-name: bg2; }
+  .code-row.k3 { animation-name: bg3; }
+  .code-row.k4 { animation-name: bg4; }
+  .code-row.k5 { animation-name: bg5; }
+  .code-row.k6 { animation-name: bg6; }
+  .code-row.k7 { animation-name: bg7; }
+  @keyframes bg1 { 0% { background: transparent; } 7.5%  { background: var(--highlight-bg); } 17.5% { background: transparent; } }
+  @keyframes bg2 { 0% { background: transparent; } 17.5% { background: var(--highlight-bg); } 27.5% { background: transparent; } }
+  @keyframes bg3 { 0% { background: transparent; } 27.5% { background: var(--highlight-bg); } 40.8% { background: transparent; } }
+  @keyframes bg4 { 0% { background: transparent; } 40.8% { background: var(--highlight-bg); } 57.5% { background: transparent; } }
+  @keyframes bg5 { 0% { background: transparent; } 57.5% { background: var(--highlight-bg); } 76.0% { background: transparent; } }
+  @keyframes bg6 { 0% { background: transparent; } 76.0% { background: var(--highlight-bg); } 85.0% { background: transparent; } }
+  @keyframes bg7 { 0% { background: transparent; } 85.0% { background: var(--highlight-bg); } 100%  { background: var(--highlight-bg); } }
 
   .terminal {
     position: absolute;
-    left: 140px;
-    top: 340px;
-    width: 1000px;
+    left: 40px;
+    top: 332px;
+    width: 1200px;
+    height: 376px;
     background: #16211f;
     border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 16px 22px;
     opacity: 0;
     transform: translateY(10px);
-    animation: term-in 0.4s ease 3.2s both;
+    animation: term-in 0.4s ease 1.6s both;
   }
   @keyframes term-in { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+  .terminal .output-label {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    font-family: ui-monospace, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #cfe0dc;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    padding: 2px 10px;
+  }
   .terminal .dots { display: flex; gap: 7px; margin-bottom: 12px; }
   .terminal .dot { width: 10px; height: 10px; border-radius: 50%; }
   .terminal .dot.r { background: #e5645b; }
@@ -109,7 +190,7 @@
   .terminal .dot.g { background: #58b368; }
   .term-row {
     font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
-    font-size: 13px;
+    font-size: 13.5px;
     line-height: 1.7;
     color: #cfe0dc;
     opacity: 0;
@@ -119,24 +200,48 @@
   .term-row.warn .lvl { color: #e8b64a; }
   .term-row.info .lvl { color: #7fd8cf; }
   @keyframes row-in { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: translateX(0); } }
-  .term-row.t1 { animation: row-in 0.35s ease 3.6s both; }
-  .term-row.t2 { animation: row-in 0.35s ease 4.2s both; }
+  .term-row.t1 { animation: row-in 0.35s ease 2.6s both; }
+  .term-row.t2 { animation: row-in 0.35s ease 4.9s both; }
 </style>
 </head>
 <body>
   <div class="slide">
-    <div class="heading">Versioned — rebuilt from scratch on mismatch</div>
+    <div class="heading">version mismatch → rebuild</div>
 
     <div class="code-panel">
       <p class="file">apps/api/src/search/crawlerResultsIndex.ts</p>
-      <div class="code-lines">
-        <div class="ln hl1"><span class="kw">export const</span> CRAWLER_RESULTS_SCHEMA_VERSION = <span class="num">4</span>;</div>
-        <div class="ln hl2"><span class="kw">if</span> (liveVersion === CRAWLER_RESULTS_SCHEMA_VERSION) { <span class="kw">return</span>; }</div>
-        <div class="ln"><span class="kw">await</span> esClient.indices.delete(...); <span class="kw">await</span> createCrawlerResultsIndex();</div>
+      <div class="code-viewport">
+        <div class="code-rows">
+        <div class="code-row" data-ln="125"><span class="gutter">125</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> ensureCrawlerResultsIndex(): Promise&lt;<span class="kw">void</span>&gt; {</span></div>
+        <div class="code-row" data-ln="126"><span class="gutter">126</span><span class="src">&nbsp;&nbsp;<span class="kw">if</span> (indexEnsured) <span class="kw">return</span>;</span></div>
+        <div class="code-row" data-ln="127"><span class="gutter">127</span><span class="src">&nbsp;</span></div>
+        <div class="code-row k1" data-ln="128"><span class="gutter">128</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> exists = <span class="kw">await</span> esClient.indices.<span class="fn">exists</span>({ index: CRAWLER_RESULTS_INDEX });</span></div>
+        <div class="code-row" data-ln="129"><span class="gutter">129</span><span class="src">&nbsp;&nbsp;<span class="kw">if</span> (exists) {</span></div>
+        <div class="code-row k2" data-ln="130"><span class="gutter">130</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> liveVersion = <span class="kw">await</span> readLiveSchemaVersion();</span></div>
+        <div class="code-row k3" data-ln="131"><span class="gutter">131</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (liveVersion === CRAWLER_RESULTS_SCHEMA_VERSION) {</span></div>
+        <div class="code-row" data-ln="132"><span class="gutter">132</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;indexEnsured = true;</span></div>
+        <div class="code-row" data-ln="133"><span class="gutter">133</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span>;</span></div>
+        <div class="code-row" data-ln="134"><span class="gutter">134</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+        <div class="code-row k4" data-ln="135"><span class="gutter">135</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;logger.<span class="fn">warn</span>(</span></div>
+        <div class="code-row k4" data-ln="136"><span class="gutter">136</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`[search] crawler_results schema version ${liveVersion ?? "unversioned"} != `</span> +</span></div>
+        <div class="code-row k4" data-ln="137"><span class="gutter">137</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`${CRAWLER_RESULTS_SCHEMA_VERSION}; rebuilding index. Crawl history and DB records are `</span> +</span></div>
+        <div class="code-row k4" data-ln="138"><span class="gutter">138</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`untouched — re-crawl (per source or "crawl all") to repopulate search data.`</span>,</span></div>
+        <div class="code-row k4" data-ln="139"><span class="gutter">139</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;);</span></div>
+        <div class="code-row k5" data-ln="140"><span class="gutter">140</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> esClient.indices.<span class="fn">delete</span>({ index: CRAWLER_RESULTS_INDEX }, { ignore: [404] });</span></div>
+        <div class="code-row" data-ln="141"><span class="gutter">141</span><span class="src">&nbsp;&nbsp;}</span></div>
+        <div class="code-row" data-ln="142"><span class="gutter">142</span><span class="src">&nbsp;</span></div>
+        <div class="code-row k6" data-ln="143"><span class="gutter">143</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> createCrawlerResultsIndex();</span></div>
+        <div class="code-row k7" data-ln="144"><span class="gutter">144</span><span class="src">&nbsp;&nbsp;logger.<span class="fn">info</span>(</span></div>
+        <div class="code-row k7" data-ln="145"><span class="gutter">145</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`[search] crawler_results index ready at schema version ${CRAWLER_RESULTS_SCHEMA_VERSION}.`</span>,</span></div>
+        <div class="code-row k7" data-ln="146"><span class="gutter">146</span><span class="src">&nbsp;&nbsp;);</span></div>
+        <div class="code-row" data-ln="147"><span class="gutter">147</span><span class="src">&nbsp;&nbsp;indexEnsured = true;</span></div>
+        <div class="code-row" data-ln="148"><span class="gutter">148</span><span class="src">}</span></div>
+        </div>
       </div>
     </div>
 
     <div class="terminal">
+      <p class="output-label">output</p>
       <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
       <div class="term-row t1 warn">[warn] crawler_results schema version <span class="lvl">3</span> != <span class="lvl">4</span>; rebuilding index — crawl history untouched, re-crawl to repopulate.</div>
       <div class="term-row t2 info">[info] crawler_results index ready at schema version <span class="lvl">4</span>.</div>
