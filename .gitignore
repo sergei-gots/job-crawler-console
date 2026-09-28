@@ -43,3 +43,6 @@ coverage/
 
 # Local capture utilities (screen-recording helpers + their output) — not tracked
 utils/
+
+# Local Claude Code session-resume notes — not part of the project
+sesion_id.txt
