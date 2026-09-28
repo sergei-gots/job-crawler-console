@@ -7,8 +7,9 @@ description: Use when creating or editing any presentation slide HTML under .cla
 
 ## Storyboard document — the working plan for this video
 
-[`.claude/doc/video-presentation/storyboard.md`](../../doc/video-presentation/storyboard.md) is
-the authoritative beat-by-beat plan for the presentation being built from `subtitles.ass`: beat
+[`.claude/doc/video-presentation/script/storyboard.md`](../../doc/video-presentation/script/storyboard.md)
+is the authoritative beat-by-beat plan for the presentation being built from `subtitles.ass` (both
+files live in the `script/` subfolder together with `final-script.md`): beat
 timings (taken from the `.ass` word-group timestamps, not estimated), narration, content type,
 focal element, and build status (`built` / `planned` / `outline`). **Read it before planning or
 building any beat, and update its status/file columns as beats are built, retimed, or reordered**
@@ -61,7 +62,7 @@ convention (`job-crawler-demo-slides-*`, `video-slides-dark.html` already ship b
 
 ## Beat pacing: durations come from subtitles.ass, not estimated
 
-`.claude/doc/video-presentation/subtitles.ass` is the source of truth for beat timing — it already
+`.claude/doc/video-presentation/script/subtitles.ass` is the source of truth for beat timing — it already
 has per-word start/end timestamps (karaoke-style `\t` color-sweep tags). Never estimate a beat's
 length from word count or a guessed speaking rate: find the phrase or thesis the beat illustrates
 in the `.ass` events, read its actual start/end timestamps, and make the clip/loop exactly that

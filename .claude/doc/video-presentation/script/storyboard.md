@@ -50,42 +50,57 @@ are `videos/<beat>-base.mp4` (git-ignored intermediates, regenerable from the `.
 | WeWorkRemotely | 1:35.14–1:51.73 | ~16.8s | "WeWorkRemotely: headless Puppeteer got fingerprinted and blocked after a single detail-page navigation / switched to their official RSS feed / pulled via Axios" | app walkthrough + RSS PiP | detail `/sources/2`: `Implementation:` + Strategy flow dwelling on the SECOND problem/solution — red **PROBLEM – headless session fingerprinted** ("Only 1/5 detail fetches found a JobPosting block…") → **FIX v2 – category RSS feed via Axios** ("mirrors the HTML listing 1:1 by slug… 25/25, 0 errors"); PiP = honest LIGHT panel of the REAL category `.rss` feed (fetched live) that **pans/scrolls through several real vacancy `<item>` blocks** (Dremio, Toptal, STEUART NUTRITION, Glean, Adventure Travel 365 — title/region/type) with fixation pauses, ending on "…25 items, mirrors the HTML listing 1:1 by slug" | **built** | `01_35_weworkremotely-light.html` / `videos/01_35_weworkremotely-light.mp4` |
 | Craigslist | 1:51.73–2:05.74 | ~12s | "Craigslist: not a tech job board / general classifieds / narrowed to the IT category / in a few selected cities" | app walkthrough + real-site PiP | detail `/sources/6`: `Implementation:` + Strategy step **GET /search/area/<city>?cat=sof** + the 5 seeded city sub-listings; then a **PiP of the user's own live screen recording of the REAL craigslist site** fades in over the (still-visible, lightly dimmed) source-detail context — hovering the **software / qa / dba** jobs category → the live `craigslist.org/search/area/washingtondc?cat=sof` results (real Chrome window + real address bar, real listings; stays on the results LIST, no detail drill, to avoid big company logos). Real capture = kept as-is per the PiP colour-scheme exception. Source asset: `videos/01_51_craigslist-realsite.mp4` (git-ignored; the user's recording) | **built** | `01_51_craigslist-light.html` / `videos/01_51_craigslist-light.mp4` |
 
-## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:21.26) — outline
+## Part 4 — Sub-listings, mapping, live app, search, extensibility, close (2:06.52–3:17.54) — outline
+
+**Retimed 2026-09-28 (v2):** the "Mapping: there are two kinds of mapping here / The ETL mapping
+happens inside each Strategy – it converts site-specific fields into Vacancy" passage, cut in the
+previous script pass, has been **restored** in both `final-script.md` and `subtitles.ass` — timings
+below for that passage are back to their original values. The closing "That is the main point of
+this demo" sentence stays cut — the close still goes straight from "The rest of the pipeline stays
+the same" to "Thanks for watching," which is why that one gap is still oversized (see note below).
 
 The sub-listings beat (2:06.52–2:10.86) is **built** (app walkthrough); everything from "Mapping:"
 (2:10.86) onward is still outline.
 
 | Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
 |---|---|---|---|---|---|---|---|
-| Sub-listings | 2:06.52–2:10.86 | ~6.6s | "Some sources have sub-listings / which are crawled separately" | app walkthrough | /sources list: cursor clicks the `+` expand toggles on **WeWorkRemotely** (Full-Stack/Backend) then **Craigslist** (5 cities); each revealed nested listing row has its own StatusBadge and Start/Stop — i.e. each listing is crawled separately | **built** | `02_06_sub-listings-light.html` / `videos/02_06_sub-listings-light.mp4` |
+| Sub-listings | 2:06.52–2:10.86 | ~4.3s | "Some sources have sub-listings / which are crawled separately" | app walkthrough | /sources list: cursor clicks the `+` expand toggles on **WeWorkRemotely** (Full-Stack/Backend) then **Craigslist** (5 cities); each revealed nested listing row has its own StatusBadge and Start/Stop — i.e. each listing is crawled separately | **built** | `02_06_sub-listings-light.html` / `videos/02_06_sub-listings-light.mp4` |
 
 | Time (.ass) | Narration |
 |---|---|
 | 2:10.86–2:11.44 | "Mapping:" |
-| 2:11.44–2:15.28 | "there are two kinds of mapping here" |
+| 2:11.44–2:16.12 | "there are two kinds of mapping here" |
 | 2:16.12–2:19.04 | "The ETL mapping happens inside each Strategy –" |
-| 2:19.04–2:23.26 | "it converts site-specific fields into Vacancy" |
-| 2:23.34–2:26.91 | "The Elasticsearch mapping is the index schema" |
-| 2:26.99–2:29.06 | "And it is versioned:" |
+| 2:19.04–2:23.34 | "it converts site-specific fields into Vacancy" |
+| 2:23.34–2:26.99 | "The Elasticsearch mapping is the index schema" |
+| 2:26.99–2:29.10 | "And it is versioned:" |
 | 2:29.10–2:30.51 | "if the schema changes" |
-| 2:30.51–2:32.96 | "the index is rebuilt from scratch" |
+| 2:30.51–2:33.09 | "the index is rebuilt from scratch" |
 | 2:33.09–2:35.33 | "Here is the crawler running" |
 | 2:35.33–2:37.55 | "It is deliberately polite –" |
-| 2:37.55–2:40.76 | "rate limits and jitter on every source" |
+| 2:37.55–2:41.08 | "rate limits and jitter on every source" |
 | 2:41.08–2:44.38 | "You can also compare the strategies side by side" |
-| 2:44.38–2:46.34 | "on the Sources page" |
-| 2:46.51–2:49.17 | "And this is the search interface" |
-| 2:49.35–2:53.84 | "Data from all four sources is already in one index" |
+| 2:44.38–2:46.51 | "on the Sources page" |
+| 2:46.51–2:49.35 | "And this is the search interface" |
+| 2:49.35–2:54.18 | "Data from all four sources is already in one index" |
 | 2:54.18–2:56.24 | "Free-text search highlighting" |
 | 2:56.24–2:59.57 | "and facets for specialization, seniority" |
-| 2:59.57–3:02.63 | "remote status, location and company" |
+| 2:59.57–3:02.81 | "remote status, location and company" |
 | 3:02.81–3:04.19 | "To add another source" |
 | 3:04.19–3:06.67 | "we only need to implement the scraping" |
 | 3:06.67–3:08.81 | "and the source-specific mapping" |
-| 3:08.81–3:12.87 | "The rest of the pipeline stays the same" |
-| 3:13.52–3:17.24 | "That is the main point of this demo" |
-| 3:17.76–3:18.93 | "Thanks for watching –" |
-| 3:18.93–3:21.26 | "the source code is on my GitHub" |
+| 3:08.81–3:14.04 | "The rest of the pipeline stays the same" |
+| 3:14.04–3:15.21 | "Thanks for watching –" |
+| 3:15.21–3:17.54 | "the source code is on my GitHub" |
 
 "Here is the crawler running" (2:33.09+) and "this is the search interface" (2:46.51+) are app
 capture beats against the real, live app — not schematic.
+
+**Pause artifact before the close (still present):** the gap between "stays the same" ending
+(3:12.87) and "Thanks for watching" starting (3:14.04) is **1.17s** — the same size as before the
+Mapping restore, and still noticeably longer than any other beat-to-beat gap in this part (typically
+0.1–0.3s once a word's hold ends). This is the leftover from cutting "That is the main point of this
+demo" out of the narration audio without tightening the join. **Fix:** trim about half of it —
+roughly **0.6s** — out of the master narration audio/video at that join (not just the `.ass`
+timestamps, which are derived from the real audio and will only be correct once the audio itself is
+re-cut), then re-export `subtitles.ass` from the corrected audio so the word timings stay in sync.
