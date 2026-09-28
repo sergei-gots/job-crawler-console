@@ -185,12 +185,45 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   through it — the PiP is an accent over the app, not a full takeover. Tune the PiP's in-point
   (`PIP_AT` in the wrapper JS) to sit under the narration phrase it illustrates, not to fill the clip.
 
-  **DOM-context convention (for a PiP that shows one extracted element).** When a PiP shows a single
-  element lifted from a page (e.g. Habr's `<script type="application/ld+json">`), render a few of its
-  **DOM ancestors in muted grey** (`<html>`→`<head>`→`<meta>`/`<title>`… and the closing
-  `</head>`/`<body>`/`</html>` after it) and highlight **only the target element** (accent colour +
-  one continuous highlight band, contents syntax-coloured inside). This makes it read as "this is
-  lifted straight out of the page's HTML," not free-floating text. See `01_05_habr-career-light.html`.
+  **Context/highlight convention — one grey, two different highlight colours by purpose.** Any
+  panel that shows "real content lifted from a real file/page, with the surrounding context still
+  visible" follows the same shape: everything that isn't the point of the beat renders in **one
+  muted grey, `#b3bbb8`, no syntax colouring**; only the part the beat is actually about gets full
+  colour. Which *highlight* colour that part gets depends on what kind of attention it's getting —
+  don't mix these two:
+
+  | Situation | Highlight style | Example |
+  |---|---|---|
+  | **Static single target** — one element lifted whole out of a page/file, nothing is "executing" | teal/accent: background `#eaf5f2`, `box-shadow: inset 3px 0 0 var(--accent-deep)` | `01_05_habr-career-light.html`'s JSON-LD block |
+  | **Stepping/lockstep execution** — a cursor or flash moving through several lines/chips in sequence, standing in for code actually running | grass green: background `var(--highlight-bg, #cfe8b0)`, text `var(--highlight-text, #23430f)`, `font-weight: 700` | `00_32_transformation-vacancy-model-light.html`'s per-chip flash; `02_16_wwr-mapping-to-code-light.html`'s debugger cursor |
+
+  Shared regardless of which highlight colour: JSON/code keys `#7a3ea1`, strings `#a34d16`, function/
+  method calls `#1d5fae`, type names `var(--accent-deep)`, comments `#5c7a52` italic. A "signature"
+  line worth calling out but not itself stepped through (e.g. the function declaration the reader is
+  "inside") gets its own one-off emphasis colour: dark navy `#1d3f6e`, bold.
+
+  **The muted-grey rule is for content outside the point of the beat, not for "the rest of a
+  function you're already inside."** `01_05`'s DOM ancestors are muted because the beat isn't about
+  `<html>`/`<head>` — but if a beat shows one real function/method in full (e.g. `02_16`), every line
+  of *that* function is real, relevant code and gets full syntax colour throughout, stepped-through
+  or not; only lines truly outside the point (a different function, unrelated boilerplate) get muted.
+  Don't default to muting "the lines that aren't highlighted right now" — that's a different thing
+  from "the lines that aren't part of what this beat is about."
+
+  **A "debugger" beat (multiple stepped-through lines) needs three more things beyond the color
+  table:**
+  - **Discrete stops, not a slide.** `animation-timing-function: steps(1, jump-start)` on the
+    highlight's position keyframes, not `ease` — an eased transition between line positions reads as
+    the highlight "slipping" past lines, not landing on them.
+  - **Show a real contiguous range of the file**, comments and blank lines included, not just the
+    cherry-picked lines — cherry-picking only the relevant lines out of context reads as thin/
+    synthetic even with a nice highlight.
+  - **Recenter the viewport on the active block**, the way a real editor auto-scrolls to follow
+    execution: wrap the code in a fixed-height `overflow: hidden` viewport and animate a `translateY`
+    shift on the content (same `steps(1, jump-start)` timing, keyed to the same stop percentages as
+    the highlight) once the highlight moves into a block worth centering — don't leave the viewport
+    static while the highlight drifts toward its edge.
+  See `02_16_wwr-mapping-to-code-light.html` for all of the above together.
 
   **Feed/list PiP as a scrolling flow.** For a PiP that shows a feed or result list (RSS items, search
   results), don't freeze on one static frame — build the inner content taller than the panel window

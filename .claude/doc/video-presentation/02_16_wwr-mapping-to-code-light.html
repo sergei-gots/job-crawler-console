@@ -2,7 +2,7 @@
 <html data-theme="light">
 <head>
 <meta charset="utf8">
-<title>Job-Crawler-Demo — ETL mapping inside a Strategy: WWR RSS → Vacancy (Light, animated)</title>
+<title>Job-Crawler-Demo — ETL mapping: stepping through parseWeWorkRemotelyRssFeed (Light, animated)</title>
 <style>
   :root {
     --paper: #f2f5f4;
@@ -14,6 +14,9 @@
     --accent-deep: #0b5652;
     --accent-soft: #dcefec;
     --line: #d7dedc;
+    --ctx: #b3bbb8;
+    --highlight-bg: #cfe8b0;
+    --highlight-text: #23430f;
     --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
   }
   * { box-sizing: border-box; }
@@ -43,162 +46,248 @@
     font-weight: 700;
     color: var(--ink);
     opacity: 0;
-    animation: heading-fade 7.22s ease both;
+    animation: heading-fade 6.57s ease both;
   }
-  @keyframes heading-fade { 0% { opacity: 0; } 6% { opacity: 1; } 100% { opacity: 1; } }
-
-  .xml-panel {
-    position: absolute;
-    left: 60px;
-    top: 96px;
-    width: 620px;
-    background: var(--paper-raised);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    padding: 18px 22px;
-    opacity: 0;
-    transform: translateY(-8px);
-    animation: panel-in 0.5s ease 0.2s both;
-  }
-  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
-  .xml-panel .file {
-    font-family: ui-monospace, monospace;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    margin: 0 0 12px;
-  }
-  .xml-code {
-    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
-    font-size: 14.5px;
-    line-height: 1.65;
-    white-space: pre;
-  }
-  .xml-code .tag { color: #7a3ea1; }
-  .xml-code .field {
-    border-radius: 4px;
-    padding: 1px 2px;
-    transition: background 0.2s, box-shadow 0.2s;
-  }
-  .xml-code .field.on { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+  @keyframes heading-fade { 0% { opacity: 0; } 4% { opacity: 1; } 100% { opacity: 1; } }
 
   .code-panel {
     position: absolute;
-    left: 720px;
-    top: 96px;
-    width: 500px;
+    left: 40px;
+    top: 78px;
+    width: 740px;
     background: var(--paper-raised);
     border: 1px solid var(--line);
     border-radius: 12px;
     box-shadow: var(--shadow);
-    padding: 18px 22px;
+    padding: 14px 22px;
     opacity: 0;
-    transform: translateX(24px);
-    animation: code-in 0.4s ease 4.2s both;
+    animation: panel-in 0.4s ease 0.1s both;
   }
-  @keyframes code-in { 0% { opacity: 0; transform: translateX(24px); } 100% { opacity: 1; transform: translateX(0); } }
-  .code-panel .file {
+  .code-viewport {
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+  }
+  .vars-panel {
+    position: absolute;
+    left: 800px;
+    top: 78px;
+    width: 440px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 16px 20px 20px;
+    opacity: 0;
+    animation: panel-in 0.4s ease 0.1s both;
+  }
+  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  .panel-label {
     font-family: ui-monospace, monospace;
     font-size: 15px;
     font-weight: 600;
     color: var(--ink-soft);
-    margin: 0 0 12px;
+    margin: 0 0 4px;
   }
-  .code-lines {
-    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
-    font-size: 14.5px;
-    line-height: 1.75;
-  }
-  .code-lines .prop { color: var(--accent-deep); }
-  .code-lines .ty { color: #7a3ea1; }
-  .code-lines .cm { color: var(--ink-faint); }
-  .code-lines .ln {
-    border-radius: 4px;
-    padding: 1px 4px;
-    margin: 0 -4px;
-  }
-  .flash { animation: flash-line 0.6s ease; }
-  @keyframes flash-line {
-    0%   { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-    100% { background: transparent; box-shadow: none; }
-  }
-  .fl1 { animation-delay: 4.8s; }
-  .fl2 { animation-delay: 5.2s; }
-  .fl3 { animation-delay: 5.6s; }
-
-  .debug {
-    position: absolute;
-    left: 60px;
-    top: 470px;
-    width: 1160px;
-    background: #16211f;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    padding: 16px 22px;
-    opacity: 0;
-    transform: translateY(8px);
-    animation: debug-in 0.4s ease 6.0s both;
-  }
-  @keyframes debug-in { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
-  .debug .label {
+  .panel-sub {
     font-family: ui-monospace, monospace;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #bfe0da;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0 0 8px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 10px;
   }
-  .debug .obj {
+
+  .code-rows {
+    position: relative;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    animation: scroll-shift 6.57s steps(1, jump-start) 0.15s both;
+  }
+  @keyframes scroll-shift {
+    0%     { transform: translateY(0); }
+    35.3%  { transform: translateY(0); }
+    46.8%  { transform: translateY(-149px); }
+    100%   { transform: translateY(-149px); }
+  }
+  .code-row { display: flex; height: 17px; align-items: center; gap: 12px; position: relative; z-index: 1; white-space: nowrap; }
+  .code-row .gutter { flex: 0 0 24px; color: var(--ink-faint); font-size: 11px; text-align: right; }
+  /* Every line in this excerpt is real, relevant code from inside the one method being stepped
+     through - it all gets full editor-style syntax colour, not muted "ancestor" grey. Only actual
+     comment text gets a distinct (darker sage) colour, same as a real editor's comment styling. */
+  .code-row .src { color: var(--ink); }
+  .code-row .kw { color: #7a3ea1; }
+  .code-row .str { color: #a34d16; }
+  .code-row .fn { color: #1d5fae; }
+  .code-row .ty { color: var(--accent-deep); }
+  .code-row .op { color: var(--ink-soft); }
+  .code-row .cm { color: #5c7a52; font-style: italic; }
+  .code-row.sig .src { color: #1d3f6e; font-weight: 700; }
+
+  .cursor {
+    position: absolute;
+    left: -22px;
+    width: calc(100% + 44px);
+    height: 17px;
+    background: var(--highlight-bg);
+    border-radius: 4px;
+    z-index: 0;
+    opacity: 0;
+    animation: step-through 6.57s steps(1, jump-start) 0.15s both;
+  }
+  /* Matches 00_32's stepping-highlight convention: whichever row the cursor bar is currently
+     behind goes single-color dark-green (its own token colors would clash unreadably on the
+     green background), not rainbow-syntax-colored like the surrounding context lines. Each key
+     line gets its own on/off window, timed to the exact same breakpoints as .cursor's
+     step-through so the text flips color in lockstep with the bar arriving/leaving. */
+  .ln116 .src, .ln116 .src *, .ln117 .src, .ln117 .src *,
+  .ln127 .src, .ln127 .src *, .ln128 .src, .ln128 .src *,
+  .ln129 .src, .ln129 .src *, .ln131 .src, .ln131 .src *,
+  .ln136 .src, .ln136 .src *, .ln138 .src, .ln138 .src *,
+  .ln139 .src, .ln139 .src *, .ln142 .src, .ln142 .src * {
+    font-weight: 700;
+    animation-duration: 6.57s;
+    animation-timing-function: steps(1, jump-start);
+    animation-delay: 0.15s;
+    animation-fill-mode: both;
+  }
+  .ln116 .src, .ln116 .src * { animation-name: flash-116; }
+  .ln117 .src, .ln117 .src * { animation-name: flash-117; }
+  .ln127 .src, .ln127 .src * { animation-name: flash-127; }
+  .ln128 .src, .ln128 .src * { animation-name: flash-128; }
+  .ln129 .src, .ln129 .src * { animation-name: flash-129; }
+  .ln131 .src, .ln131 .src * { animation-name: flash-131; }
+  .ln136 .src, .ln136 .src * { animation-name: flash-136; }
+  .ln138 .src, .ln138 .src * { animation-name: flash-138; }
+  .ln139 .src, .ln139 .src * { animation-name: flash-139; }
+  .ln142 .src, .ln142 .src * { animation-name: flash-142; }
+  @keyframes flash-116 { 0% { color: var(--ink); } 2.5%  { color: var(--highlight-text); } 7.4%  { color: var(--ink); } }
+  @keyframes flash-117 { 0% { color: var(--ink); } 7.4%  { color: var(--highlight-text); } 12.3% { color: var(--ink); } }
+  @keyframes flash-127 { 0% { color: var(--ink); } 12.3% { color: var(--highlight-text); } 23.8% { color: var(--ink); } }
+  @keyframes flash-128 { 0% { color: var(--ink); } 23.8% { color: var(--highlight-text); } 35.3% { color: var(--ink); } }
+  @keyframes flash-129 { 0% { color: var(--ink); } 35.3% { color: var(--highlight-text); } 46.8% { color: var(--ink); } }
+  @keyframes flash-131 { 0% { color: var(--ink); } 46.8% { color: var(--highlight-text); } 55.0% { color: var(--ink); } }
+  @keyframes flash-136 { 0% { color: var(--ink); } 55.0% { color: var(--highlight-text); } 63.2% { color: var(--ink); } }
+  @keyframes flash-138 { 0% { color: var(--ink); } 63.2% { color: var(--highlight-text); } 71.4% { color: var(--ink); } }
+  @keyframes flash-139 { 0% { color: var(--ink); } 71.4% { color: var(--highlight-text); } 81.3% { color: var(--ink); } }
+  @keyframes flash-142 { 0% { color: var(--ink); } 81.3% { color: var(--highlight-text); } 100%  { color: var(--highlight-text); } }
+  @keyframes step-through {
+    0%     { top: 102px; opacity: 0; }
+    2.5%   { top: 102px; opacity: 1; }
+    7.4%   { top: 119px; opacity: 1; }
+    12.3%  { top: 289px; opacity: 1; }
+    23.8%  { top: 306px; opacity: 1; }
+    35.3%  { top: 323px; opacity: 1; }
+    46.8%  { top: 357px; opacity: 1; }
+    55.0%  { top: 442px; opacity: 1; }
+    63.2%  { top: 476px; opacity: 1; }
+    71.4%  { top: 493px; opacity: 1; }
+    81.3%  { top: 544px; opacity: 1; }
+    100%   { top: 544px; opacity: 1; }
+  }
+
+  .var-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    height: 34px;
     font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
     font-size: 15px;
-    color: #eef5f3;
+    opacity: 0;
+    transform: translateX(-8px);
   }
-  .debug .k2 { color: #7fd8cf; }
-  .debug .s2 { color: #e4b16a; }
+  .var-row .k { color: var(--ink-soft); font-weight: 600; }
+  .var-row .v { color: #a34d16; }
+  .var-row .v.bool { color: var(--accent-deep); }
+  .var-row.raw .k { color: var(--ink-faint); font-weight: 500; }
+  .var-row.raw .v { color: var(--ink-faint); }
+
+  @keyframes var-in { 0% { opacity: 0; transform: translateX(-8px); } 100% { opacity: 1; transform: translateX(0); } }
+  .var-row.r1 { animation: var-in 0.3s ease 0.81s both; }
+  .var-row.r2 { animation: var-in 0.3s ease 1.56s both; }
+  .var-row.r3 { animation: var-in 0.3s ease 2.32s both; }
+  .var-row.r4 { animation: var-in 0.3s ease 3.61s both; }
+  .var-row.r5 { animation: var-in 0.3s ease 4.15s both; }
+  .var-row.r6 { animation: var-in 0.3s ease 4.69s both; }
+  .var-row.r7 { animation: var-in 0.3s ease 5.34s both; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-deep);
+    opacity: 0;
+    animation: var-in 0.3s ease 3.07s both;
+  }
+  .divider .bar { flex: 1; height: 1px; background: var(--accent); opacity: 0.4; }
 </style>
 </head>
 <body>
   <div class="slide">
-    <div class="heading">ETL mapping — inside the Strategy</div>
-
-    <div class="xml-panel">
-      <p class="file">weworkremotely.com/categories/…programming-jobs<b>.rss</b></p>
-      <div class="xml-code">&lt;<span class="tag">item</span>&gt;
-  &lt;<span class="tag">title</span>&gt;STEUART NUTRITION: Software Developer AI Coding&lt;/<span class="tag">title</span>&gt;
-  &lt;<span class="tag">region</span>&gt;<span class="field" id="f-region">Anywhere in the World</span>&lt;/<span class="tag">region</span>&gt;
-  &lt;<span class="tag">pubDate</span>&gt;<span class="field" id="f-pubdate">Thu, 24 Sep 2026 07:30:50 +0000</span>&lt;/<span class="tag">pubDate</span>&gt;
-  &lt;<span class="tag">skills</span>&gt;<span class="field" id="f-skills">AI Content Creation and AI Agents</span>&lt;/<span class="tag">skills</span>&gt;
-&lt;/<span class="tag">item</span>&gt;</div>
-    </div>
+    <div class="heading">site fields → RawVacancy</div>
 
     <div class="code-panel">
-      <p class="file">weWorkRemotelyStrategy.ts — parseWeWorkRemotelyRssFeed</p>
-      <div class="code-lines">
-        <div class="ln fl1"><span class="prop">location</span>: region,</div>
-        <div class="ln"><span class="prop">isRemote</span>: <span class="ty">true</span>, <span class="cm">// WWR is 100% remote</span></div>
-        <div class="ln fl2"><span class="prop">postedAt</span>: <span class="ty">new</span> Date(pubDate).toISOString(),</div>
-        <div class="ln fl3">...(skills ? { <span class="prop">skillsSummary</span>: skills } : {}),</div>
+      <p class="panel-label">weWorkRemotelyStrategy.ts</p>
+      <p class="panel-sub">parseWeWorkRemotelyRssFeed — real lines 110-146</p>
+      <div class="code-viewport">
+      <div class="code-rows">
+        <div class="cursor"></div>
+        <div class="code-row sig"><span class="gutter">110</span><span class="src">export function parseWeWorkRemotelyRssFeed(xml: string): Map&lt;string, Partial&lt;RawVacancy&gt;&gt; {</span></div>
+        <div class="code-row ctx"><span class="gutter">111</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> $ <span class="op">=</span> cheerio<span class="op">.</span><span class="fn">load</span>(xml, { xmlMode<span class="op">:</span> <span class="kw">true</span> });</span></div>
+        <div class="code-row ctx"><span class="gutter">112</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> bySlug <span class="op">=</span> <span class="kw">new</span> <span class="ty">Map</span>&lt;string, <span class="ty">Partial</span>&lt;<span class="ty">RawVacancy</span>&gt;&gt;();</span></div>
+        <div class="code-row ctx"><span class="gutter">113</span><span class="src">&nbsp;</span></div>
+        <div class="code-row ctx"><span class="gutter">114</span><span class="src">&nbsp;&nbsp;$(<span class="str">"item"</span>)<span class="op">.</span><span class="fn">each</span>((_, el) <span class="op">=&gt;</span> {</span></div>
+        <div class="code-row ctx"><span class="gutter">115</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> item <span class="op">=</span> $(el);</span></div>
+        <div class="code-row key ln116"><span class="gutter">116</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> link <span class="op">=</span> item<span class="op">.</span><span class="fn">find</span>(<span class="str">"link"</span>)<span class="op">.</span><span class="fn">first</span>()<span class="op">.</span><span class="fn">text</span>()<span class="op">.</span><span class="fn">trim</span>();</span></div>
+        <div class="code-row key ln117"><span class="gutter">117</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> slug <span class="op">=</span> link<span class="op">.</span><span class="fn">match</span>(<span class="str">/\/remote-jobs\/([^/?#]+)/</span>)<span class="op">?.[1]</span>;</span></div>
+        <div class="code-row ctx"><span class="gutter">118</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (!slug) <span class="kw">return</span>;</span></div>
+        <div class="code-row ctx"><span class="gutter">119</span><span class="src">&nbsp;</span></div>
+        <div class="code-row ctx"><span class="gutter">120</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;// &lt;description&gt; arrives HTML-entity-double-encoded, same issue as the JobPosting JSON-LD this</span></div>
+        <div class="code-row ctx"><span class="gutter">121</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;// replaced (confirmed live: the raw XML literally contains the six characters "&amp;lt;p&amp;gt;", not</span></div>
+        <div class="code-row ctx"><span class="gutter">122</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;// a real "&lt;p&gt;" byte) - one cheerio .text() decode pass turns that into real markup, which</span></div>
+        <div class="code-row ctx"><span class="gutter">123</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;// htmlToText can then strip normally on a second pass.</span></div>
+        <div class="code-row ctx"><span class="gutter">124</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> rawDescription <span class="op">=</span> item<span class="op">.</span><span class="fn">find</span>(<span class="str">"description"</span>)<span class="op">.</span><span class="fn">first</span>()<span class="op">.</span><span class="fn">text</span>();</span></div>
+        <div class="code-row ctx"><span class="gutter">125</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> decodedDescription <span class="op">=</span> cheerio<span class="op">.</span><span class="fn">load</span>(rawDescription)<span class="op">.</span><span class="fn">text</span>();</span></div>
+        <div class="code-row ctx"><span class="gutter">126</span><span class="src">&nbsp;</span></div>
+        <div class="code-row key ln127"><span class="gutter">127</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> region <span class="op">=</span> item<span class="op">.</span><span class="fn">find</span>(<span class="str">"region"</span>)<span class="op">.</span><span class="fn">first</span>()<span class="op">.</span><span class="fn">text</span>()<span class="op">.</span><span class="fn">trim</span>() <span class="op">||</span> <span class="kw">null</span>;</span></div>
+        <div class="code-row key ln128"><span class="gutter">128</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> skills <span class="op">=</span> item<span class="op">.</span><span class="fn">find</span>(<span class="str">"skills"</span>)<span class="op">.</span><span class="fn">first</span>()<span class="op">.</span><span class="fn">text</span>()<span class="op">.</span><span class="fn">trim</span>() <span class="op">||</span> <span class="kw">null</span>;</span></div>
+        <div class="code-row key ln129"><span class="gutter">129</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> pubDate <span class="op">=</span> item<span class="op">.</span><span class="fn">find</span>(<span class="str">"pubDate"</span>)<span class="op">.</span><span class="fn">first</span>()<span class="op">.</span><span class="fn">text</span>()<span class="op">.</span><span class="fn">trim</span>();</span></div>
+        <div class="code-row ctx"><span class="gutter">130</span><span class="src">&nbsp;</span></div>
+        <div class="code-row key ln131"><span class="gutter">131</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;bySlug<span class="op">.</span><span class="fn">set</span>(slug, {</span></div>
+        <div class="code-row ctx"><span class="gutter">132</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description: htmlToText(decodedDescription),</span></div>
+        <div class="code-row ctx"><span class="gutter">133</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// &lt;region&gt; (e.g. "Anywhere in the World", "USA Only") is always populated, unlike the</span></div>
+        <div class="code-row ctx"><span class="gutter">134</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// JobPosting JSON-LD approach this replaced, where jobLocation was only present for</span></div>
+        <div class="code-row ctx"><span class="gutter">135</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// geo-restricted postings - a strictly more complete signal for the same field.</span></div>
+        <div class="code-row key ln136"><span class="gutter">136</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;location<span class="op">:</span> region,</span></div>
+        <div class="code-row ctx"><span class="gutter">137</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// WWR is a 100%-remote job board by design (same rationale as RemoteOK's hardcoded true).</span></div>
+        <div class="code-row key ln138"><span class="gutter">138</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isRemote<span class="op">:</span> <span class="kw">true</span>,</span></div>
+        <div class="code-row key ln139"><span class="gutter">139</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;postedAt<span class="op">:</span> pubDate <span class="op">?</span> <span class="kw">new</span> Date(pubDate)<span class="op">.</span><span class="fn">toISOString</span>() <span class="op">:</span> <span class="kw">null</span>,</span></div>
+        <div class="code-row ctx"><span class="gutter">140</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// &lt;skills&gt; is empty on plenty of postings (confirmed live) - only set when non-empty, so a</span></div>
+        <div class="code-row ctx"><span class="gutter">141</span><span class="src cm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// blank tag doesn't clobber a previously-stored value with an empty string.</span></div>
+        <div class="code-row key ln142"><span class="gutter">142</span><span class="src"><span class="op">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...</span>(skills <span class="op">?</span> { skillsSummary: skills } <span class="op">:</span> {}),</span></div>
+        <div class="code-row ctx"><span class="gutter">143</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;});</span></div>
+        <div class="code-row ctx"><span class="gutter">144</span><span class="src">&nbsp;&nbsp;});</span></div>
+        <div class="code-row ctx"><span class="gutter">145</span><span class="src">&nbsp;</span></div>
+        <div class="code-row ctx"><span class="gutter">146</span><span class="src">&nbsp;&nbsp;return bySlug;</span></div>
+      </div>
       </div>
     </div>
 
-    <div class="debug">
-      <p class="label">resulting Vacancy fields</p>
-      <div class="obj">{ <span class="k2">location</span>: <span class="s2">"Anywhere in the World"</span>, <span class="k2">isRemote</span>: true, <span class="k2">postedAt</span>: <span class="s2">"2026-09-24T07:30:50.000Z"</span>, <span class="k2">skillsSummary</span>: <span class="s2">"AI Content Creation and AI Agents"</span> }</div>
+    <div class="vars-panel">
+      <p class="panel-label">Variables</p>
+      <p class="panel-sub">evaluated for the real STEUART NUTRITION item</p>
+      <div class="var-row raw r1"><span class="k">region</span><span>=</span><span class="v">"Anywhere in the World"</span></div>
+      <div class="var-row raw r2"><span class="k">skills</span><span>=</span><span class="v">"AI Content Creation and AI Agents"</span></div>
+      <div class="var-row raw r3"><span class="k">pubDate</span><span>=</span><span class="v">"Thu, 24 Sep 2026 07:30:50 +0000"</span></div>
+      <div class="divider"><span>RawVacancy</span><span class="bar"></span></div>
+      <div class="var-row r4"><span class="k">location</span><span>=</span><span class="v">"Anywhere in the World"</span></div>
+      <div class="var-row r5"><span class="k">isRemote</span><span>=</span><span class="v bool">true</span></div>
+      <div class="var-row r6"><span class="k">postedAt</span><span>=</span><span class="v">"2026-09-24T07:30:50.000Z"</span></div>
+      <div class="var-row r7"><span class="k">skillsSummary</span><span>=</span><span class="v">"AI Content Creation and AI Agents"</span></div>
     </div>
   </div>
-
-  <style>
-    #f-region  { animation: field-pulse 1.2s ease 0.6s both; }
-    #f-pubdate { animation: field-pulse 1.2s ease 1.8s both; }
-    #f-skills  { animation: field-pulse 1.2s ease 3.0s both; }
-    @keyframes field-pulse {
-      0%   { background: transparent; box-shadow: none; }
-      15%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-      80%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
-      100% { background: transparent; box-shadow: none; }
-    }
-  </style>
 </body>
 </html>
