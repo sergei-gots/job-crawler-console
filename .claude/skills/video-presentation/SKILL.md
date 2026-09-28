@@ -96,6 +96,43 @@ A schematic slide built for a 5-6s beat needs a different visual language than t
   fill the beat's actual `.ass`-derived duration — no gentle multi-second fade-ins or pulses that
   only read as "settling" over 10+ seconds. Motion should look intentional within ~1s, not ambient.
 
+## Label contrast, and showing multiplicity
+
+Two schematic-slide conventions confirmed on the Mapping beats (`02_10`/`02_16`/`02_23`/`02_26`,
+2026-09-28):
+
+- **Secondary labels must be readable, not just present.** A source-file path (the `.file` line
+  above a code/XML panel) or a small caption under a schematic element is still a label the viewer
+  has to read in a few seconds, not a decorative footnote — give it **15px, `font-weight: 600`,
+  `color: var(--ink-soft)`**, not the smaller/fainter 11.5-13px `var(--ink-faint)` that earlier
+  slides used for this role. Keep a `.file` label to one line — if it doesn't fit the panel width at
+  that size (e.g. a long URL plus a trailing annotation), cut the annotation rather than letting it
+  wrap; the code/data below usually makes the annotation redundant anyway.
+- **Show real multiplicity as a cascade, not a caption.** When a schematic element stands for
+  several real things at once (e.g. "the source" really means all 4 crawled sites), render it as a
+  stack of 2-3 offset ghost copies behind the front card (same shape, lower opacity, offset up-left
+  by ~16px increments) rather than adding explanatory text like "×4" or "4 real sources" — the
+  cascade reads as plural on its own, and a literal count/label on top of it reads as an unnecessary
+  AI-generated explainer. Label the front card with a plain plural noun (`Sites`, not `Source` or a
+  padded-out phrase) and let the visual carry the "there are several of these" idea.
+
+## Growing-arrow reveal (flow between two elements)
+
+For a beat that connects two schematic elements with "X happens between/at these two points"
+(e.g. the Mapping beat's Source→Redis→Elasticsearch pipeline), prefer a **growing arrow** over a
+continuously-animated dashed/marching-ants line — a `stroke-dashoffset` loop that runs for the
+beat's whole duration reads as background noise, not a beat about something specific. Structure:
+
+- The arrow shaft is a `clip-path: inset(0 100% 0 0)` → `inset(0 0% 0 0)` reveal on a wrapper
+  containing a solid bar + a CSS-triangle arrowhead (`::after` border trick) — this makes the arrow
+  visibly grow left-to-right once, timed to the beat.
+- Any callout/label attached to that arrow (e.g. "Strategy mapping") must **fade in on its own
+  `opacity` animation** with the same delay/duration as the arrow's growth — do NOT put the label
+  inside the same clipped wrapper as the shaft. Clipping text open along with the shaft makes it
+  look like it's being wiped/typed on, which reads as a rendering glitch rather than an appearance;
+  a plain fade over the same window keeps the "label arrives together with the arrow" idea without
+  that artifact. Two separate elements, two separate animations, same timing — not one shared clip.
+
 ## Content types for a beat
 
 Not every beat is an animated CSS/SVG slide. Pick the type that actually shows the claim being

@@ -1,0 +1,203 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Mapping: two kinds, two pipeline points (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  /* Narration opens on the word "Mapping" - so the heading opens big and centered (matching
+     00_32's title-card treatment), holds briefly, then shrinks into the small corner label used
+     for the rest of the beat, instead of fading in already-small. */
+  .heading {
+    position: absolute;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    animation: heading-move 5s ease both;
+  }
+  @keyframes heading-move {
+    0%    { left: 50%; top: 300px; transform: translate(-50%, 0); font-size: 56px; opacity: 0; }
+    5%    { left: 50%; top: 300px; transform: translate(-50%, 0); font-size: 56px; opacity: 1; }
+    13%   { left: 50%; top: 300px; transform: translate(-50%, 0); font-size: 56px; opacity: 1; }
+    17%   { left: 40px; top: 36px;  transform: translate(0, 0);   font-size: 24px; opacity: 1; }
+    100%  { left: 40px; top: 36px;  transform: translate(0, 0);   font-size: 24px; opacity: 1; }
+  }
+
+  .barrels {
+    position: absolute;
+    left: 0;
+    top: 260px;
+    width: 1280px;
+    height: 240px;
+  }
+  .barrel {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  .barrel.b1 { animation: barrel-in 0.35s cubic-bezier(.2,.85,.25,1.05) 0.95s both; }
+  .barrel.b2 { animation: barrel-in 0.35s cubic-bezier(.2,.85,.25,1.05) 1.20s both; }
+  .barrel.b3 { animation: barrel-in 0.35s cubic-bezier(.2,.85,.25,1.05) 1.45s both; }
+  @keyframes barrel-in {
+    0%   { opacity: 0; transform: scale(0.85) translateY(10px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* Each arrow-group positions a callout (fades in) above a shaft-wrap (clip-path reveal, i.e.
+     the arrow visibly grows) - same delay/duration on both, so the label fades in progressively
+     over the same window the arrow takes to grow, without being "wiped" open like the shaft. */
+  .arrow-group {
+    position: absolute;
+    top: 140px;
+    height: 250px;
+  }
+  .arrow-group.g1 { left: 250px; width: 220px; }
+  .arrow-group.g2 { left: 660px; width: 240px; }
+
+  .shaft-wrap {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  .g1 .shaft-wrap { animation: reveal-grow 1.3s ease 1.75s both; }
+  .g2 .shaft-wrap { animation: reveal-grow 1.3s ease 3.25s both; }
+  @keyframes reveal-grow {
+    0%   { clip-path: inset(0 100% 0 0); }
+    100% { clip-path: inset(0 0% 0 0); }
+  }
+
+  .callout-inline {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    opacity: 0;
+  }
+  .g1 .callout-inline { animation: callout-fade 1.3s ease 1.75s both; }
+  .g2 .callout-inline { animation: callout-fade 1.3s ease 3.25s both; }
+  @keyframes callout-fade {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  .callout-inline .tag {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .callout-inline .sub {
+    margin-top: 7px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  .shaft {
+    position: absolute;
+    left: 0;
+    top: 236px;
+    width: 100%;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .shaft::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-style: solid;
+    border-width: 7px 0 7px 11px;
+    border-color: transparent transparent transparent var(--accent);
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Mapping</div>
+
+    <div class="barrels">
+      <svg viewBox="0 0 1280 240" width="1280" height="240">
+        <g class="barrel b1">
+          <!-- cascade of 3 ghost cards behind the front one - stands for the 4 real sources
+               (Habr Career / RemoteOK / WeWorkRemotely / Craigslist) feeding the same pipeline -->
+          <rect x="28" y="28" width="190" height="120" rx="20" fill="#ffffff" stroke="#d7dedc" stroke-width="1.5" opacity="0.45"></rect>
+          <rect x="44" y="44" width="190" height="120" rx="20" fill="#ffffff" stroke="#d7dedc" stroke-width="1.5" opacity="0.7"></rect>
+          <rect x="60" y="60" width="190" height="120" rx="20" fill="#ffffff" stroke="#d7dedc" stroke-width="1.5"></rect>
+          <line x1="60" y1="90" x2="250" y2="90" stroke="#d7dedc" stroke-width="1.5"></line>
+          <line x1="60" y1="150" x2="250" y2="150" stroke="#d7dedc" stroke-width="1.5"></line>
+          <text x="155" y="127" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="18" fill="#16211f">Sites</text>
+          <text x="155" y="204" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="600" fill="#4e5f5b">HTML, RSS, JS-rendered</text>
+        </g>
+        <g class="barrel b2">
+          <rect x="470" y="60" width="190" height="120" rx="20" fill="#ffffff" stroke="#127d76" stroke-width="1.5"></rect>
+          <line x1="470" y1="90" x2="660" y2="90" stroke="#127d76" stroke-width="1.5"></line>
+          <line x1="470" y1="150" x2="660" y2="150" stroke="#127d76" stroke-width="1.5"></line>
+          <text x="565" y="127" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="18" fill="#16211f">Redis</text>
+          <text x="565" y="204" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="600" fill="#4e5f5b">Vacancy fields cached</text>
+        </g>
+        <g class="barrel b3">
+          <rect x="900" y="60" width="220" height="120" rx="20" fill="#ffffff" stroke="#127d76" stroke-width="1.5"></rect>
+          <line x1="900" y1="90" x2="1120" y2="90" stroke="#127d76" stroke-width="1.5"></line>
+          <line x1="900" y1="150" x2="1120" y2="150" stroke="#127d76" stroke-width="1.5"></line>
+          <text x="1010" y="127" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="18" fill="#16211f">Elasticsearch</text>
+          <text x="1010" y="204" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="600" fill="#4e5f5b">crawler_results index</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="arrow-group g1">
+      <div class="callout-inline">
+        <span class="tag">Strategy mapping</span>
+        <div class="sub">site fields → Vacancy</div>
+      </div>
+      <div class="shaft-wrap"><div class="shaft"></div></div>
+    </div>
+    <div class="arrow-group g2">
+      <div class="callout-inline">
+        <span class="tag">Index mapping</span>
+        <div class="sub">Vacancy → ES schema</div>
+      </div>
+      <div class="shaft-wrap"><div class="shaft"></div></div>
+    </div>
+  </div>
+</body>
+</html>

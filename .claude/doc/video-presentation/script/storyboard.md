@@ -59,23 +59,18 @@ below for that passage are back to their original values. The closing "That is t
 this demo" sentence stays cut — the close still goes straight from "The rest of the pipeline stays
 the same" to "Thanks for watching," which is why that one gap is still oversized (see note below).
 
-The sub-listings beat (2:06.52–2:10.86) is **built** (app walkthrough); everything from "Mapping:"
-(2:10.86) onward is still outline.
+The sub-listings beat (2:06.52–2:10.86) and the Mapping passage (2:10.86–2:33.09, 4 beats below)
+are **built**. Everything from "Here is the crawler running" (2:33.09) onward is still outline.
 
 | Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
 |---|---|---|---|---|---|---|---|
 | Sub-listings | 2:06.52–2:10.86 | ~4.3s | "Some sources have sub-listings / which are crawled separately" | app walkthrough | /sources list: cursor clicks the `+` expand toggles on **WeWorkRemotely** (Full-Stack/Backend) then **Craigslist** (5 cities); each revealed nested listing row has its own StatusBadge and Start/Stop — i.e. each listing is crawled separately | **built** | `02_06_sub-listings-light.html` / `videos/02_06_sub-listings-light.mp4` |
-
+| Mapping (two kinds) | 2:10.86–2:16.12 | 5.26s | "Mapping: there are two kinds of mapping here" | schematic (new) | 3 "barrels" left→right — **Source → Redis → Elasticsearch** — connected by an animated flow-pipe; two pulsing callouts appear on the pipe: "Strategy mapping" (site fields → Vacancy) between Source/Redis, "Index mapping" (Vacancy → ES schema) at Elasticsearch. Deliberately NOT a reuse of the `/about` ETL card (already shown in `00_18`) — illustrates the same idea (two mapping points) a different way | **built** | `02_10_mapping-pipeline-barrels-light.html` |
+| ETL mapping (Strategy) | 2:16.12–2:23.34 | 7.22s | "The ETL mapping happens inside each Strategy – it converts site-specific fields into Vacancy" | structure-to-code | Real WeWorkRemotely RSS `<item>` (STEUART NUTRITION, same real item already panned in `01_35`'s PiP) — highlight walks `<region>` → `<pubDate>` → `<skills>`; code panel slides in with the real `parseWeWorkRemotelyRssFeed` lines (`location: region`, `postedAt: new Date(pubDate).toISOString()`, conditional `skillsSummary`), flashing in the same order; ends on a debug-style rendering of the resulting Vacancy fields. Deliberately NOT Habr Career (already fully covered in `01_05`'s JSON-LD PiP, and its fields are Russian-flavored) | **built** | `02_16_wwr-mapping-to-code-light.html` |
+| Elasticsearch mapping | 2:23.34–2:26.99 | 3.65s | "The Elasticsearch mapping is the index schema" | code capture | Real `CRAWLER_RESULTS_PROPERTIES` from `crawlerResultsIndex.ts`, highlight + inline tags on the `company` field: "text → full-text" / "keyword → facet" | **built** | `02_23_es-index-mapping-light.html` |
+| Versioned/rebuilt | 2:26.99–2:33.09 | 6.1s | "And it is versioned: if the schema changes, the index is rebuilt from scratch" | code → real terminal log | Highlight on `CRAWLER_RESULTS_SCHEMA_VERSION = 4` then the `liveVersion === ...` check; terminal panel below shows the **real captured log** from actually forcing a version mismatch on the live dev ES index and running `ensureCrawlerResultsIndex()` (`schema version 3 != 4; rebuilding index...` / `index ready at schema version 4`) — not staged text. Side effect: this emptied the local `crawler_results` index (0 docs) — re-crawl before relying on real search results locally | **built** | `02_26_schema-version-rebuild-light.html` |
 | Time (.ass) | Narration |
 |---|---|
-| 2:10.86–2:11.44 | "Mapping:" |
-| 2:11.44–2:16.12 | "there are two kinds of mapping here" |
-| 2:16.12–2:19.04 | "The ETL mapping happens inside each Strategy –" |
-| 2:19.04–2:23.34 | "it converts site-specific fields into Vacancy" |
-| 2:23.34–2:26.99 | "The Elasticsearch mapping is the index schema" |
-| 2:26.99–2:29.10 | "And it is versioned:" |
-| 2:29.10–2:30.51 | "if the schema changes" |
-| 2:30.51–2:33.09 | "the index is rebuilt from scratch" |
 | 2:33.09–2:35.33 | "Here is the crawler running" |
 | 2:35.33–2:37.55 | "It is deliberately polite –" |
 | 2:37.55–2:41.08 | "rate limits and jitter on every source" |

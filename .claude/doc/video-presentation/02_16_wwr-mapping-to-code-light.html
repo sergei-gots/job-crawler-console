@@ -1,0 +1,204 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — ETL mapping inside a Strategy: WWR RSS → Vacancy (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 40px;
+    top: 36px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0;
+    animation: heading-fade 7.22s ease both;
+  }
+  @keyframes heading-fade { 0% { opacity: 0; } 6% { opacity: 1; } 100% { opacity: 1; } }
+
+  .xml-panel {
+    position: absolute;
+    left: 60px;
+    top: 96px;
+    width: 620px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+    opacity: 0;
+    transform: translateY(-8px);
+    animation: panel-in 0.5s ease 0.2s both;
+  }
+  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
+  .xml-panel .file {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+  .xml-code {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 14.5px;
+    line-height: 1.65;
+    white-space: pre;
+  }
+  .xml-code .tag { color: #7a3ea1; }
+  .xml-code .field {
+    border-radius: 4px;
+    padding: 1px 2px;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .xml-code .field.on { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+
+  .code-panel {
+    position: absolute;
+    left: 720px;
+    top: 96px;
+    width: 500px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+    opacity: 0;
+    transform: translateX(24px);
+    animation: code-in 0.4s ease 4.2s both;
+  }
+  @keyframes code-in { 0% { opacity: 0; transform: translateX(24px); } 100% { opacity: 1; transform: translateX(0); } }
+  .code-panel .file {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+  .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 14.5px;
+    line-height: 1.75;
+  }
+  .code-lines .prop { color: var(--accent-deep); }
+  .code-lines .ty { color: #7a3ea1; }
+  .code-lines .cm { color: var(--ink-faint); }
+  .code-lines .ln {
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: 0 -4px;
+  }
+  .flash { animation: flash-line 0.6s ease; }
+  @keyframes flash-line {
+    0%   { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+    100% { background: transparent; box-shadow: none; }
+  }
+  .fl1 { animation-delay: 4.8s; }
+  .fl2 { animation-delay: 5.2s; }
+  .fl3 { animation-delay: 5.6s; }
+
+  .debug {
+    position: absolute;
+    left: 60px;
+    top: 470px;
+    width: 1160px;
+    background: #16211f;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 16px 22px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: debug-in 0.4s ease 6.0s both;
+  }
+  @keyframes debug-in { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+  .debug .label {
+    font-family: ui-monospace, monospace;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #bfe0da;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+  }
+  .debug .obj {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 15px;
+    color: #eef5f3;
+  }
+  .debug .k2 { color: #7fd8cf; }
+  .debug .s2 { color: #e4b16a; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">ETL mapping — inside the Strategy</div>
+
+    <div class="xml-panel">
+      <p class="file">weworkremotely.com/categories/…programming-jobs<b>.rss</b></p>
+      <div class="xml-code">&lt;<span class="tag">item</span>&gt;
+  &lt;<span class="tag">title</span>&gt;STEUART NUTRITION: Software Developer AI Coding&lt;/<span class="tag">title</span>&gt;
+  &lt;<span class="tag">region</span>&gt;<span class="field" id="f-region">Anywhere in the World</span>&lt;/<span class="tag">region</span>&gt;
+  &lt;<span class="tag">pubDate</span>&gt;<span class="field" id="f-pubdate">Thu, 24 Sep 2026 07:30:50 +0000</span>&lt;/<span class="tag">pubDate</span>&gt;
+  &lt;<span class="tag">skills</span>&gt;<span class="field" id="f-skills">AI Content Creation and AI Agents</span>&lt;/<span class="tag">skills</span>&gt;
+&lt;/<span class="tag">item</span>&gt;</div>
+    </div>
+
+    <div class="code-panel">
+      <p class="file">weWorkRemotelyStrategy.ts — parseWeWorkRemotelyRssFeed</p>
+      <div class="code-lines">
+        <div class="ln fl1"><span class="prop">location</span>: region,</div>
+        <div class="ln"><span class="prop">isRemote</span>: <span class="ty">true</span>, <span class="cm">// WWR is 100% remote</span></div>
+        <div class="ln fl2"><span class="prop">postedAt</span>: <span class="ty">new</span> Date(pubDate).toISOString(),</div>
+        <div class="ln fl3">...(skills ? { <span class="prop">skillsSummary</span>: skills } : {}),</div>
+      </div>
+    </div>
+
+    <div class="debug">
+      <p class="label">resulting Vacancy fields</p>
+      <div class="obj">{ <span class="k2">location</span>: <span class="s2">"Anywhere in the World"</span>, <span class="k2">isRemote</span>: true, <span class="k2">postedAt</span>: <span class="s2">"2026-09-24T07:30:50.000Z"</span>, <span class="k2">skillsSummary</span>: <span class="s2">"AI Content Creation and AI Agents"</span> }</div>
+    </div>
+  </div>
+
+  <style>
+    #f-region  { animation: field-pulse 1.2s ease 0.6s both; }
+    #f-pubdate { animation: field-pulse 1.2s ease 1.8s both; }
+    #f-skills  { animation: field-pulse 1.2s ease 3.0s both; }
+    @keyframes field-pulse {
+      0%   { background: transparent; box-shadow: none; }
+      15%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+      80%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+      100% { background: transparent; box-shadow: none; }
+    }
+  </style>
+</body>
+</html>

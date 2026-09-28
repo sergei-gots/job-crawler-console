@@ -1,0 +1,146 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Schema versioning: live rebuild on mismatch (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --warn: #a3701f;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 40px;
+    top: 36px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0;
+    animation: heading-fade 6.1s ease both;
+  }
+  @keyframes heading-fade { 0% { opacity: 0; } 5% { opacity: 1; } 100% { opacity: 1; } }
+
+  .code-panel {
+    position: absolute;
+    left: 140px;
+    top: 100px;
+    width: 1000px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 26px;
+    opacity: 0;
+    transform: translateY(-8px);
+    animation: panel-in 0.5s ease 0.3s both;
+  }
+  @keyframes panel-in { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
+  .code-panel .file {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+  .code-lines {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 15.5px;
+    line-height: 1.75;
+  }
+  .code-lines .kw { color: #7a3ea1; }
+  .code-lines .ty { color: var(--accent-deep); }
+  .code-lines .num { color: #a34d16; }
+  .ln { border-radius: 5px; padding: 1px 5px; margin: 0 -5px; }
+  .ln.hl1 { animation: flash 1.2s ease 0.9s both; }
+  .ln.hl2 { animation: flash 1.2s ease 2.1s both; }
+  @keyframes flash {
+    0%   { background: transparent; }
+    20%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+    80%  { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+    100% { background: transparent; box-shadow: none; }
+  }
+
+  .terminal {
+    position: absolute;
+    left: 140px;
+    top: 340px;
+    width: 1000px;
+    background: #16211f;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 16px 22px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: term-in 0.4s ease 3.2s both;
+  }
+  @keyframes term-in { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+  .terminal .dots { display: flex; gap: 7px; margin-bottom: 12px; }
+  .terminal .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal .dot.r { background: #e5645b; }
+  .terminal .dot.y { background: #e8b64a; }
+  .terminal .dot.g { background: #58b368; }
+  .term-row {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #cfe0dc;
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  .term-row .lvl { font-weight: 700; }
+  .term-row.warn .lvl { color: #e8b64a; }
+  .term-row.info .lvl { color: #7fd8cf; }
+  @keyframes row-in { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: translateX(0); } }
+  .term-row.t1 { animation: row-in 0.35s ease 3.6s both; }
+  .term-row.t2 { animation: row-in 0.35s ease 4.2s both; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Versioned — rebuilt from scratch on mismatch</div>
+
+    <div class="code-panel">
+      <p class="file">apps/api/src/search/crawlerResultsIndex.ts</p>
+      <div class="code-lines">
+        <div class="ln hl1"><span class="kw">export const</span> CRAWLER_RESULTS_SCHEMA_VERSION = <span class="num">4</span>;</div>
+        <div class="ln hl2"><span class="kw">if</span> (liveVersion === CRAWLER_RESULTS_SCHEMA_VERSION) { <span class="kw">return</span>; }</div>
+        <div class="ln"><span class="kw">await</span> esClient.indices.delete(...); <span class="kw">await</span> createCrawlerResultsIndex();</div>
+      </div>
+    </div>
+
+    <div class="terminal">
+      <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="term-row t1 warn">[warn] crawler_results schema version <span class="lvl">3</span> != <span class="lvl">4</span>; rebuilding index — crawl history untouched, re-crawl to repopulate.</div>
+      <div class="term-row t2 info">[info] crawler_results index ready at schema version <span class="lvl">4</span>.</div>
+    </div>
+  </div>
+</body>
+</html>
