@@ -1,0 +1,104 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — WeWorkRemotely strategy (Light, app walkthrough)</title>
+<style>
+  :root { --paper:#f2f5f4; --paper-raised:#fff; --ink-soft:#4e5f5b; --line:#d7dedc; }
+  * { box-sizing: border-box; } html, body { height: 100%; margin: 0; }
+  body { background: var(--paper); display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .slide { width:1280px; height:720px; position:relative; background:var(--paper); overflow:hidden; }
+  .frame-titlebar { position:absolute; top:0; left:0; right:0; height:40px; z-index:3; display:flex;
+    align-items:center; gap:9px; padding:0 16px; background:#eef1f0; border-bottom:1px solid var(--line); }
+  .dot{width:12px;height:12px;border-radius:50%;} .dot.r{background:#e5645b;} .dot.y{background:#e8b64a;} .dot.g{background:#58b368;}
+  .frame-url{margin-left:8px;font-family:ui-monospace,"SF Mono","Cascadia Code","Roboto Mono",monospace;
+    font-size:15px;color:var(--ink-soft);background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:6px;padding:3px 13px;flex:1;white-space:nowrap;overflow:hidden;}
+  .viewport{position:absolute;top:40px;left:0;width:1280px;height:680px;overflow:hidden;background:var(--paper);}
+  .viewport video{display:block;width:1280px;height:680px;object-fit:fill;}
+
+  /* RSS feed PiP: honest LIGHT framed view of the REAL category RSS feed
+     (…full-stack-programming-jobs.rss), fetched live. Shows why the RSS switch works — one plain XML
+     request, not Cloudflare-gated. Light-background PiP convention (see the video-presentation skill). */
+  .pip-scrim{position:absolute;inset:0;z-index:9;background:rgba(15,25,24,.5);opacity:0;}
+  .pip{position:absolute;z-index:10;left:290px;top:132px;width:700px;opacity:0;
+    box-shadow:0 24px 60px rgba(15,25,24,.4);border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+  .pip-bar{background:#eef1f0;color:var(--ink-soft);font-family:ui-monospace,monospace;font-size:12px;
+    padding:8px 14px;border-bottom:1px solid var(--line);}
+  .pip-bar b{color:var(--accent-deep);font-weight:600;}
+  /* The body is a fixed viewport window; .pip-scroll (taller) pans through the real feed items
+     with pauses (fixation) on individual vacancy <item> blocks. */
+  .pip-body{background:var(--paper-raised);color:#16211f;font-family:ui-monospace,"SF Mono","Cascadia Code",monospace;
+    font-size:13px;line-height:1.5;height:372px;overflow:hidden;position:relative;}
+  .pip-scroll{padding:14px 18px 40px;white-space:pre;}
+  .pip-body .k{color:#7a3ea1;} .pip-body .s{color:#a34d16;} .pip-body .c{color:#9aa3a0;}
+  .pip-body .item{display:block;border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:6px 0;}
+  .pip-body .item.on{border-left-color:var(--accent-deep);background:#eaf5f2;}
+  @keyframes pipIn{0%{opacity:0;transform:translateY(8px);}9%{opacity:1;transform:translateY(0);}90%{opacity:1;}100%{opacity:0;}}
+  @keyframes scrimIn{0%{opacity:0;}9%{opacity:1;}90%{opacity:1;}100%{opacity:0;}}
+  /* pan down through the feed, pausing on item groups (fixation) */
+  @keyframes rssScroll{
+    0%{transform:translateY(0);} 16%{transform:translateY(0);}
+    30%{transform:translateY(-118px);} 50%{transform:translateY(-118px);}
+    66%{transform:translateY(-300px);} 84%{transform:translateY(-300px);}
+    100%{transform:translateY(-372px);}
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="frame-titlebar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="frame-url" id="url">localhost:3000/sources</span>
+    </div>
+    <div class="viewport"><video id="app" src="videos/01_35_weworkremotely-base.mp4" muted playsinline></video></div>
+
+    <div class="pip-scrim" id="scrim"></div>
+    <div class="pip" id="pip">
+      <div class="pip-bar">weworkremotely.com/categories/…full-stack-programming-jobs<b>.rss</b> &nbsp;·&nbsp; Axios GET, not Cloudflare-gated</div>
+<div class="pip-body"><div class="pip-scroll">&lt;<span class="k">rss</span> version=<span class="s">"2.0"</span>&gt;
+  &lt;<span class="k">channel</span>&gt;
+    &lt;<span class="k">title</span>&gt;We Work Remotely: Full-Stack Programming Jobs&lt;/title&gt;
+<span class="item">    &lt;<span class="k">item</span>&gt;
+      &lt;<span class="k">title</span>&gt;Dremio: Senior Software Engineer - Platform&lt;/title&gt;
+      &lt;<span class="k">region</span>&gt;Anywhere in the World&lt;/region&gt;  &lt;<span class="k">type</span>&gt;Full-Time&lt;/type&gt;
+    &lt;/item&gt;</span>
+<span class="item">    &lt;<span class="k">item</span>&gt;
+      &lt;<span class="k">title</span>&gt;Toptal: Salesforce Platform Lead&lt;/title&gt;
+      &lt;<span class="k">region</span>&gt;North America Only&lt;/region&gt;  &lt;<span class="k">type</span>&gt;Full-Time&lt;/type&gt;
+    &lt;/item&gt;</span>
+<span class="item">    &lt;<span class="k">item</span>&gt;
+      &lt;<span class="k">title</span>&gt;STEUART NUTRITION: Software Developer AI Coding&lt;/title&gt;
+      &lt;<span class="k">region</span>&gt;Anywhere in the World&lt;/region&gt;  &lt;<span class="k">type</span>&gt;Full-Time&lt;/type&gt;
+    &lt;/item&gt;</span>
+<span class="item">    &lt;<span class="k">item</span>&gt;
+      &lt;<span class="k">title</span>&gt;Glean: Application Security Engineer&lt;/title&gt;
+      &lt;<span class="k">region</span>&gt;Anywhere in the World&lt;/region&gt;  &lt;<span class="k">type</span>&gt;Full-Time&lt;/type&gt;
+    &lt;/item&gt;</span>
+<span class="item">    &lt;<span class="k">item</span>&gt;
+      &lt;<span class="k">title</span>&gt;Adventure Travel 365: Senior Full-Stack Developer&lt;/title&gt;
+      &lt;<span class="k">region</span>&gt;Anywhere in the World&lt;/region&gt;  &lt;<span class="k">type</span>&gt;Full-Time&lt;/type&gt;
+    &lt;/item&gt;</span>
+    <span class="c">… 25 items, mirrors the HTML listing 1:1 by slug</span>
+  &lt;/channel&gt;
+&lt;/rss&gt;</div></div>
+    </div>
+  </div>
+  <script>
+    var v=document.getElementById('app'), url=document.getElementById('url');
+    var pip=document.getElementById('pip'), scrim=document.getElementById('scrim');
+    var scroll=document.querySelector('.pip-scroll');
+    var swapped=false, pipShown=false, PIP_START=9.6, PIP_DUR=7.2;
+    v.addEventListener('timeupdate', function(){
+      if(!swapped && v.currentTime>=2.0){ url.textContent='localhost:3000/sources/2'; swapped=true; }
+      if(!pipShown && v.currentTime>=PIP_START){ pipShown=true;
+        pip.style.animation='pipIn '+PIP_DUR+'s ease forwards';
+        scrim.style.animation='scrimIn '+PIP_DUR+'s ease forwards';
+        // pan through the feed items with fixations, inside the fade in/out window
+        scroll.style.animation='rssScroll '+(PIP_DUR-1.0)+'s ease '+ '0.5s forwards'; }
+    });
+    v.currentTime=0; v.play();
+  </script>
+</body>
+</html>
