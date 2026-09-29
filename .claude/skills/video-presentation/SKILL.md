@@ -26,7 +26,56 @@ narration order and makes each file's place in the timeline obvious without open
 retired `intro-flow-*`/`objective-flow-*` files (pre-dating the storyboard itself) keep their old
 plain names, don't rename those.
 
+**One `MM_SS` file may cover several consecutive narration beats.** A single slide is often built
+to span more than one `.ass` word-group / sentence when they form one continuous visual idea (e.g.
+`00_09` covers the C+D clauses, `00_18` covers E+F+G, `03_02` covers the whole "implement the
+scraping and the source-specific mapping / the rest of the pipeline stays the same" pair). In that
+case name the file by the **start second of the first** narration beat it covers, and record the
+full narration span it covers in its storyboard plan entry — don't mint a separate file per
+sentence just because the `.ass` splits them, when they're one clip. (The reverse — splitting one
+long sentence into 2+ short beats — still applies per "Beat pacing" below; the two rules meet in
+the middle: group/split at whatever boundary makes each *clip* one coherent focal idea, then name by
+its first second.)
+
+## Episode plan spec — what every beat/episode plan entry must contain
+
+Before building (or when recording an already-built) beat, its plan lives as one row/entry in
+[`storyboard.md`](../../doc/video-presentation/script/storyboard.md) (the authoritative plan — see
+"Storyboard document" above). A complete plan entry has **all** of these, so the beat is buildable
+and reviewable from the plan alone:
+
+1. **Time span** — the `.ass` start–end, plus the real timeline start–end once known (the real
+   Kdenlive slot is authoritative and supersedes the `.ass` estimate — see "Beat pacing"). For a
+   multi-beat file, give the full span it covers (e.g. `3:02.17–3:12.23`).
+2. **Narration** — the exact voiceover line(s) the beat illustrates (verbatim from
+   `final-script.md`/`subtitles.ass`), never a paraphrase. For a multi-phase clip, split the
+   narration by phase so each phase is tied to the clause it lands under.
+3. **Content type** — exactly one of the types in "Content types for a beat" (schematic slide, app
+   capture, app walkthrough, framed screenshot, code capture, structure-to-code, site inspection,
+   terminal/log, live window). A clip that combines two is described phase-by-phase, each phase one
+   type.
+4. **Focal element / phase breakdown** — the one focal subject (per "Shot size, focus, and
+   dynamics"). For a multi-phase continuous clip, one line per phase: its sub-time window, the
+   narration clause it sits under, and what moves/appears.
+5. **Grounding in real code/data** — which real repo files + line ranges (and any real captured
+   page/feed/response) the beat is built from, so its honesty is checkable. Cite them like the
+   `.claude/doc/` module convention (`file#Lxx`), and re-verify (`grep -n`) before trusting a line
+   number — code moves.
+6. **Status** — `built` / `planned` / `outline` (see "Storyboard document"), kept current as the
+   beat is built, retimed, or reordered.
+7. **File(s)** — the `MM_SS_<slug>-light.html` path, its rendered `videos/<slug>-light.mp4`, and any
+   intermediate assets (base clips, embedded captures) with their tracked/git-ignored status.
+
+Keep the entry in sync with the code the same way `CLAUDE.md`/`ARCHITECTURE.md` are kept in sync —
+when a beat is retimed, re-grounded on different code, or split/merged, update its plan entry in the
+same step, not after.
+
 ## Default to light only; dark is opt-in per slide
+
+**Standing rule: in this project every slide is light unless the user explicitly says otherwise.**
+This applies to both the HTML and its rendered video — build/render the light version by default,
+every time, and only produce a dark twin when asked for that slide specifically. Don't ask "light
+or dark?" each time; assume light.
 
 Every piece of slide HTML in this project shares the same markup and the same design tokens
 (`--paper`, `--ink`, `--accent`, etc.) across `*-light.html` / `*-dark.html` — only each theme's

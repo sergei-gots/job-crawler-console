@@ -70,7 +70,10 @@ crawler running" (2:32.23) onward is still outline.
 | ETL mapping (Strategy) | 2:16.12–2:23.34 | 7.22s | "The ETL mapping happens inside each Strategy – it converts site-specific fields into Vacancy" | structure-to-code | Real WeWorkRemotely RSS `<item>` (STEUART NUTRITION, same real item already panned in `01_35`'s PiP) — highlight walks `<region>` → `<pubDate>` → `<skills>`; code panel slides in with the real `parseWeWorkRemotelyRssFeed` lines (`location: region`, `postedAt: new Date(pubDate).toISOString()`, conditional `skillsSummary`), flashing in the same order; ends on a debug-style rendering of the resulting Vacancy fields. Deliberately NOT Habr Career (already fully covered in `01_05`'s JSON-LD PiP, and its fields are Russian-flavored) | **built** | `02_16_wwr-mapping-to-code-light.html` |
 | Elasticsearch mapping (1/2) | 2:23.08–2:26.23 | 3.15s (+6 static frames tail reserve) | "The Elasticsearch mapping is the index schema" | Redis→ES data flow + schema code | Retimed to real edit timecodes (supersedes the `.ass` estimate 2:23.34–2:26.99). Left: real `RawVacancy` cache card (cascade, key-boxed `sourceId`/`externalId`); middle: three unlabeled arrows growing simultaneously; right: `Elasticsearch` store barrel (labeled `CRAWLER_RESULTS_INDEX`) with a `CrawlerResultDoc` materializing inside it, cascade-style, only once the arrows finish; below: the real `upsertVacancy.ts` source (lines 5-57 in full, doc-comment included) with a continuous linear scroll landing on the real `esClient.update(...)` call — replaces the earlier `02_23_es-index-mapping-light.html` (now superseded/orphaned, safe to delete) | **built** | `02_23_rawvacancy-to-es-schema-light.html` / `videos/02_23_rawvacancy-to-es-schema-light.mp4` |
 | Elasticsearch mapping (2/2) | 2:26.23–2:32.23 | 6.0s | "And it is versioned: if the schema changes, the index is rebuilt from scratch" | code → real terminal log | Real `ensureCrawlerResultsIndex()` (lines 125-148) with a green stepping highlight (row background + text) walking the actually-executed path (exists → liveVersion → condition false → warn+delete → createIndex+info); separate, spacious `output` panel (sized for ~14 lines) below shows the **real captured log** from forcing a version mismatch on the live dev ES index (`schema version 3 != 4; rebuilding index...` / `index ready at schema version 4`) — not staged text. Side effect: this emptied the local `crawler_results` index (0 docs) — re-crawl before relying on real search results locally | **built** | `02_26_schema-version-rebuild-light.html` / `videos/02_26_schema-version-rebuild-light.mp4` |
-## Live app segment (2:33.01–3:02.16) — built (manual screen recording)
+## Live app segment (2:33.01–3:02.16) — built (manual screen recording — do NOT regenerate)
+
+**Recorded and cut by Sergei personally — do NOT regenerate or attempt to rebuild this segment
+via any capture pipeline.** This is a hand-made asset, final.
 
 **Real start/end confirmed** (2:33.01 / 3:02.16, 29.15s total). Recorded as one continuous **manual
 screen capture** of the live app (not via `record-app-walkthrough.js`/a `beats-src/*.beat.js`
@@ -93,16 +96,27 @@ individually re-measured against the real cut.
 | 2:55.72–2:58.98 | "and facets for specialization, seniority" |
 | 2:58.98–3:02.16 | "remote status, location and company" |
 
+## Part 4 — Extensibility payoff (3:02.17–3:12.23) — built (one continuous multi-phase clip)
+
+**Real span confirmed: 3:02.17–3:12.23 (~10.06s).** One `MM_SS` file (`03_02_...`) deliberately
+covers **both** closing sentences (per the skill's "one file may cover several consecutive narration
+beats" rule) — the whole point is the spatial payoff that only works in one clip: the two authored
+things you write at the top (① scraping, ② mapping) reappear as the two dashed ①/② nodes on the
+pipeline rail below, showing exactly where they plug into the otherwise-unchanged pipeline.
+Considered splitting into `03_02` (authored delta) + `03_08` (rail); kept as one so that ①②→rail
+connection survives — fall back to a split only if the combined clip reads too busy in the real edit.
+
+| Beat | Time (.ass) | Dur. | Narration | Content type | Focal element | Status | File |
+|---|---|---|---|---|---|---|---|
+| Extensibility | 3:02.17–3:12.23 | ~10.06s (one clip; retime on the real timeline) | Phase 1 (~0–6s): "To add another source, we only need to implement the scraping and the source-specific mapping" — Phase 2 (~6–10s): "The rest of the pipeline stays the same" | schematic — **code-morph + pipeline conveyor** (two phases, one continuous clip) | **Phase 1 (top): "what you implement".** Editor-tab code card `<source>Strategy.ts` (map site fields → Vacancy). 4 real source tabs (habr_career/weworkremotely/remoteok/craigslist) cycle in sequence, morphing only the RHS of the `specialization:` line while the key stays fixed — each site's **real** derivation: habr `skillsSummary ? extractLabeledClause(…, "Специализации") : null` ([`habrCareerStrategy.ts#L119`](../../../../apps/api/src/crawler/strategies/habrCareerStrategy.ts#L119)), wwr `listing.label` ([`weWorkRemotelyStrategy.ts#L99`](../../../../apps/api/src/crawler/strategies/weWorkRemotelyStrategy.ts#L99)), remoteok `guessSpecialization([title, ...tags].join(" "))` ([`remoteOkStrategy.ts#L106`](../../../../apps/api/src/crawler/strategies/remoteOkStrategy.ts#L106)), craigslist `guessSpecialization(jobPosting.title ?? "")` ([`craigslistStrategy.ts#L126`](../../../../apps/api/src/crawler/strategies/craigslistStrategy.ts#L126)); shared helper [`guessSpecialization.ts`](../../../../apps/api/src/crawler/guessSpecialization.ts). **After** the 4, a 5th ghost `<NewSite?>` tab (dashed, **NEW** badge) pops in — the source you're adding — with its **own** bespoke `parseSpec(item.category)` deriving a new value `"Technical Engineer"`. All derivations normalize into one `Vacancy.specialization` chip (right). Caption: "N sites, N different derivations — the mess stays here." **Phase 2 (bottom): "the rest stays the same".** A 5-node conveyor — scraping① (dashed authored; `Axios · Puppeteer · RSS`, the transport zoo where ~50% of the Part-3 obstacles lived: Cloudflare 403 → Puppeteer, fingerprint → RSS) → **Redis** (page cache · rate-limit, reused) → mapping② (dashed authored; `site → Vacancy`, sits **between Redis and ES** per the real `strategy.crawl()` → `upsertVacancy()` flow in [`crawlRunner.ts#L114`](../../../../apps/api/src/crawler/crawlRunner.ts#L114)) → **Elasticsearch** (reused) → **Search + Facets** (reused). The two authored stages ①/② (matching the step-1 label) are dashed accent = "you write these"; the three reused stages light teal as the flow runs through; ends on `Search + Facets → Specialization ✓` (callback to the live-demo Specialization facet at 2:55+). | **built** (html; mp4 render pending user approval of the HTML) | `03_02_add-source-mapping-morph-light.html` |
+
 ## Tail (still `.ass`-estimate, shifted — not real)
 
-| Time (.ass) | Narration |
-|---|---|
-| 3:02.16–3:03.54 | "To add another source" |
-| 3:03.54–3:06.02 | "we only need to implement the scraping" |
-| 3:06.02–3:08.16 | "and the source-specific mapping" |
-| 3:08.16–3:13.39 | "The rest of the pipeline stays the same" |
-| 3:13.39–3:14.56 | "Thanks for watching –" |
-| 3:14.56–3:16.89 | "the source code is on my GitHub" |
+| Time (.ass) | Narration | Status |
+|---|---|---|
+| 3:02.17–3:12.23 | "To add another source … The rest of the pipeline stays the same" | **built** — see Extensibility beat above (`03_02_...`) |
+| 3:13.39–3:14.56 | "Thanks for watching –" | outline |
+| 3:14.56–3:16.89 | "the source code is on my GitHub" | outline |
 
 **Note:** the tail rows above are the same placeholder-shift approach as before (now shifted by the
 residual +0.21s between the old 3:01.95 estimate and the new real 3:02.16 boundary) — still not a
