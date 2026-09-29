@@ -197,10 +197,22 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   | **Static single target** — one element lifted whole out of a page/file, nothing is "executing" | teal/accent: background `#eaf5f2`, `box-shadow: inset 3px 0 0 var(--accent-deep)` | `01_05_habr-career-light.html`'s JSON-LD block |
   | **Stepping/lockstep execution** — a cursor or flash moving through several lines/chips in sequence, standing in for code actually running | grass green: background `var(--highlight-bg, #cfe8b0)`, text `var(--highlight-text, #23430f)`, `font-weight: 700` | `00_32_transformation-vacancy-model-light.html`'s per-chip flash; `02_16_wwr-mapping-to-code-light.html`'s debugger cursor |
 
-  Shared regardless of which highlight colour: JSON/code keys `#7a3ea1`, strings `#a34d16`, function/
-  method calls `#1d5fae`, type names `var(--accent-deep)`, comments `#5c7a52` italic. A "signature"
-  line worth calling out but not itself stepped through (e.g. the function declaration the reader is
-  "inside") gets its own one-off emphasis colour: dark navy `#1d3f6e`, bold.
+  Shared regardless of which highlight colour — **IDE-like palette** (confirmed on `02_23`/`02_26`/
+  `02_16`, 2026-09-29 — the earlier purple/brown/moss-green combo read as too muddy/dark for a code
+  panel; `00_32`/`01_05` are the only ones still grandfathered as-is, not worth re-rendering, but new
+  code-capture beats should use this palette). A first pass at literal IntelliJ IDEA Light default
+  hex values (`#0033b3` keywords, `#067d17` strings, `#6f42c1` calls, `#8c8c8c` comments) still read
+  as flat/indistinguishable from the base `--ink` body text at 13px monospace after video
+  compression — dark-on-dark doesn't carry at that size even when the hues differ. Fixed by also
+  **bolding keywords** (IDEA does this too) and pushing every token toward higher
+  brightness/saturation: keywords `#0057e7` bold, strings `#1a7f37`, function/method calls
+  `#8250df`, comments `#6a737d` italic, type names `var(--accent-deep)`, `SCREAMING_SNAKE_CASE`
+  constants (e.g. `CRAWLER_RESULTS_INDEX`) `#b35900` orange — a real IDE convention (IDEA colors
+  static-final fields distinctly too), only apply it to actual token occurrences in code, not to a
+  constant's name mentioned inside a comment/string, which keeps that line's own colour. A
+  "signature" line worth calling out but not itself stepped through
+  (e.g. the function declaration the reader is "inside") gets its own one-off emphasis colour: dark
+  navy `#1d3f6e`, bold.
 
   **The muted-grey rule is for content outside the point of the beat, not for "the rest of a
   function you're already inside."** `01_05`'s DOM ancestors are muted because the beat isn't about
@@ -210,8 +222,17 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   Don't default to muting "the lines that aren't highlighted right now" — that's a different thing
   from "the lines that aren't part of what this beat is about."
 
-  **A "debugger" beat (multiple stepped-through lines) needs four more things beyond the color
+  **A "debugger" beat (multiple stepped-through lines) needs five more things beyond the color
   table:**
+  - **Target the flash animation at `.lnXXX .src` only, never `.lnXXX .src *`** (found on
+    `02_16`/`02_23`/`02_26`, 2026-09-29 — the reason syntax colour appeared to "only show up
+    briefly"): a CSS animation always wins over the normal cascade for whatever element it targets,
+    so `.src *` forces every classed child (`.kw`/`.fn`/`.str`/`.const`/`.ty`) to the flat
+    ink/highlight-text pair for the entire clip, not just during its own highlight window — the
+    token's real colour never gets a chance to show, on that line, ever. An element's own declared
+    `color` always beats an animated ancestor, so animating only the unclassed `.src` wrapper lets
+    plain/punctuation text flash as before while every classed token keeps its real colour
+    throughout the whole clip.
   - **`jump-start` vs `jump-end` are NOT interchangeable — picking the wrong one silently inverts
     the timing** (confirmed live on `02_16`/`02_23`, cost a full re-check of two beats):
     - **Monotonic position** (a cursor bar's `top`, or a viewport's `translateY` scroll-shift) is an

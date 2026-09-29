@@ -115,12 +115,12 @@
      through - it all gets full editor-style syntax colour, not muted "ancestor" grey. Only actual
      comment text gets a distinct (darker sage) colour, same as a real editor's comment styling. */
   .code-row .src { color: var(--ink); }
-  .code-row .kw { color: #7a3ea1; }
-  .code-row .str { color: #a34d16; }
-  .code-row .fn { color: #1d5fae; }
+  .code-row .kw { color: #0057e7; font-weight: 700; }
+  .code-row .str { color: #1a7f37; }
+  .code-row .fn { color: #8250df; }
   .code-row .ty { color: var(--accent-deep); }
   .code-row .op { color: var(--ink-soft); }
-  .code-row .cm { color: #5c7a52; font-style: italic; }
+  .code-row .cm { color: #6a737d; font-style: italic; }
   .code-row.sig .src { color: #1d3f6e; font-weight: 700; }
 
   .cursor {
@@ -139,27 +139,24 @@
      green background), not rainbow-syntax-colored like the surrounding context lines. Each key
      line gets its own on/off window, timed to the exact same breakpoints as .cursor's
      step-through so the text flips color in lockstep with the bar arriving/leaving. */
-  .ln116 .src, .ln116 .src *, .ln117 .src, .ln117 .src *,
-  .ln127 .src, .ln127 .src *, .ln128 .src, .ln128 .src *,
-  .ln129 .src, .ln129 .src *, .ln131 .src, .ln131 .src *,
-  .ln136 .src, .ln136 .src *, .ln138 .src, .ln138 .src *,
-  .ln139 .src, .ln139 .src *, .ln142 .src, .ln142 .src * {
+  .ln116 .src, .ln117 .src, .ln127 .src, .ln128 .src, .ln129 .src,
+  .ln131 .src, .ln136 .src, .ln138 .src, .ln139 .src, .ln142 .src {
     font-weight: 700;
     animation-duration: 6.57s;
     animation-timing-function: steps(1, jump-end);
     animation-delay: 0.15s;
     animation-fill-mode: both;
   }
-  .ln116 .src, .ln116 .src * { animation-name: flash-116; }
-  .ln117 .src, .ln117 .src * { animation-name: flash-117; }
-  .ln127 .src, .ln127 .src * { animation-name: flash-127; }
-  .ln128 .src, .ln128 .src * { animation-name: flash-128; }
-  .ln129 .src, .ln129 .src * { animation-name: flash-129; }
-  .ln131 .src, .ln131 .src * { animation-name: flash-131; }
-  .ln136 .src, .ln136 .src * { animation-name: flash-136; }
-  .ln138 .src, .ln138 .src * { animation-name: flash-138; }
-  .ln139 .src, .ln139 .src * { animation-name: flash-139; }
-  .ln142 .src, .ln142 .src * { animation-name: flash-142; }
+  .ln116 .src { animation-name: flash-116; }
+  .ln117 .src { animation-name: flash-117; }
+  .ln127 .src { animation-name: flash-127; }
+  .ln128 .src { animation-name: flash-128; }
+  .ln129 .src { animation-name: flash-129; }
+  .ln131 .src { animation-name: flash-131; }
+  .ln136 .src { animation-name: flash-136; }
+  .ln138 .src { animation-name: flash-138; }
+  .ln139 .src { animation-name: flash-139; }
+  .ln142 .src { animation-name: flash-142; }
   @keyframes flash-116 { 0% { color: var(--ink); } 2.5%  { color: var(--highlight-text); } 7.4%  { color: var(--ink); } }
   @keyframes flash-117 { 0% { color: var(--ink); } 7.4%  { color: var(--highlight-text); } 12.3% { color: var(--ink); } }
   @keyframes flash-127 { 0% { color: var(--ink); } 12.3% { color: var(--highlight-text); } 23.8% { color: var(--ink); } }

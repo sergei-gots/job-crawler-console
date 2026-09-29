@@ -98,26 +98,27 @@
   .code-row { display: flex; height: 16px; align-items: center; gap: 12px; white-space: nowrap; }
   .code-row .gutter { flex: 0 0 24px; color: var(--ink-faint); font-size: 10.5px; text-align: right; }
   .code-row .src { color: var(--ink); }
-  .code-row .kw { color: #7a3ea1; }
-  .code-row .fn { color: #1d5fae; }
-  .code-row .str { color: #a34d16; }
-  .code-row .cm { color: #5c7a52; font-style: italic; }
+  .code-row .kw { color: #0057e7; font-weight: 700; }
+  .code-row .fn { color: #8250df; }
+  .code-row .str { color: #1a7f37; }
+  .code-row .cm { color: #6a737d; font-style: italic; }
+  .code-row .const { color: #b35900; }
+  .code-row .tn { color: var(--accent-deep); }
 
-  .k1 .src, .k1 .src *, .k2 .src, .k2 .src *, .k3 .src, .k3 .src *,
-  .k4 .src, .k4 .src *, .k5 .src, .k5 .src *, .k6 .src, .k6 .src *, .k7 .src, .k7 .src * {
+  .k1 .src, .k2 .src, .k3 .src, .k4 .src, .k5 .src, .k6 .src, .k7 .src {
     font-weight: 700;
     animation-timing-function: steps(1, jump-end);
     animation-duration: 6s;
     animation-delay: 0.15s;
     animation-fill-mode: both;
   }
-  .k1 .src, .k1 .src * { animation-name: fl1; }
-  .k2 .src, .k2 .src * { animation-name: fl2; }
-  .k3 .src, .k3 .src * { animation-name: fl3; }
-  .k4 .src, .k4 .src * { animation-name: fl4; }
-  .k5 .src, .k5 .src * { animation-name: fl5; }
-  .k6 .src, .k6 .src * { animation-name: fl6; }
-  .k7 .src, .k7 .src * { animation-name: fl7; }
+  .k1 .src { animation-name: fl1; }
+  .k2 .src { animation-name: fl2; }
+  .k3 .src { animation-name: fl3; }
+  .k4 .src { animation-name: fl4; }
+  .k5 .src { animation-name: fl5; }
+  .k6 .src { animation-name: fl6; }
+  .k7 .src { animation-name: fl7; }
   @keyframes fl1 { 0% { color: var(--ink); } 7.5%  { color: var(--highlight-text); } 17.5% { color: var(--ink); } }
   @keyframes fl2 { 0% { color: var(--ink); } 17.5% { color: var(--highlight-text); } 27.5% { color: var(--ink); } }
   @keyframes fl3 { 0% { color: var(--ink); } 27.5% { color: var(--highlight-text); } 40.8% { color: var(--ink); } }
@@ -212,14 +213,14 @@
       <p class="file">apps/api/src/search/crawlerResultsIndex.ts</p>
       <div class="code-viewport">
         <div class="code-rows">
-        <div class="code-row" data-ln="125"><span class="gutter">125</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> ensureCrawlerResultsIndex(): Promise&lt;<span class="kw">void</span>&gt; {</span></div>
+        <div class="code-row" data-ln="125"><span class="gutter">125</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> ensureCrawlerResultsIndex(): <span class="tn">Promise</span>&lt;<span class="kw">void</span>&gt; {</span></div>
         <div class="code-row" data-ln="126"><span class="gutter">126</span><span class="src">&nbsp;&nbsp;<span class="kw">if</span> (indexEnsured) <span class="kw">return</span>;</span></div>
         <div class="code-row" data-ln="127"><span class="gutter">127</span><span class="src">&nbsp;</span></div>
-        <div class="code-row k1" data-ln="128"><span class="gutter">128</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> exists = <span class="kw">await</span> esClient.indices.<span class="fn">exists</span>({ index: CRAWLER_RESULTS_INDEX });</span></div>
+        <div class="code-row k1" data-ln="128"><span class="gutter">128</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> exists = <span class="kw">await</span> esClient.indices.<span class="fn">exists</span>({ index: <span class="const">CRAWLER_RESULTS_INDEX</span> });</span></div>
         <div class="code-row" data-ln="129"><span class="gutter">129</span><span class="src">&nbsp;&nbsp;<span class="kw">if</span> (exists) {</span></div>
-        <div class="code-row k2" data-ln="130"><span class="gutter">130</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> liveVersion = <span class="kw">await</span> readLiveSchemaVersion();</span></div>
-        <div class="code-row k3" data-ln="131"><span class="gutter">131</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (liveVersion === CRAWLER_RESULTS_SCHEMA_VERSION) {</span></div>
-        <div class="code-row" data-ln="132"><span class="gutter">132</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;indexEnsured = true;</span></div>
+        <div class="code-row k2" data-ln="130"><span class="gutter">130</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> liveVersion = <span class="kw">await</span> <span class="fn">readLiveSchemaVersion</span>();</span></div>
+        <div class="code-row k3" data-ln="131"><span class="gutter">131</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (liveVersion === <span class="const">CRAWLER_RESULTS_SCHEMA_VERSION</span>) {</span></div>
+        <div class="code-row" data-ln="132"><span class="gutter">132</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;indexEnsured = <span class="kw">true</span>;</span></div>
         <div class="code-row" data-ln="133"><span class="gutter">133</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span>;</span></div>
         <div class="code-row" data-ln="134"><span class="gutter">134</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
         <div class="code-row k4" data-ln="135"><span class="gutter">135</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;logger.<span class="fn">warn</span>(</span></div>
@@ -227,14 +228,14 @@
         <div class="code-row k4" data-ln="137"><span class="gutter">137</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`${CRAWLER_RESULTS_SCHEMA_VERSION}; rebuilding index. Crawl history and DB records are `</span> +</span></div>
         <div class="code-row k4" data-ln="138"><span class="gutter">138</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`untouched — re-crawl (per source or "crawl all") to repopulate search data.`</span>,</span></div>
         <div class="code-row k4" data-ln="139"><span class="gutter">139</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;);</span></div>
-        <div class="code-row k5" data-ln="140"><span class="gutter">140</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> esClient.indices.<span class="fn">delete</span>({ index: CRAWLER_RESULTS_INDEX }, { ignore: [404] });</span></div>
+        <div class="code-row k5" data-ln="140"><span class="gutter">140</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await</span> esClient.indices.<span class="fn">delete</span>({ index: <span class="const">CRAWLER_RESULTS_INDEX</span> }, { ignore: [<span class="const">404</span>] });</span></div>
         <div class="code-row" data-ln="141"><span class="gutter">141</span><span class="src">&nbsp;&nbsp;}</span></div>
         <div class="code-row" data-ln="142"><span class="gutter">142</span><span class="src">&nbsp;</span></div>
-        <div class="code-row k6" data-ln="143"><span class="gutter">143</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> createCrawlerResultsIndex();</span></div>
+        <div class="code-row k6" data-ln="143"><span class="gutter">143</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> <span class="fn">createCrawlerResultsIndex</span>();</span></div>
         <div class="code-row k7" data-ln="144"><span class="gutter">144</span><span class="src">&nbsp;&nbsp;logger.<span class="fn">info</span>(</span></div>
         <div class="code-row k7" data-ln="145"><span class="gutter">145</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">`[search] crawler_results index ready at schema version ${CRAWLER_RESULTS_SCHEMA_VERSION}.`</span>,</span></div>
         <div class="code-row k7" data-ln="146"><span class="gutter">146</span><span class="src">&nbsp;&nbsp;);</span></div>
-        <div class="code-row" data-ln="147"><span class="gutter">147</span><span class="src">&nbsp;&nbsp;indexEnsured = true;</span></div>
+        <div class="code-row" data-ln="147"><span class="gutter">147</span><span class="src">&nbsp;&nbsp;indexEnsured = <span class="kw">true</span>;</span></div>
         <div class="code-row" data-ln="148"><span class="gutter">148</span><span class="src">}</span></div>
         </div>
       </div>
