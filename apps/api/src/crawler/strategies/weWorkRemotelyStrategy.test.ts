@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import type { CrawlSource } from "@prisma/client";
+import type { CrawlListing, CrawlSource } from "@prisma/client";
 import { parseWeWorkRemotelyListing, parseWeWorkRemotelyRssFeed } from "./weWorkRemotelyStrategy.js";
 
 function fixture(name: string): string {
@@ -13,11 +13,13 @@ const source = {
   baseUrl: "https://weworkremotely.com",
 } as CrawlSource;
 
+const listing = { label: "Full-Stack" } as CrawlListing;
+
 describe("parseWeWorkRemotelyListing", () => {
   it("parses valid listing rows and skips a promoted/ad row with no vacancy link", () => {
     const html = fixture("weWorkRemotelyListing.html");
 
-    const vacancies = parseWeWorkRemotelyListing(html, source);
+    const vacancies = parseWeWorkRemotelyListing(html, source, listing);
 
     expect(vacancies).toEqual([
       {
@@ -27,6 +29,8 @@ describe("parseWeWorkRemotelyListing", () => {
         url: "https://weworkremotely.com/remote-jobs/samsara-staff-software-engineer",
         postedAt: null,
         sourceId: 3,
+        specialization: "Full-Stack",
+        seniority: "Staff",
       },
       {
         externalId: "toptal-power-platform-solutions-architect",
@@ -35,8 +39,16 @@ describe("parseWeWorkRemotelyListing", () => {
         url: "https://weworkremotely.com/remote-jobs/toptal-power-platform-solutions-architect",
         postedAt: null,
         sourceId: 3,
+        specialization: "Full-Stack",
+        seniority: null,
       },
     ]);
+  });
+
+  it("throws when no listing is provided", () => {
+    const html = fixture("weWorkRemotelyListing.html");
+
+    expect(() => parseWeWorkRemotelyListing(html, source, null)).toThrow(/requires a CrawlListing/);
   });
 });
 

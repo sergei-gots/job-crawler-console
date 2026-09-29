@@ -5,6 +5,8 @@ import { getOrFetch } from "../pageCache.js";
 import { htmlToText } from "../htmlToText.js";
 import { waitForSlot } from "../rateLimiter.js";
 import { applyVacancyCap } from "../vacancyCap.js";
+import { guessSpecialization } from "../guessSpecialization.js";
+import { guessSeniority } from "../guessSeniority.js";
 import { upsertVacancy } from "../../search/upsertVacancy.js";
 import type { CrawlResult, CrawlStrategy, EnrichDetailsResult, LogProgress, RawVacancy } from "../types.js";
 
@@ -97,19 +99,6 @@ function findJobPosting($: ReturnType<typeof cheerio.load>): CraigslistJobPostin
   return null;
 }
 
-/** Keyword match against the title only - craigslist's JobPosting JSON-LD has no dedicated
- * specialization/seniority field the way habr's labeled lead paragraph does, so this is a
- * best-effort classification, not a guaranteed one; unmatched titles are left null rather than
- * guessed. */
-function guessSpecialization(title: string): string | null {
-  const lower = title.toLowerCase();
-  if (/full[\s-]?stack/.test(lower)) return "Full-Stack";
-  if (/back[\s-]?end/.test(lower)) return "Backend";
-  if (/front[\s-]?end/.test(lower)) return "Frontend";
-  if (/mobile/.test(lower)) return "Mobile";
-  return null;
-}
-
 /**
  * Parses craigslist's vacancy detail page via its schema.org/JobPosting JSON-LD block, confirmed
  * present on every real listing checked. `company` and `postedAt` only exist here, not on the
@@ -135,6 +124,7 @@ export function parseCraigslistVacancyDetail(html: string): Partial<RawVacancy> 
     company: jobPosting.hiringOrganization?.name ?? null,
     postedAt: jobPosting.datePosted ?? null,
     specialization: guessSpecialization(jobPosting.title ?? ""),
+    seniority: guessSeniority(jobPosting.title ?? ""),
   };
 }
 

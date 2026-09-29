@@ -5,6 +5,8 @@ import { getOrFetch } from "../pageCache.js";
 import { htmlToText } from "../htmlToText.js";
 import { waitForSlot } from "../rateLimiter.js";
 import { applyVacancyCap } from "../vacancyCap.js";
+import { guessSpecialization } from "../guessSpecialization.js";
+import { guessSeniority } from "../guessSeniority.js";
 import type { CrawlResult, CrawlStrategy, RawVacancy } from "../types.js";
 
 // A real desktop Chrome UA, not Puppeteer's default and not any bot-identifying string. RemoteOK
@@ -98,6 +100,11 @@ export function parseListingPage(html: string, source: CrawlSource): RawVacancy[
       description: jobPosting?.description ? htmlToText(jobPosting.description) : null,
       isRemote: true,
       skillsSummary: tags.length > 0 ? tags.join(", ") : null,
+      // No dedicated specialization field on this source (see guessSpecialization.ts) - guessed
+      // from the title plus tags, since a generic title ("Senior Software Engineer") often carries
+      // no signal on its own while its tags ("react", "ios") do.
+      specialization: guessSpecialization([title, ...tags].join(" ")),
+      seniority: guessSeniority(title),
     });
   });
 
