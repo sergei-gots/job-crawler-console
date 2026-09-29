@@ -72,6 +72,11 @@ same step, not after.
 
 ## Default to light only; dark is opt-in per slide
 
+**Standing rule: in this project every slide is light unless the user explicitly says otherwise.**
+This applies to both the HTML and its rendered video — build/render the light version by default,
+every time, and only produce a dark twin when asked for that slide specifically. Don't ask "light
+or dark?" each time; assume light.
+
 Every piece of slide HTML in this project shares the same markup and the same design tokens
 (`--paper`, `--ink`, `--accent`, etc.) across `*-light.html` / `*-dark.html` — only each theme's
 `:root` values differ, so a dark twin is always mechanical to produce from a light one. But **build
