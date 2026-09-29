@@ -70,32 +70,45 @@ crawler running" (2:32.23) onward is still outline.
 | ETL mapping (Strategy) | 2:16.12–2:23.34 | 7.22s | "The ETL mapping happens inside each Strategy – it converts site-specific fields into Vacancy" | structure-to-code | Real WeWorkRemotely RSS `<item>` (STEUART NUTRITION, same real item already panned in `01_35`'s PiP) — highlight walks `<region>` → `<pubDate>` → `<skills>`; code panel slides in with the real `parseWeWorkRemotelyRssFeed` lines (`location: region`, `postedAt: new Date(pubDate).toISOString()`, conditional `skillsSummary`), flashing in the same order; ends on a debug-style rendering of the resulting Vacancy fields. Deliberately NOT Habr Career (already fully covered in `01_05`'s JSON-LD PiP, and its fields are Russian-flavored) | **built** | `02_16_wwr-mapping-to-code-light.html` |
 | Elasticsearch mapping (1/2) | 2:23.08–2:26.23 | 3.15s (+6 static frames tail reserve) | "The Elasticsearch mapping is the index schema" | Redis→ES data flow + schema code | Retimed to real edit timecodes (supersedes the `.ass` estimate 2:23.34–2:26.99). Left: real `RawVacancy` cache card (cascade, key-boxed `sourceId`/`externalId`); middle: three unlabeled arrows growing simultaneously; right: `Elasticsearch` store barrel (labeled `CRAWLER_RESULTS_INDEX`) with a `CrawlerResultDoc` materializing inside it, cascade-style, only once the arrows finish; below: the real `upsertVacancy.ts` source (lines 5-57 in full, doc-comment included) with a continuous linear scroll landing on the real `esClient.update(...)` call — replaces the earlier `02_23_es-index-mapping-light.html` (now superseded/orphaned, safe to delete) | **built** | `02_23_rawvacancy-to-es-schema-light.html` / `videos/02_23_rawvacancy-to-es-schema-light.mp4` |
 | Elasticsearch mapping (2/2) | 2:26.23–2:32.23 | 6.0s | "And it is versioned: if the schema changes, the index is rebuilt from scratch" | code → real terminal log | Real `ensureCrawlerResultsIndex()` (lines 125-148) with a green stepping highlight (row background + text) walking the actually-executed path (exists → liveVersion → condition false → warn+delete → createIndex+info); separate, spacious `output` panel (sized for ~14 lines) below shows the **real captured log** from forcing a version mismatch on the live dev ES index (`schema version 3 != 4; rebuilding index...` / `index ready at schema version 4`) — not staged text. Side effect: this emptied the local `crawler_results` index (0 docs) — re-crawl before relying on real search results locally | **built** | `02_26_schema-version-rebuild-light.html` / `videos/02_26_schema-version-rebuild-light.mp4` |
+## Live app segment (2:33.01–3:02.16) — built (manual screen recording)
+
+**Real start/end confirmed** (2:33.01 / 3:02.16, 29.15s total). Recorded as one continuous **manual
+screen capture** of the live app (not via `record-app-walkthrough.js`/a `beats-src/*.beat.js`
+script — that pipeline was drafted but not used for this segment) and cut directly on the Kdenlive
+timeline, covering the 4 logical steps below in order: crawler running/politeness on `/sources`,
+comparing strategies side by side, the `/search` page with the unified index, and clicking through
+facets. The sub-boundaries in the narration table are still a proportional `.ass` estimate, not
+individually re-measured against the real cut.
+
+| Time (.ass-proportional, not real) | Narration |
+|---|---|
+| 2:33.01–2:35.21 | "Here is the crawler running" |
+| 2:35.21–2:37.38 | "It is deliberately polite –" |
+| 2:37.38–2:40.85 | "rate limits and jitter on every source" |
+| 2:40.85–2:44.08 | "You can also compare the strategies side by side" |
+| 2:44.08–2:46.17 | "on the Sources page" |
+| 2:46.17–2:48.96 | "And this is the search interface" |
+| 2:48.96–2:53.70 | "Data from all four sources is already in one index" |
+| 2:53.70–2:55.72 | "Free-text search highlighting" |
+| 2:55.72–2:58.98 | "and facets for specialization, seniority" |
+| 2:58.98–3:02.16 | "remote status, location and company" |
+
+## Tail (still `.ass`-estimate, shifted — not real)
+
 | Time (.ass) | Narration |
 |---|---|
-| 2:32.23–2:34.47 | "Here is the crawler running" |
-| 2:34.47–2:36.69 | "It is deliberately polite –" |
-| 2:36.69–2:40.22 | "rate limits and jitter on every source" |
-| 2:40.22–2:43.52 | "You can also compare the strategies side by side" |
-| 2:43.52–2:45.65 | "on the Sources page" |
-| 2:45.65–2:48.49 | "And this is the search interface" |
-| 2:48.49–2:53.32 | "Data from all four sources is already in one index" |
-| 2:53.32–2:55.38 | "Free-text search highlighting" |
-| 2:55.38–2:58.71 | "and facets for specialization, seniority" |
-| 2:58.71–3:01.95 | "remote status, location and company" |
-| 3:01.95–3:03.33 | "To add another source" |
-| 3:03.33–3:05.81 | "we only need to implement the scraping" |
-| 3:05.81–3:07.95 | "and the source-specific mapping" |
-| 3:07.95–3:13.18 | "The rest of the pipeline stays the same" |
-| 3:13.18–3:14.35 | "Thanks for watching –" |
-| 3:14.35–3:16.68 | "the source code is on my GitHub" |
+| 3:02.16–3:03.54 | "To add another source" |
+| 3:03.54–3:06.02 | "we only need to implement the scraping" |
+| 3:06.02–3:08.16 | "and the source-specific mapping" |
+| 3:08.16–3:13.39 | "The rest of the pipeline stays the same" |
+| 3:13.39–3:14.56 | "Thanks for watching –" |
+| 3:14.56–3:16.89 | "the source code is on my GitHub" |
 
-**Note:** the rows above (from "Here is the crawler running" onward) are the old `.ass`-estimated
-timestamps shifted by the same -0.86s delta observed between the `.ass` estimate and the real edit
-timecode for the Elasticsearch-mapping beat (2:33.09 → 2:32.23) — a placeholder correction, not a
-fresh real measurement. Re-timecode each one for real once its beat is actually built/edited, the
-same way the Elasticsearch-mapping and Mapping beats were.
+**Note:** the tail rows above are the same placeholder-shift approach as before (now shifted by the
+residual +0.21s between the old 3:01.95 estimate and the new real 3:02.16 boundary) — still not a
+fresh real measurement each. Re-timecode for real once each is actually built.
 
-"Here is the crawler running" (2:32.23+) and "this is the search interface" (2:45.65+) are app
+"Here is the crawler running" (2:33.01+) and "this is the search interface" (2:46.17+) are app
 capture beats against the real, live app — not schematic.
 
 **Pause artifact before the close (still present):** the gap between "stays the same" ending

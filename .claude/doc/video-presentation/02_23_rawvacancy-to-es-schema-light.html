@@ -270,19 +270,21 @@
   .code-row { display: flex; height: 15px; align-items: center; gap: 12px; white-space: nowrap; }
   .code-row .gutter { flex: 0 0 24px; color: var(--ink-faint); font-size: 10.5px; text-align: right; }
   .code-row .src { color: var(--ink); }
-  .code-row .kw { color: #7a3ea1; }
-  .code-row .fn { color: #1d5fae; }
-  .code-row .str { color: #a34d16; }
-  .code-row .cm { color: #5c7a52; font-style: italic; }
-  .k16 .src, .k16 .src *, .k30 .src, .k30 .src * {
+  .code-row .kw { color: #0057e7; font-weight: 700; }
+  .code-row .fn { color: #8250df; }
+  .code-row .str { color: #1a7f37; }
+  .code-row .cm { color: #6a737d; font-style: italic; }
+  .code-row .const { color: #b35900; }
+  .code-row .tn { color: var(--accent-deep); }
+  .k16 .src, .k30 .src {
     font-weight: 700;
     animation-timing-function: steps(1, jump-end);
     animation-duration: 3.15s;
     animation-delay: 0.15s;
     animation-fill-mode: both;
   }
-  .k16 .src, .k16 .src * { animation-name: flu16; }
-  .k30 .src, .k30 .src * { animation-name: flu30; }
+  .k16 .src { animation-name: flu16; }
+  .k30 .src { animation-name: flu30; }
   @keyframes flu16 { 0% { color: var(--ink); } 12%  { color: var(--highlight-text); } 24% { color: var(--ink); } }
   @keyframes flu30 { 0% { color: var(--ink); } 60%  { color: var(--highlight-text); } 72% { color: var(--ink); } }
 </style>
@@ -360,8 +362,8 @@
         <div class="code-row" data-ln="10"><span class="gutter">10</span><span class="src">&nbsp;<span class="cm">* appears in more than one of a source's listings ends up attributed to whichever crawled it</span></span></div>
         <div class="code-row" data-ln="11"><span class="gutter">11</span><span class="src">&nbsp;<span class="cm">* last, since the underlying record is genuinely one shared vacancy, not one per listing.</span></span></div>
         <div class="code-row" data-ln="12"><span class="gutter">12</span><span class="src">&nbsp;<span class="cm">*/</span></span></div>
-        <div class="code-row" data-ln="13"><span class="gutter">13</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> upsertVacancy(raw: RawVacancy, listingId: number | <span class="kw">null</span> = <span class="kw">null</span>): Promise&lt;<span class="kw">void</span>&gt; {</span></div>
-        <div class="code-row" data-ln="14"><span class="gutter">14</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> ensureCrawlerResultsIndex();</span></div>
+        <div class="code-row" data-ln="13"><span class="gutter">13</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> upsertVacancy(raw: <span class="tn">RawVacancy</span>, listingId: <span class="kw">number</span> | <span class="kw">null</span> = <span class="kw">null</span>): <span class="tn">Promise</span>&lt;<span class="kw">void</span>&gt; {</span></div>
+        <div class="code-row" data-ln="14"><span class="gutter">14</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> <span class="fn">ensureCrawlerResultsIndex</span>();</span></div>
         <div class="code-row" data-ln="15"><span class="gutter">15</span><span class="src">&nbsp;</span></div>
         <div class="code-row k16" data-ln="16"><span class="gutter">16</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> id = <span class="str">`${raw.sourceId}:${raw.externalId}`</span>;</span></div>
         <div class="code-row" data-ln="17"><span class="gutter">17</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> now = <span class="kw">new</span> Date().<span class="fn">toISOString</span>();</span></div>
@@ -378,7 +380,7 @@
         <div class="code-row" data-ln="28"><span class="gutter">28</span><span class="src">&nbsp;&nbsp;};</span></div>
         <div class="code-row" data-ln="29"><span class="gutter">29</span><span class="src">&nbsp;</span></div>
         <div class="code-row k30" data-ln="30"><span class="gutter">30</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> esClient.<span class="fn">update</span>({</span></div>
-        <div class="code-row" data-ln="31"><span class="gutter">31</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;index: CRAWLER_RESULTS_INDEX,</span></div>
+        <div class="code-row" data-ln="31"><span class="gutter">31</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;index: <span class="const">CRAWLER_RESULTS_INDEX</span>,</span></div>
         <div class="code-row" data-ln="32"><span class="gutter">32</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;id,</span></div>
         <div class="code-row" data-ln="33"><span class="gutter">33</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;doc: {</span></div>
         <div class="code-row" data-ln="34"><span class="gutter">34</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sourceId: raw.sourceId,</span></div>
