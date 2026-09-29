@@ -6,6 +6,7 @@ import { getOrFetch } from "../pageCache.js";
 import { htmlToText } from "../htmlToText.js";
 import { waitForSlot } from "../rateLimiter.js";
 import { applyVacancyCap } from "../vacancyCap.js";
+import { guessSeniority } from "../guessSeniority.js";
 import { upsertVacancy } from "../../search/upsertVacancy.js";
 import type { CrawlResult, CrawlStrategy, EnrichDetailsResult, LogProgress, RawVacancy } from "../types.js";
 
@@ -61,7 +62,15 @@ async function fetchViaBrowser(browser: Browser, url: string): Promise<string> {
  * RemoteOK's dropped baseSalary/jobLocation. Real location/remote data comes from the RSS feed
  * instead (see parseWeWorkRemotelyRssFeed).
  */
-export function parseWeWorkRemotelyListing(html: string, source: CrawlSource): RawVacancy[] {
+export function parseWeWorkRemotelyListing(
+  html: string,
+  source: CrawlSource,
+  listing: CrawlListing | null,
+): RawVacancy[] {
+  if (!listing) {
+    throw new Error("weWorkRemotelyStrategy requires a CrawlListing - none was provided");
+  }
+
   const $ = cheerio.load(html);
   const vacancies: RawVacancy[] = [];
 
@@ -85,6 +94,12 @@ export function parseWeWorkRemotelyListing(html: string, source: CrawlSource): R
       // feed when a match exists.
       postedAt: null,
       sourceId: source.id,
+      // The seeded CrawlListing IS the specialization ("Full-Stack"/"Backend" - see seed.ts) -
+      // a real value, not a guess, unlike remoteOkStrategy/craigslistStrategy's title heuristic.
+      specialization: listing.label,
+      // No dedicated seniority field on this source either - guessed from the title, same as
+      // remoteOkStrategy/craigslistStrategy.
+      seniority: guessSeniority(title),
     });
   });
 
@@ -254,7 +269,7 @@ export const weWorkRemotelyStrategy: CrawlStrategy = {
       }
     });
 
-    const parsed = parseWeWorkRemotelyListing(html, source);
+    const parsed = parseWeWorkRemotelyListing(html, source, listing);
     const { vacancies, truncated } = applyVacancyCap(parsed, source.maxVacanciesToCrawl);
     const pageLogs = [`fetched listing (cache: ${cacheHit ? "hit" : "miss"}, ${parsed.length} vacancies)`];
     if (truncated) {

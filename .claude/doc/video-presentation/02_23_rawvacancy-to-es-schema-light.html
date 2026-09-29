@@ -1,0 +1,413 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — RawVacancy → Elasticsearch: the index schema (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --ctx: #b3bbb8;
+    --highlight-bg: #cfe8b0;
+    --highlight-text: #23430f;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  .heading {
+    position: absolute;
+    left: 40px;
+    top: 36px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0;
+    animation: heading-fade 3.15s ease both;
+  }
+  @keyframes heading-fade { 0% { opacity: 0; } 8% { opacity: 1; } 100% { opacity: 1; } }
+
+  .barrel-wrap {
+    position: absolute;
+    top: 88px;
+    width: 320px;
+    height: 260px;
+    z-index: 2;
+  }
+  .barrel-wrap.left { left: 40px; }
+  .barrel-wrap.right { left: 920px; top: 64px; height: 320px; }
+
+  .ghost {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    border: 1.5px solid var(--line);
+    background: #ffffff;
+    opacity: 0;
+    animation: card-in 0.35s cubic-bezier(.2,.85,.25,1.05) 0.15s both;
+  }
+  .ghost.g1 { transform: translate(-10px, -10px); opacity: 0.45; }
+  .ghost.g2 { transform: translate(-20px, -20px); opacity: 0.7; }
+  @keyframes card-in { 0% { opacity: 0; transform: translate(-20px, -20px) scale(0.95); } 100% { opacity: var(--o, 1); transform: translate(0,0) scale(1); } }
+  .ghost.g1 { animation-name: card-in-g1; }
+  .ghost.g2 { animation-name: card-in-g2; }
+  @keyframes card-in-g1 { 0% { opacity: 0; } 100% { opacity: 0.45; } }
+  @keyframes card-in-g2 { 0% { opacity: 0; } 100% { opacity: 0.7; } }
+
+  .barrel-card {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    border: 1.5px solid var(--accent);
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    animation: card-in 0.35s cubic-bezier(.2,.85,.25,1.05) 0.25s both;
+    overflow: hidden;
+  }
+  @keyframes card-in { 0% { opacity: 0; transform: translateY(6px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .barrel-header {
+    position: relative;
+    height: 42px;
+    border-top: 1.5px solid var(--accent);
+    border-bottom: 1.5px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .barrel-header .label {
+    font-family: ui-monospace, monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .label-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .label-stack .label { font-size: 18px; }
+  .index-name {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-deep);
+    letter-spacing: 0.02em;
+  }
+
+  /* The base Elasticsearch "barrel" is the store itself, always present; the CrawlerResultDoc
+     card is one document materializing INSIDE it, appearing only once the arrows have finished
+     drawing (the doc is the arrows' result, not concurrent with them). */
+  .es-base {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    border: 1.5px solid var(--accent);
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    animation: card-in 0.35s cubic-bezier(.2,.85,.25,1.05) 0.25s both;
+  }
+  .doc-cascade {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: 52px;
+    height: 260px;
+  }
+  .doc-cascade .ghost {
+    border-radius: 14px;
+    animation-delay: 1.35s;
+  }
+  .doc-card {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    border: 1.5px solid var(--accent-deep);
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    animation: card-in 0.35s cubic-bezier(.2,.85,.25,1.05) 1.35s both;
+    overflow: hidden;
+    padding: 10px 16px 4px;
+  }
+  .doc-title {
+    font-family: ui-monospace, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .barrel-card.doc-style { padding: 12px 18px 4px; }
+  .doc-style .field-rows { padding: 10px 0 0; }
+  .doc-card .field-rows { padding: 8px 0 0; }
+
+  .field-rows { padding: 14px 18px; }
+  .field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 12.5px;
+    padding: 4px 0;
+  }
+  .field-row .k { color: var(--ink-soft); font-weight: 600; flex: 0 0 auto; }
+  .field-row .v { color: #a34d16; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+  .field-row .v.bool { color: var(--accent-deep); }
+  .key-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    background: #fdf3c0;
+    border: 1.5px solid var(--accent-deep);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin: 3px 0;
+  }
+  .key-box .k, .key-box .v { color: var(--accent-deep); font-weight: 700; }
+  .field-row.id { padding: 0; }
+  .field-row .ty {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--accent-deep);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .field-row.dots { color: var(--ink-faint); justify-content: center; }
+
+  .arrows {
+    position: absolute;
+    left: 380px;
+    top: 130px;
+    width: 520px;
+    height: 210px;
+  }
+  .arrow-track { position: absolute; left: 0; width: 100%; height: 4px; }
+  .arrow-track.a1 { top: 35px; }
+  .arrow-track.a2 { top: 85px; }
+  .arrow-track.a3 { top: 135px; }
+  .shaft-wrap { position: absolute; left: 0; top: 0; width: calc(100% - 12px); height: 4px; clip-path: inset(0 100% 0 0); animation: grow 0.55s ease 0.7s both; }
+  .shaft { position: absolute; inset: 0; background: var(--accent); border-radius: 2px; }
+  .arrowhead {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0; border-style: solid; border-width: 6px 0 6px 10px;
+    border-color: transparent transparent transparent var(--accent);
+    opacity: 0; animation: head-in 0.15s ease 1.2s both;
+  }
+  @keyframes grow { 0% { clip-path: inset(0 100% 0 0); } 100% { clip-path: inset(0 0% 0 0); } }
+  @keyframes head-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+  .code-panel {
+    position: absolute;
+    left: 40px;
+    top: 345px;
+    width: 860px;
+    z-index: 1;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 14px 20px 18px;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: code-in 0.4s cubic-bezier(.2,.85,.25,1.05) 0.85s both;
+  }
+  @keyframes code-in { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+  .code-panel .file {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    z-index: 1;
+    font-family: ui-monospace, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: rgba(242, 245, 244, 0.9);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin: 0;
+  }
+  .code-viewport { height: 330px; overflow: hidden; position: relative; border-radius: 6px; }
+  .code-rows {
+    position: relative;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    animation: pan-code 2.15s linear 1.0s both;
+  }
+  @keyframes pan-code {
+    0%     { transform: translateY(0); }
+    100%   { transform: translateY(-365px); }
+  }
+  /* Real, contiguous file content in full (doc-comment included, per the "if taken in full" ask) -
+     every line gets full editor-style syntax colour, per the context/highlight convention. */
+  .code-row { display: flex; height: 15px; align-items: center; gap: 12px; white-space: nowrap; }
+  .code-row .gutter { flex: 0 0 24px; color: var(--ink-faint); font-size: 10.5px; text-align: right; }
+  .code-row .src { color: var(--ink); }
+  .code-row .kw { color: #7a3ea1; }
+  .code-row .fn { color: #1d5fae; }
+  .code-row .str { color: #a34d16; }
+  .code-row .cm { color: #5c7a52; font-style: italic; }
+  .k16 .src, .k16 .src *, .k30 .src, .k30 .src * {
+    font-weight: 700;
+    animation-timing-function: steps(1, jump-end);
+    animation-duration: 3.15s;
+    animation-delay: 0.15s;
+    animation-fill-mode: both;
+  }
+  .k16 .src, .k16 .src * { animation-name: flu16; }
+  .k30 .src, .k30 .src * { animation-name: flu30; }
+  @keyframes flu16 { 0% { color: var(--ink); } 12%  { color: var(--highlight-text); } 24% { color: var(--ink); } }
+  @keyframes flu30 { 0% { color: var(--ink); } 60%  { color: var(--highlight-text); } 72% { color: var(--ink); } }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Upsert</div>
+
+    <div class="barrel-wrap left">
+      <div class="ghost g1"></div>
+      <div class="ghost g2"></div>
+      <div class="barrel-card doc-style">
+        <p class="doc-title">RawVacancy</p>
+        <div class="field-rows">
+          <div class="key-box">
+            <span class="k">sourceId</span><span class="v">2</span>
+          </div>
+          <div class="key-box">
+            <span class="k">externalId</span><span class="v">"steuart-nutrition…"</span>
+          </div>
+          <div class="field-row"><span class="k">title</span><span class="v">"STEUART NUTRITION…"</span></div>
+          <div class="field-row"><span class="k">url</span><span class="v">"weworkremotely.com/…"</span></div>
+          <div class="field-row"><span class="k">location</span><span class="v">"Anywhere…"</span></div>
+          <div class="field-row"><span class="k">isRemote</span><span class="v bool">true</span></div>
+          <div class="field-row"><span class="k">skillsSummary</span><span class="v">"AI Content…"</span></div>
+          <div class="field-row dots">…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrows">
+      <div class="arrow-track a1"><div class="shaft-wrap"><div class="shaft"></div></div><div class="arrowhead"></div></div>
+      <div class="arrow-track a2"><div class="shaft-wrap"><div class="shaft"></div></div><div class="arrowhead"></div></div>
+      <div class="arrow-track a3"><div class="shaft-wrap"><div class="shaft"></div></div><div class="arrowhead"></div></div>
+    </div>
+
+    <div class="barrel-wrap right">
+      <div class="es-base">
+        <div class="barrel-header">
+          <span class="label-stack">
+            <span class="label">Elasticsearch</span>
+            <span class="index-name">CRAWLER_RESULTS_INDEX</span>
+          </span>
+        </div>
+      </div>
+      <div class="doc-cascade">
+        <div class="ghost g1"></div>
+        <div class="ghost g2"></div>
+        <div class="doc-card">
+          <p class="doc-title">CrawlerResultDoc</p>
+          <div class="field-rows">
+            <div class="key-box">
+              <span class="k">_id</span><span class="v">"2:steuart-nutrition…"</span>
+            </div>
+            <div class="field-row"><span class="k">title</span><span class="v">"STEUART NUTRITION…"<span class="ty">text</span></span></div>
+            <div class="field-row"><span class="k">url</span><span class="v">"weworkremotely.com/…"<span class="ty">keyword</span></span></div>
+            <div class="field-row"><span class="k">location</span><span class="v">"Anywhere…"<span class="ty">text</span></span></div>
+            <div class="field-row"><span class="k">isRemote</span><span class="v bool">true<span class="ty">boolean</span></span></div>
+            <div class="field-row"><span class="k">skillsSummary</span><span class="v">"AI Content…"<span class="ty">text</span></span></div>
+            <div class="field-row dots">…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-panel">
+      <p class="file">apps/api/src/search/upsertVacancy.ts</p>
+      <div class="code-viewport">
+        <div class="code-rows">
+        <div class="code-row" data-ln="5"><span class="gutter">5</span><span class="src"><span class="cm">/**</span></span></div>
+        <div class="code-row" data-ln="6"><span class="gutter">6</span><span class="src">&nbsp;<span class="cm">* Upserts by a deterministic id (`sourceId:externalId`) so a vacancy re-seen on a later crawl —</span></span></div>
+        <div class="code-row" data-ln="7"><span class="gutter">7</span><span class="src">&nbsp;<span class="cm">* possibly by a different user's crawler job — updates `lastSeenAt` instead of duplicating.</span></span></div>
+        <div class="code-row" data-ln="8"><span class="gutter">8</span><span class="src">&nbsp;<span class="cm">* `firstSeenAt` is only set on the initial insert. `listingId` (Increment 9) is best-effort,</span></span></div>
+        <div class="code-row" data-ln="9"><span class="gutter">9</span><span class="src">&nbsp;<span class="cm">* not part of the dedup key — see `CRAWLER_RESULTS_SCHEMA_VERSION`'s v4 note: a vacancy that</span></span></div>
+        <div class="code-row" data-ln="10"><span class="gutter">10</span><span class="src">&nbsp;<span class="cm">* appears in more than one of a source's listings ends up attributed to whichever crawled it</span></span></div>
+        <div class="code-row" data-ln="11"><span class="gutter">11</span><span class="src">&nbsp;<span class="cm">* last, since the underlying record is genuinely one shared vacancy, not one per listing.</span></span></div>
+        <div class="code-row" data-ln="12"><span class="gutter">12</span><span class="src">&nbsp;<span class="cm">*/</span></span></div>
+        <div class="code-row" data-ln="13"><span class="gutter">13</span><span class="src"><span class="kw">export</span> <span class="kw">async</span> <span class="kw">function</span> upsertVacancy(raw: RawVacancy, listingId: number | <span class="kw">null</span> = <span class="kw">null</span>): Promise&lt;<span class="kw">void</span>&gt; {</span></div>
+        <div class="code-row" data-ln="14"><span class="gutter">14</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> ensureCrawlerResultsIndex();</span></div>
+        <div class="code-row" data-ln="15"><span class="gutter">15</span><span class="src">&nbsp;</span></div>
+        <div class="code-row k16" data-ln="16"><span class="gutter">16</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> id = <span class="str">`${raw.sourceId}:${raw.externalId}`</span>;</span></div>
+        <div class="code-row" data-ln="17"><span class="gutter">17</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> now = <span class="kw">new</span> Date().<span class="fn">toISOString</span>();</span></div>
+        <div class="code-row" data-ln="18"><span class="gutter">18</span><span class="src">&nbsp;</span></div>
+        <div class="code-row" data-ln="19"><span class="gutter">19</span><span class="src">&nbsp;&nbsp;<span class="cm">// Detail fields are only included when present on `raw`, so a listing-only upsert never</span></span></div>
+        <div class="code-row" data-ln="20"><span class="gutter">20</span><span class="src">&nbsp;&nbsp;<span class="cm">// clobbers detail data written by a later enrichDetails pass (and vice versa).</span></span></div>
+        <div class="code-row" data-ln="21"><span class="gutter">21</span><span class="src">&nbsp;&nbsp;<span class="kw">const</span> detailFields = {</span></div>
+        <div class="code-row" data-ln="22"><span class="gutter">22</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.description !== <span class="kw">undefined</span> ? { description: raw.description } : {}),</span></div>
+        <div class="code-row" data-ln="23"><span class="gutter">23</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.location !== <span class="kw">undefined</span> ? { location: raw.location } : {}),</span></div>
+        <div class="code-row" data-ln="24"><span class="gutter">24</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.isRemote !== <span class="kw">undefined</span> ? { isRemote: raw.isRemote } : {}),</span></div>
+        <div class="code-row" data-ln="25"><span class="gutter">25</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.skillsSummary !== <span class="kw">undefined</span> ? { skillsSummary: raw.skillsSummary } : {}),</span></div>
+        <div class="code-row" data-ln="26"><span class="gutter">26</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.specialization !== <span class="kw">undefined</span> ? { specialization: raw.specialization } : {}),</span></div>
+        <div class="code-row" data-ln="27"><span class="gutter">27</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;...(raw.seniority !== <span class="kw">undefined</span> ? { seniority: raw.seniority } : {}),</span></div>
+        <div class="code-row" data-ln="28"><span class="gutter">28</span><span class="src">&nbsp;&nbsp;};</span></div>
+        <div class="code-row" data-ln="29"><span class="gutter">29</span><span class="src">&nbsp;</span></div>
+        <div class="code-row k30" data-ln="30"><span class="gutter">30</span><span class="src">&nbsp;&nbsp;<span class="kw">await</span> esClient.<span class="fn">update</span>({</span></div>
+        <div class="code-row" data-ln="31"><span class="gutter">31</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;index: CRAWLER_RESULTS_INDEX,</span></div>
+        <div class="code-row" data-ln="32"><span class="gutter">32</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;id,</span></div>
+        <div class="code-row" data-ln="33"><span class="gutter">33</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;doc: {</span></div>
+        <div class="code-row" data-ln="34"><span class="gutter">34</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sourceId: raw.sourceId,</span></div>
+        <div class="code-row" data-ln="35"><span class="gutter">35</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;externalId: raw.externalId,</span></div>
+        <div class="code-row" data-ln="36"><span class="gutter">36</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title: raw.title,</span></div>
+        <div class="code-row" data-ln="37"><span class="gutter">37</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;company: raw.company,</span></div>
+        <div class="code-row" data-ln="38"><span class="gutter">38</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url: raw.url,</span></div>
+        <div class="code-row" data-ln="39"><span class="gutter">39</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;postedAt: raw.postedAt,</span></div>
+        <div class="code-row" data-ln="40"><span class="gutter">40</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastSeenAt: now,</span></div>
+        <div class="code-row" data-ln="41"><span class="gutter">41</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listingId,</span></div>
+        <div class="code-row" data-ln="42"><span class="gutter">42</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...detailFields,</span></div>
+        <div class="code-row" data-ln="43"><span class="gutter">43</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;},</span></div>
+        <div class="code-row" data-ln="44"><span class="gutter">44</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;upsert: {</span></div>
+        <div class="code-row" data-ln="45"><span class="gutter">45</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sourceId: raw.sourceId,</span></div>
+        <div class="code-row" data-ln="46"><span class="gutter">46</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;externalId: raw.externalId,</span></div>
+        <div class="code-row" data-ln="47"><span class="gutter">47</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title: raw.title,</span></div>
+        <div class="code-row" data-ln="48"><span class="gutter">48</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;company: raw.company,</span></div>
+        <div class="code-row" data-ln="49"><span class="gutter">49</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url: raw.url,</span></div>
+        <div class="code-row" data-ln="50"><span class="gutter">50</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;postedAt: raw.postedAt,</span></div>
+        <div class="code-row" data-ln="51"><span class="gutter">51</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;firstSeenAt: now,</span></div>
+        <div class="code-row" data-ln="52"><span class="gutter">52</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastSeenAt: now,</span></div>
+        <div class="code-row" data-ln="53"><span class="gutter">53</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listingId,</span></div>
+        <div class="code-row" data-ln="54"><span class="gutter">54</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...detailFields,</span></div>
+        <div class="code-row" data-ln="55"><span class="gutter">55</span><span class="src">&nbsp;&nbsp;&nbsp;&nbsp;},</span></div>
+        <div class="code-row" data-ln="56"><span class="gutter">56</span><span class="src">&nbsp;&nbsp;});</span></div>
+        <div class="code-row" data-ln="57"><span class="gutter">57</span><span class="src">}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

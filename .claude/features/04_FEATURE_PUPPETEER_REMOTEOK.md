@@ -34,6 +34,32 @@ the actual API (`POST /sources/:id/crawl`) against the live Postgres/Redis/Elast
   (`entities/vacancy/ui/vacancy-card.tsx`) with no regex/parsing assumptions about its shape — no
   frontend changes needed.
 
+## Known regression (live site, 2026-09-29)
+
+A live crawl now returns **0 vacancies** on every run (`CrawlRun` ids 65/69: `fetched listing
+(cache: miss, 0 vacancies)`). Confirmed via a fresh `curl` (same realistic desktop UA as the
+strategy uses) outside the app entirely — not a code regression:
+
+- `GET https://remoteok.com/remote-dev-jobs` no longer contains any `tr.job` rows server-side
+  (`grep -c 'tr class="job'` → `0`).
+- The `#jobsboard` container now renders `class="placeholder job"` skeleton rows — real listings
+  appear to load asynchronously (client-side/AJAX) after the initial page load, rather than being
+  present in the markup captured by `page.content()` after `waitUntil: "networkidle2"`.
+
+This directly breaks `parseListingPage`'s `tr.job` selector (the one this feature's spike
+confirmed live on 2026-08-08 — see "Spike findings" below, now stale). Not urgent for the
+video-presentation work in progress (WeWorkRemotely/Habr Career/Craigslist already provide enough
+real documents for the live-demo segment), but the RemoteOK detail-page beat
+(`01_20_remoteok-light.html`) describes a strategy that no longer reflects the live site, and the
+ES index currently has 0 RemoteOK documents as a result.
+
+**Next steps (not investigated yet):**
+- Check whether RemoteOK now exposes a stable JSON endpoint (the page's own
+  `<link rel="alternate" type="application/json" href="/remote-dev-jobs.json">`) that could
+  replace the `tr.job` HTML scrape entirely.
+- If still HTML-based, re-inspect the live DOM (via a real, non-headless Puppeteer/Chrome window)
+  to find the new selector for actual job rows once client-side rendering completes.
+
 ## Decisions locked with the user
 
 - **Salary field: deferred**, not part of this increment — no ES schema change, no

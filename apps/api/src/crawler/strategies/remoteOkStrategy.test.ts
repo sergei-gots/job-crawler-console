@@ -37,6 +37,8 @@ describe("parseListingPage", () => {
       sourceId: 1,
       isRemote: true,
       skillsSummary: "React, Node",
+      specialization: "Backend",
+      seniority: "Senior",
     });
   });
 

@@ -96,6 +96,43 @@ A schematic slide built for a 5-6s beat needs a different visual language than t
   fill the beat's actual `.ass`-derived duration — no gentle multi-second fade-ins or pulses that
   only read as "settling" over 10+ seconds. Motion should look intentional within ~1s, not ambient.
 
+## Label contrast, and showing multiplicity
+
+Two schematic-slide conventions confirmed on the Mapping beats (`02_10`/`02_16`/`02_23`/`02_26`,
+2026-09-28):
+
+- **Secondary labels must be readable, not just present.** A source-file path (the `.file` line
+  above a code/XML panel) or a small caption under a schematic element is still a label the viewer
+  has to read in a few seconds, not a decorative footnote — give it **15px, `font-weight: 600`,
+  `color: var(--ink-soft)`**, not the smaller/fainter 11.5-13px `var(--ink-faint)` that earlier
+  slides used for this role. Keep a `.file` label to one line — if it doesn't fit the panel width at
+  that size (e.g. a long URL plus a trailing annotation), cut the annotation rather than letting it
+  wrap; the code/data below usually makes the annotation redundant anyway.
+- **Show real multiplicity as a cascade, not a caption.** When a schematic element stands for
+  several real things at once (e.g. "the source" really means all 4 crawled sites), render it as a
+  stack of 2-3 offset ghost copies behind the front card (same shape, lower opacity, offset up-left
+  by ~16px increments) rather than adding explanatory text like "×4" or "4 real sources" — the
+  cascade reads as plural on its own, and a literal count/label on top of it reads as an unnecessary
+  AI-generated explainer. Label the front card with a plain plural noun (`Sites`, not `Source` or a
+  padded-out phrase) and let the visual carry the "there are several of these" idea.
+
+## Growing-arrow reveal (flow between two elements)
+
+For a beat that connects two schematic elements with "X happens between/at these two points"
+(e.g. the Mapping beat's Source→Redis→Elasticsearch pipeline), prefer a **growing arrow** over a
+continuously-animated dashed/marching-ants line — a `stroke-dashoffset` loop that runs for the
+beat's whole duration reads as background noise, not a beat about something specific. Structure:
+
+- The arrow shaft is a `clip-path: inset(0 100% 0 0)` → `inset(0 0% 0 0)` reveal on a wrapper
+  containing a solid bar + a CSS-triangle arrowhead (`::after` border trick) — this makes the arrow
+  visibly grow left-to-right once, timed to the beat.
+- Any callout/label attached to that arrow (e.g. "Strategy mapping") must **fade in on its own
+  `opacity` animation** with the same delay/duration as the arrow's growth — do NOT put the label
+  inside the same clipped wrapper as the shaft. Clipping text open along with the shaft makes it
+  look like it's being wiped/typed on, which reads as a rendering glitch rather than an appearance;
+  a plain fade over the same window keeps the "label arrives together with the arrow" idea without
+  that artifact. Two separate elements, two separate animations, same timing — not one shared clip.
+
 ## Content types for a beat
 
 Not every beat is an animated CSS/SVG slide. Pick the type that actually shows the claim being
@@ -148,12 +185,61 @@ made, and keep each beat to exactly one of these — don't combine two in one cl
   through it — the PiP is an accent over the app, not a full takeover. Tune the PiP's in-point
   (`PIP_AT` in the wrapper JS) to sit under the narration phrase it illustrates, not to fill the clip.
 
-  **DOM-context convention (for a PiP that shows one extracted element).** When a PiP shows a single
-  element lifted from a page (e.g. Habr's `<script type="application/ld+json">`), render a few of its
-  **DOM ancestors in muted grey** (`<html>`→`<head>`→`<meta>`/`<title>`… and the closing
-  `</head>`/`<body>`/`</html>` after it) and highlight **only the target element** (accent colour +
-  one continuous highlight band, contents syntax-coloured inside). This makes it read as "this is
-  lifted straight out of the page's HTML," not free-floating text. See `01_05_habr-career-light.html`.
+  **Context/highlight convention — one grey, two different highlight colours by purpose.** Any
+  panel that shows "real content lifted from a real file/page, with the surrounding context still
+  visible" follows the same shape: everything that isn't the point of the beat renders in **one
+  muted grey, `#b3bbb8`, no syntax colouring**; only the part the beat is actually about gets full
+  colour. Which *highlight* colour that part gets depends on what kind of attention it's getting —
+  don't mix these two:
+
+  | Situation | Highlight style | Example |
+  |---|---|---|
+  | **Static single target** — one element lifted whole out of a page/file, nothing is "executing" | teal/accent: background `#eaf5f2`, `box-shadow: inset 3px 0 0 var(--accent-deep)` | `01_05_habr-career-light.html`'s JSON-LD block |
+  | **Stepping/lockstep execution** — a cursor or flash moving through several lines/chips in sequence, standing in for code actually running | grass green: background `var(--highlight-bg, #cfe8b0)`, text `var(--highlight-text, #23430f)`, `font-weight: 700` | `00_32_transformation-vacancy-model-light.html`'s per-chip flash; `02_16_wwr-mapping-to-code-light.html`'s debugger cursor |
+
+  Shared regardless of which highlight colour: JSON/code keys `#7a3ea1`, strings `#a34d16`, function/
+  method calls `#1d5fae`, type names `var(--accent-deep)`, comments `#5c7a52` italic. A "signature"
+  line worth calling out but not itself stepped through (e.g. the function declaration the reader is
+  "inside") gets its own one-off emphasis colour: dark navy `#1d3f6e`, bold.
+
+  **The muted-grey rule is for content outside the point of the beat, not for "the rest of a
+  function you're already inside."** `01_05`'s DOM ancestors are muted because the beat isn't about
+  `<html>`/`<head>` — but if a beat shows one real function/method in full (e.g. `02_16`), every line
+  of *that* function is real, relevant code and gets full syntax colour throughout, stepped-through
+  or not; only lines truly outside the point (a different function, unrelated boilerplate) get muted.
+  Don't default to muting "the lines that aren't highlighted right now" — that's a different thing
+  from "the lines that aren't part of what this beat is about."
+
+  **A "debugger" beat (multiple stepped-through lines) needs four more things beyond the color
+  table:**
+  - **`jump-start` vs `jump-end` are NOT interchangeable — picking the wrong one silently inverts
+    the timing** (confirmed live on `02_16`/`02_23`, cost a full re-check of two beats):
+    - **Monotonic position** (a cursor bar's `top`, or a viewport's `translateY` scroll-shift) is an
+      "arrive and hold" sequence — each keyframe is a new resting state that stays until the next
+      one overrides it. Use `steps(1, jump-start)`: the segment from keyframe A to keyframe B shows
+      B's value for the whole segment, i.e. the element **snaps to the target immediately** and
+      holds — exactly "arrive and stay."
+    - **An on/off colour flash** (line text goes ink → green → ink again) is different: you need the
+      segment to show keyframe A's value throughout, flipping only when the NEXT segment begins. Use
+      **`steps(1, jump-end)`** here. `jump-start` on an on/off flash makes the highlight appear
+      *before* its intended window and vanish at the start of it — inverted and early, not late —
+      because jump-start shows each segment's *end* value immediately. Test by reading a specific
+      element's `getComputedStyle(...).color` via `page.evaluate` at a known timestamp before
+      trusting a screenshot; the wrong-vs-right difference can be subtle at thumbnail size.
+  - **Discrete stops, not a slide.** For the monotonic position case above, `steps(1, jump-start)` on
+    the highlight's position keyframes, not `ease` — an eased transition between line positions reads
+    as the highlight "slipping" past lines, not landing on them.
+  - **Show a real contiguous range of the file**, comments and blank lines included, not just the
+    cherry-picked lines — cherry-picking only the relevant lines out of context reads as thin/
+    synthetic even with a nice highlight. Don't elide a leading doc-comment just to save space either
+    if the beat is meant to show the function "in full" — ask if unsure whether a shortened range is
+    wanted.
+  - **Recenter the viewport on the active block**, the way a real editor auto-scrolls to follow
+    execution: wrap the code in a fixed-height `overflow: hidden` viewport and animate a `translateY`
+    shift on the content (same `steps(1, jump-start)` timing, keyed to the same stop percentages as
+    the highlight) once the highlight moves into a block worth centering — don't leave the viewport
+    static while the highlight drifts toward its edge.
+  See `02_16_wwr-mapping-to-code-light.html` for all of the above together.
 
   **Feed/list PiP as a scrolling flow.** For a PiP that shows a feed or result list (RSS items, search
   results), don't freeze on one static frame — build the inner content taller than the panel window
