@@ -1,0 +1,411 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+<meta charset="utf8">
+<title>Job-Crawler-Demo — Add a source: source-specific mapping morph (+ new site), rest of pipeline unchanged (Light, animated)</title>
+<style>
+  :root {
+    --paper: #f2f5f4;
+    --paper-raised: #ffffff;
+    --ink: #16211f;
+    --ink-soft: #4e5f5b;
+    --ink-faint: #7c8b87;
+    --accent: #127d76;
+    --accent-deep: #0b5652;
+    --accent-soft: #dcefec;
+    --line: #d7dedc;
+    --ctx: #b3bbb8;
+    --highlight-bg: #cfe8b0;
+    --highlight-text: #23430f;
+    --shadow: 0 10px 26px rgba(15, 25, 24, 0.15);
+    --dur: 10.06s;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  /* ---- heading ---- */
+  .heading {
+    position: absolute;
+    left: 48px;
+    top: 40px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0;
+    animation: heading-fade var(--dur) ease both;
+  }
+  .title-rule {
+    position: absolute;
+    left: 48px;
+    top: 82px;
+    width: 1184px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--line) 60%, transparent 100%);
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: rule-in 0.6s ease 0.15s both;
+  }
+  @keyframes heading-fade { 0% { opacity: 0; } 3% { opacity: 1; } 100% { opacity: 1; } }
+  @keyframes rule-in { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+
+  .step-label {
+    position: absolute;
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .step-1 { left: 48px; top: 104px; opacity: 0; animation: fade-in 0.4s ease 0.35s both; }
+  .step-1 .num { color: var(--accent-deep); font-weight: 700; }
+
+  @keyframes fade-in { 0% { opacity: 0; transform: translateY(-4px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  /* ---- code card (what you implement) ---- */
+  .code-card {
+    position: absolute;
+    left: 48px;
+    top: 140px;
+    width: 704px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 0 0 20px;
+    opacity: 0;
+    animation: card-in 0.5s ease 0.4s both;
+  }
+  @keyframes card-in { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  /* editor tabs = the sources; this one line looks different per source */
+  .tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 12px 0;
+  }
+  .tab {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    padding: 6px 10px 7px;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    top: 1px;
+    white-space: nowrap;
+  }
+  .tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; background: var(--ctx); }
+  .tab.t1, .tab.t2, .tab.t3, .tab.t4, .tab.t5 { animation-duration: var(--dur); animation-timing-function: steps(1, jump-end); animation-fill-mode: both; }
+  .tab.t1 { animation-name: tab1; }
+  .tab.t2 { animation-name: tab2; }
+  .tab.t3 { animation-name: tab3; }
+  .tab.t4 { animation-name: tab4; }
+  .tab.t5 { animation-name: tab5; }
+  @keyframes tab1 { 0%{color:var(--ink-faint);} 4%{color:var(--accent-deep);background:var(--paper-raised);border-bottom:2px solid var(--accent);} 15%{color:var(--ink-faint);background:transparent;border-bottom:0;} 100%{color:var(--ink-faint);} }
+  @keyframes tab2 { 0%{color:var(--ink-faint);} 15%{color:var(--accent-deep);background:var(--paper-raised);border-bottom:2px solid var(--accent);} 25%{color:var(--ink-faint);background:transparent;border-bottom:0;} 100%{color:var(--ink-faint);} }
+  @keyframes tab3 { 0%{color:var(--ink-faint);} 25%{color:var(--accent-deep);background:var(--paper-raised);border-bottom:2px solid var(--accent);} 35%{color:var(--ink-faint);background:transparent;border-bottom:0;} 100%{color:var(--ink-faint);} }
+  @keyframes tab4 { 0%{color:var(--ink-faint);} 35%{color:var(--accent-deep);background:var(--paper-raised);border-bottom:2px solid var(--accent);} 45%{color:var(--ink-faint);background:transparent;border-bottom:0;} 100%{color:var(--ink-faint);} }
+  /* the new source appears only AFTER the four existing sources have been cycled through — it is
+     the source you're adding; ghost/dashed, highlighted as new when it pops in at the climax */
+  @keyframes tab5 {
+    0%, 43% { opacity: 0; transform: translateX(-6px); background: transparent; }
+    46%     { opacity: 1; transform: translateX(0); background: var(--accent-soft); }
+    100%    { opacity: 1; transform: translateX(0); background: var(--accent-soft); }
+  }
+  .tab.t1 .dot { background: #7b5cff; }
+  .tab.t2 .dot { background: #e08a00; }
+  .tab.t3 .dot { background: #127d76; }
+  .tab.t4 .dot { background: #c0405f; }
+  .tab.t5 {
+    border: 1.5px dashed var(--accent);
+    border-radius: 8px;
+    top: 0;
+    color: var(--accent-deep);
+    animation-timing-function: ease;
+  }
+  .tab.t5 .plus { color: var(--accent); font-weight: 700; margin-right: 5px; }
+  .tab.t5 .new-badge {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: var(--accent);
+    border-radius: 5px;
+    padding: 1px 5px;
+    vertical-align: middle;
+  }
+
+  .filepath {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    padding: 10px 20px 2px;
+  }
+
+  .code-rows {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+    font-size: 13px;
+    line-height: 25px;
+    padding: 6px 20px 0;
+  }
+  .code-row { display: flex; align-items: center; height: 25px; white-space: nowrap; }
+  .code-row .gutter { flex: 0 0 26px; color: var(--ink-faint); font-size: 11px; text-align: right; margin-right: 14px; }
+  .kw { color: #0057e7; font-weight: 700; }
+  .str { color: #1a7f37; }
+  .fn { color: #8250df; }
+  .ty { color: var(--accent-deep); }
+  .op { color: var(--ink-soft); }
+  .cm { color: #6a737d; font-style: italic; }
+  .fld { color: var(--ink); }
+  .muted { color: var(--ctx); }
+
+  /* the star line: left key fixed, RHS morphs */
+  .star-row {
+    position: relative;
+    background: var(--highlight-bg);
+    border-radius: 5px;
+    margin: 0 -8px;
+    padding: 0 8px;
+    box-shadow: inset 3px 0 0 var(--accent-deep);
+    animation: star-hold var(--dur) steps(1, jump-end) both;
+  }
+  @keyframes star-hold {
+    0% { background: transparent; box-shadow: none; }
+    4% { background: var(--highlight-bg); box-shadow: inset 3px 0 0 var(--accent-deep); }
+    58% { background: var(--highlight-bg); box-shadow: inset 3px 0 0 var(--accent-deep); }
+    60% { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent-deep); }
+    100% { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent-deep); }
+  }
+  .star-row .key { color: var(--highlight-text); font-weight: 700; }
+  .morph { position: relative; display: inline-block; min-width: 430px; height: 25px; }
+  .expr {
+    position: absolute;
+    left: 0; top: 0;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .expr.e1 { animation: e1 var(--dur) ease both; }
+  .expr.e2 { animation: e2 var(--dur) ease both; }
+  .expr.e3 { animation: e3 var(--dur) ease both; }
+  .expr.e4 { animation: e4 var(--dur) ease both; }
+  .expr.e5 { animation: e5 var(--dur) ease both; }
+  @keyframes e1 { 0%{opacity:0;transform:translateY(4px);} 4.5%{opacity:1;transform:translateY(0);} 13.5%{opacity:1;} 15%{opacity:0;transform:translateY(-4px);} 100%{opacity:0;} }
+  @keyframes e2 { 0%,13.5%{opacity:0;transform:translateY(4px);} 15%{opacity:1;transform:translateY(0);} 23.5%{opacity:1;} 25%{opacity:0;transform:translateY(-4px);} 100%{opacity:0;} }
+  @keyframes e3 { 0%,23.5%{opacity:0;transform:translateY(4px);} 25%{opacity:1;transform:translateY(0);} 33.5%{opacity:1;} 35%{opacity:0;transform:translateY(-4px);} 100%{opacity:0;} }
+  @keyframes e4 { 0%,33.5%{opacity:0;transform:translateY(4px);} 35%{opacity:1;transform:translateY(0);} 43.5%{opacity:1;} 45%{opacity:0;transform:translateY(-4px);} 100%{opacity:0;} }
+  @keyframes e5 { 0%,43.5%{opacity:0;transform:translateY(4px);} 45%{opacity:1;transform:translateY(0);} 100%{opacity:1;} }
+
+  .caption {
+    position: absolute;
+    left: 48px;
+    top: 470px;
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    color: var(--ink-soft);
+    opacity: 0;
+    animation: fade-in 0.4s ease 0.9s both;
+  }
+  .caption b { color: var(--accent-deep); }
+
+  /* ---- normalized target chip (one field, filled many ways) ---- */
+  .target {
+    position: absolute;
+    left: 792px;
+    top: 210px;
+    width: 440px;
+    opacity: 0;
+    animation: fade-in 0.5s ease 0.8s both;
+  }
+  .target .arrow {
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .chip {
+    background: var(--paper-raised);
+    border: 1.5px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 18px 22px;
+  }
+  .chip .ty-line { font-family: ui-monospace, monospace; font-size: 13px; color: var(--ink-faint); margin-bottom: 8px; }
+  .chip .field { font-family: ui-monospace, monospace; font-size: 20px; font-weight: 700; color: var(--accent-deep); }
+  .chip .val-wrap { position: relative; height: 30px; margin-top: 10px; }
+  .chip .val {
+    position: absolute; left: 0; top: 0;
+    font-family: ui-monospace, monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a7f37;
+    opacity: 0;
+    white-space: nowrap;
+  }
+  .chip .val.v1 { animation: e1 var(--dur) ease both; }
+  .chip .val.v2 { animation: e2 var(--dur) ease both; }
+  .chip .val.v3 { animation: e3 var(--dur) ease both; }
+  .chip .val.v4 { animation: e4 var(--dur) ease both; }
+  .chip .val.v5 { animation: e5 var(--dur) ease both; color: var(--accent-deep); }
+
+  /* ---- phase 2: the reused pipeline conveyor ---- */
+  .rail {
+    position: absolute;
+    left: 48px;
+    top: 552px;
+    width: 1184px;
+    opacity: 0;
+    animation: fade-in 0.5s ease 5.9s both;
+  }
+  .rail .rail-label {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .rail .rail-label .num { color: var(--accent-deep); font-weight: 700; }
+  .conveyor { display: flex; align-items: center; gap: 0; }
+  .node {
+    flex: 0 0 auto;
+    background: var(--paper-raised);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .node .n-title { font-family: ui-monospace, monospace; font-size: 14px; font-weight: 700; color: var(--ink-soft); }
+  .node .n-sub { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); margin-top: 3px; }
+  /* the three reused stages light up teal as the flow reaches them */
+  .node.lit { animation-fill-mode: both; animation-timing-function: steps(1, jump-start); animation-duration: var(--dur); }
+  .node.n1.lit { animation-name: lit1; }
+  .node.n2.lit { animation-name: lit2; }
+  .node.n3.lit { animation-name: lit3; }
+  @keyframes lit1 { 0%{border-color:var(--line);} 66%{border-color:var(--line);} 68%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);} 100%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);} }
+  @keyframes lit2 { 0%{border-color:var(--line);} 76%{border-color:var(--line);} 78%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);} 100%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);} }
+  @keyframes lit3 { 0%{border-color:var(--line);} 82%{border-color:var(--line);} 84%{border-color:var(--accent-deep);box-shadow:0 0 0 3px var(--accent-soft);} 90%{border-color:var(--accent-deep);box-shadow:0 0 0 6px var(--accent-soft);} 100%{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-soft);} }
+  /* the TWO authored stages — scraping and source-specific mapping — are the only things you
+     write; both dashed accent (same "you write this" language as the code card + new tab above),
+     the reused Redis / Elasticsearch / Search stages sit around them. */
+  .node.authored {
+    position: relative;
+    border: 1.5px dashed var(--accent);
+    background: var(--accent-soft);
+    opacity: 0;
+    animation: map-pop 0.5s ease both;
+  }
+  .node.s1 { animation-delay: 6.05s; }
+  .node.s2 { animation-delay: 6.25s; }
+  @keyframes map-pop { 0%{opacity:0;transform:translateY(10px) scale(0.92);} 100%{opacity:1;transform:translateY(0) scale(1);} }
+  .node.authored .n-title { font-size: 12.5px; color: var(--accent-deep); }
+  .node.authored .n-sub { color: var(--ink-soft); }
+  .node.authored .step-badge {
+    position: absolute; top: -9px; left: -9px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #ffffff;
+    font-family: ui-monospace, monospace; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
+  }
+  .node.n3 .facet-hit {
+    font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; color: var(--accent-deep);
+    opacity: 0; margin-top: 4px;
+    animation: fade-in 0.4s ease 8.6s both;
+  }
+  .connector { flex: 1 1 auto; height: 40px; position: relative; }
+  .connector .track { position: absolute; top: 50%; left: 6px; right: 6px; height: 3px; background: var(--line); transform: translateY(-50%); border-radius: 2px; }
+  .connector .flow {
+    position: absolute; top: 50%; left: 6px; height: 3px; background: var(--accent); transform: translateY(-50%);
+    border-radius: 2px; width: 0;
+  }
+  .connector.c1 .flow { animation: flow1 var(--dur) ease both; }
+  .connector.c2 .flow { animation: flow2 var(--dur) ease both; }
+  .connector.c3 .flow { animation: flow3 var(--dur) ease both; }
+  .connector.c4 .flow { animation: flow4 var(--dur) ease both; }
+  @keyframes flow1 { 0%,64%{width:0;} 68%{width:calc(100% - 12px);} 100%{width:calc(100% - 12px);} }
+  @keyframes flow2 { 0%,69%{width:0;} 73%{width:calc(100% - 12px);} 100%{width:calc(100% - 12px);} }
+  @keyframes flow3 { 0%,74%{width:0;} 78%{width:calc(100% - 12px);} 100%{width:calc(100% - 12px);} }
+  @keyframes flow4 { 0%,79%{width:0;} 83%{width:calc(100% - 12px);} 100%{width:calc(100% - 12px);} }
+  .connector .head { position: absolute; top: 50%; transform: translateY(-50%); width: 0; height: 0;
+    border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 9px solid var(--line); right: 0; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="heading">Add a source</div>
+    <div class="title-rule"></div>
+
+    <div class="step-label step-1"><span class="num">1 —</span>&nbsp;you implement: <b style="color:var(--accent-deep);">scraping</b> + <b style="color:var(--accent-deep);">source-specific mapping</b></div>
+
+    <div class="code-card">
+      <div class="tabs">
+        <div class="tab t1"><span class="dot"></span>habr_career</div>
+        <div class="tab t2"><span class="dot"></span>weworkremotely</div>
+        <div class="tab t3"><span class="dot"></span>remoteok</div>
+        <div class="tab t4"><span class="dot"></span>craigslist</div>
+        <div class="tab t5"><span class="plus">+</span>&lt;NewSite?&gt;<span class="new-badge">new</span></div>
+      </div>
+      <div class="filepath">src/crawler/strategies/&lt;source&gt;Strategy.ts — map site fields → Vacancy</div>
+      <div class="code-rows">
+        <div class="code-row"><span class="gutter">·</span><span><span class="kw">return</span> {</span></div>
+        <div class="code-row"><span class="gutter">·</span><span>&nbsp;&nbsp;<span class="fld">title</span>,&nbsp;&nbsp;<span class="fld">company</span>,&nbsp;&nbsp;<span class="fld">description</span>,</span></div>
+        <div class="code-row star-row"><span class="gutter">·</span><span><span class="key">&nbsp;&nbsp;specialization:&nbsp;</span><span class="morph"><span class="expr e1"><span class="fld">skillsSummary</span> <span class="op">?</span> <span class="fn">extractLabeledClause</span>(…, <span class="str">"Специализации"</span>) <span class="op">:</span> <span class="kw">null</span>,</span><span class="expr e2">listing<span class="op">.</span><span class="fld">label</span>,</span><span class="expr e3"><span class="fn">guessSpecialization</span>([title, <span class="op">...</span>tags]<span class="op">.</span><span class="fn">join</span>(<span class="str">" "</span>)),</span><span class="expr e4"><span class="fn">guessSpecialization</span>(jobPosting<span class="op">.</span>title <span class="op">??</span> <span class="str">""</span>),</span><span class="expr e5"><span class="fn">parseSpec</span>(item<span class="op">.</span>category)<span class="op">,</span> <span class="cm">// ← your derivation</span></span></span></span></div>
+        <div class="code-row"><span class="gutter">·</span><span class="muted">&nbsp;&nbsp;// …seniority, location, isRemote, postedAt</span></div>
+        <div class="code-row"><span class="gutter">·</span><span>};</span></div>
+      </div>
+    </div>
+
+    <div class="caption">Same field — <b>N sites, N different derivations</b>. The mess stays here.</div>
+
+    <div class="target">
+      <div class="arrow">→ normalizes into one field</div>
+      <div class="chip">
+        <div class="ty-line">Vacancy.<span style="color:var(--ink-soft);">specialization</span>: <span class="ty">string | null</span></div>
+        <div class="field">specialization</div>
+        <div class="val-wrap">
+          <span class="val v1">"Backend разработчик"</span>
+          <span class="val v2">"Full-Stack"</span>
+          <span class="val v3">"Backend"</span>
+          <span class="val v4">"Full-Stack"</span>
+          <span class="val v5">"Technical Engineer"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div class="rail-label"><span class="num">2 —</span>&nbsp;the rest of the pipeline stays the same</div>
+      <div class="conveyor">
+        <div class="node authored s1"><div class="step-badge">1</div><div class="n-title">scraping</div><div class="n-sub">Axios · Puppeteer · RSS</div></div>
+        <div class="connector c1"><div class="track"></div><div class="flow"></div><div class="head"></div></div>
+        <div class="node n1 lit"><div class="n-title">Redis</div><div class="n-sub">page cache · rate-limit</div></div>
+        <div class="connector c2"><div class="track"></div><div class="flow"></div><div class="head"></div></div>
+        <div class="node authored s2"><div class="step-badge">2</div><div class="n-title">mapping</div><div class="n-sub">site → Vacancy</div></div>
+        <div class="connector c3"><div class="track"></div><div class="flow"></div><div class="head"></div></div>
+        <div class="node n2 lit"><div class="n-title">Elasticsearch</div><div class="n-sub">dedup · upsert</div></div>
+        <div class="connector c4"><div class="track"></div><div class="flow"></div><div class="head"></div></div>
+        <div class="node n3 lit"><div class="n-title">Search + Facets</div><div class="n-sub">free-text · facets</div><div class="facet-hit">Specialization ✓</div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
